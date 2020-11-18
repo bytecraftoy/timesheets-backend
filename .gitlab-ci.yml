@@ -1,0 +1,43 @@
+image: "hseeberger/scala-sbt:8u222_1.3.5_2.13.1"
+
+include:
+  - template: Code-Quality.gitlab-ci.yml
+
+variables:
+  SBT_OPTS: "-Dsbt.ivy.home=sbt-cache/ivy"
+
+cache:
+  untracked: true
+  paths:
+    - "sbt-cache/ivy/cache"
+    - "sbt-cache/target"
+
+stages:
+  - build
+  - test
+
+build:
+  stage: build
+  script:
+    - sbt scalastyle  # any errors found by Scalastyle will fail the build stage
+    - sbt compile
+  only:
+    - merge_requests
+    - master
+
+test:
+  stage: test
+  script:
+    - sbt test
+  only:
+    - merge_requests
+    - master
+  
+code_quality:
+  stage: test
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"' # Run code quality job in merge request pipelines
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'      # Run code quality job in pipelines on the master branch (but not in other branch pipelines)
+  artifacts:
+    reports:
+      codequality: gl-code-quality-report.json
