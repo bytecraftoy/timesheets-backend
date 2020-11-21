@@ -12,6 +12,15 @@ libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0
 
 libraryDependencies += "org.scalatestplus" %% "junit-4-13" % "3.2.2.0" % "test"
 
+// Database setup
+// https://www.playframework.com/documentation/2.8.x/Developing-with-the-H2-Database
+libraryDependencies ++= Seq(
+  evolutions,
+  jdbc,
+  "com.h2database" % "h2" % "1.4.195",
+  "org.playframework.anorm" %% "anorm" % "2.6.4"
+)
+
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "com.codeflow.controllers._"
 
