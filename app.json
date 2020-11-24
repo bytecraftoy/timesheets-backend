@@ -1,0 +1,6 @@
+{
+  "name": "Timesheets",
+  "description": "Timesheets time tracking application",
+  "image": "heroku/scala",
+  "_addons": [ "heroku-postgresql" ]
+}
