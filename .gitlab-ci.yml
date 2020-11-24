@@ -1,4 +1,17 @@
-image: "hseeberger/scala-sbt:8u222_1.3.5_2.13.1"
+image: openjdk:11-buster
+
+before_script:
+  # Enable the usage of sources over https
+  - apt-get update -yqq
+  - apt-get install apt-transport-https -yqq
+  # Add keyserver for SBT
+  - echo "deb http://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list
+  - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
+  # Install SBT
+  - apt-get update -yqq
+  - apt-get install sbt -yqq
+  # Log the sbt version
+  - sbt sbtVersion
 
 include:
   - template: Code-Quality.gitlab-ci.yml
@@ -15,6 +28,7 @@ cache:
 stages:
   - build
   - test
+  - deploy
 
 build:
   stage: build
@@ -35,9 +49,20 @@ test:
   
 code_quality:
   stage: test
+  before_script:
+    - echo "code quality"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"' # Run code quality job in merge request pipelines
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'      # Run code quality job in pipelines on the master branch (but not in other branch pipelines)
   artifacts:
     reports:
       codequality: gl-code-quality-report.json
+
+deploy:
+  stage: deploy
+  script:
+    - apt-get install rubygems ruby-dev -y
+    - gem install dpl
+    - dpl --provider=heroku --app=codeflow-timesheets-staging --api-key=$HEROKU_API_KEY
+  only:
+    - master
