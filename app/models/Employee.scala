@@ -4,10 +4,10 @@ import play.api.libs.json.{Json, OWrites, Reads}
 import scala.collection.mutable.ArrayBuffer
 
 case class Employee(
-  id: Int,
-  username: String,
-  firstName: String,
-  lastName: String
+  id: Int = Employee.all.maxBy(_.id).id + 1,
+  username: String = "user" + (Employee.all.maxBy(_.id).id + 1),
+  firstName: String = "Firstname",
+  lastName: String = "Lastname"
 )
 
 object Employee {
