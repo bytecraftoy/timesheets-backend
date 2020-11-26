@@ -11,3 +11,9 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 # List all projects as JSON
 GET     /projects                   controllers.ProjectController.listProjects
+
+# List all managers [for now, they are just the employees]
+GET     /managers                   controllers.ManagerController.listEmployees
+
+# List all clients
+GET     /clients                    controllers.ClientController.listClients
