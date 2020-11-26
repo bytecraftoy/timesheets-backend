@@ -4,19 +4,19 @@ import play.api.libs.json.{Json, OWrites, Reads}
 import scala.collection.mutable.ArrayBuffer
 
 case class Project(
-  id: Int,
-  name: String,
-  description: String,
-  owner: Employee,
-  creator: Employee,
-  managers: List[Employee],
-  client: String,
-  billable: Boolean,
-  employees: List[Employee],
-  tags: List[String],
-  creationTimestamp: Long,
-  lastEdited: Long,
-  lastEditor: Employee
+  id: Int = Project.all.maxBy(_.id).id + 1,
+  name: String = "",
+  description: String = "",
+  owner: Employee = Employee.dummyManager,
+  creator: Employee = Employee.dummyManager,
+  managers: List[Employee] = List(Employee.dummyManager),
+  client: String = "",
+  billable: Boolean = true,
+  employees: List[Employee] = List(),
+  tags: List[String] = List(),
+  creationTimestamp: Long = System.currentTimeMillis() / 1000L,
+  lastEdited: Long = System.currentTimeMillis() / 1000L,
+  lastEditor: Employee = Employee.dummyManager
 )
 
 object Project {
