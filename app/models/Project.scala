@@ -15,8 +15,8 @@ case class Project(
   billable: Boolean = true,
   employees: List[Employee] = List(),
   tags: List[String] = List(),
-  creationTimestamp: Long = System.currentTimeMillis() / 1000L,
-  lastEdited: Long = System.currentTimeMillis() / 1000L,
+  creationTimestamp: Long = System.currentTimeMillis(),
+  lastEdited: Long = System.currentTimeMillis(),
   lastEditor: Employee = Employee.dummyManager
 )
 
