@@ -17,3 +17,6 @@ GET     /managers                   controllers.ManagerController.listEmployees
 
 # List all clients
 GET     /clients                    controllers.ClientController.listClients
+
+# Add a project
+POST    /projects                   controllers.ProjectController.addProject

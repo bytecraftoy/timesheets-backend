@@ -1,6 +1,7 @@
 package models
 
-import play.api.libs.json.{Json, OWrites, Reads}
+import play.api.libs.json.{Json, OFormat, OWrites, Reads}
+
 import scala.collection.mutable.ArrayBuffer
 
 case class Employee(
@@ -40,9 +41,10 @@ object Employee {
       lastName = "Developer"
     )
 
-  implicit val readEmployee: Reads[Employee] = Json.reads[Employee]
+  implicit def apply(i: Int): Employee = Employee.all.filter(_.id == i).head
 
-  implicit val writeEmployee: OWrites[Employee] = Json.writes[Employee]
+  implicit def employeeFormat: OFormat[Employee] =
+    Json.using[Json.WithDefaultValues].format[Employee]
 
   val all: ArrayBuffer[Employee] =
     ArrayBuffer(dummyManager, dummyManager2, dummyEmployee, dummyEmployee2)

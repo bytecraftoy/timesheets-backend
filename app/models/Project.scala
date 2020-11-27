@@ -1,6 +1,7 @@
 package models
 
-import play.api.libs.json.{Json, OWrites, Reads}
+import play.api.libs.json.{Json, OFormat, OWrites, Reads, JsValue, _}
+
 import scala.collection.mutable.ArrayBuffer
 
 case class Project(
@@ -55,9 +56,8 @@ object Project {
       lastEditor = Employee.dummyManager2
     )
 
-  implicit val readProject: Reads[Project] = Json.reads[Project]
-
-  implicit val writeProject: OWrites[Project] = Json.writes[Project]
+  implicit def projectFormat: OFormat[Project] =
+    Json.using[Json.WithDefaultValues].format[Project]
 
   val all: ArrayBuffer[Project]   = ArrayBuffer(dummy, dummy2)
   def add(project: Project): Unit = all append project
