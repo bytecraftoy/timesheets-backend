@@ -45,7 +45,6 @@ test:
     - sbt test
   only:
     - merge_requests
-    - master
   
 code_quality:
   stage: test
@@ -53,7 +52,6 @@ code_quality:
     - echo "code quality"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"' # Run code quality job in merge request pipelines
-    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'      # Run code quality job in pipelines on the master branch (but not in other branch pipelines)
   cache: {}
   artifacts:
     reports:
