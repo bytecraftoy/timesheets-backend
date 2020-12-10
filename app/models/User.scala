@@ -4,49 +4,49 @@ import play.api.libs.json.{Json, OFormat, OWrites, Reads}
 
 import scala.collection.mutable.ArrayBuffer
 
-case class Employee(
-  id: Long = Employee.all.maxBy(_.id).id + 1,
-  username: String = "user" + (Employee.all.maxBy(_.id).id + 1),
+case class User(
+  id: Long = User.all.maxBy(_.id).id + 1,
+  username: String = "user" + (User.all.maxBy(_.id).id + 1),
   firstName: String = "Firstname",
   lastName: String = "Lastname"
 )
 
-object Employee {
-  val dummyManager: Employee =
-    Employee(
+object User {
+  val dummyManager: User =
+    User(
       id = 1,
       username = "some.manager@gmail.com",
       firstName = "Some",
       lastName = "Manager"
     )
-  val dummyManager2: Employee =
-    Employee(
+  val dummyManager2: User =
+    User(
       id = 2,
       username = "another.manager@gmail.com",
       firstName = "Another",
       lastName = "Manager"
     )
-  val dummyEmployee: Employee =
-    Employee(
+  val dummyEmployee: User =
+    User(
       id = 3,
       username = "some.developer@gmail.com",
       firstName = "Some",
       lastName = "Developer"
     )
-  val dummyEmployee2: Employee =
-    Employee(
+  val dummyEmployee2: User =
+    User(
       id = 4,
       username = "another.developer@gmail.com",
       firstName = "Another",
       lastName = "Developer"
     )
 
-  implicit def apply(i: Int): Employee = Employee.all.filter(_.id == i).head
+  implicit def apply(i: Int): User = User.all.filter(_.id == i).head
 
-  implicit def employeeFormat: OFormat[Employee] =
-    Json.using[Json.WithDefaultValues].format[Employee]
+  implicit def employeeFormat: OFormat[User] =
+    Json.using[Json.WithDefaultValues].format[User]
 
-  val all: ArrayBuffer[Employee] =
+  val all: ArrayBuffer[User] =
     ArrayBuffer(dummyManager, dummyManager2, dummyEmployee, dummyEmployee2)
-  def add(employee: Employee): Unit = all append employee
+  def add(employee: User): Unit = all append employee
 }

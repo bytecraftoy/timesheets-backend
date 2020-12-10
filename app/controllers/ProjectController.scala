@@ -23,7 +23,7 @@ class ProjectController @Inject() (cc: ControllerComponents)
           .using[Json.WithDefaultValues]
           .parse(request.body.asJson.get.toString)
       val emp =
-        models.Employee(
+        models.User(
           json.as[JsObject].value("owner").toString.filterNot(_ == '"').toInt
         ) // TODO: handle lack of id
       val updatedJson =
