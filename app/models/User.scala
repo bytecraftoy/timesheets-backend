@@ -8,7 +8,13 @@ case class User(
   id: Long = User.all.maxBy(_.id).id + 1,
   username: String = "user" + (User.all.maxBy(_.id).id + 1),
   firstName: String = "Firstname",
-  lastName: String = "Lastname"
+  lastName: String = "Lastname",
+  email: String = "firstname.lastname@gmail.com",
+  phoneNumber: String = "0123456789",
+  salary: BigDecimal = 0,
+  isManager: Boolean = false,
+  creationTimestamp: Long = System.currentTimeMillis(),
+  lastEdited: Long = System.currentTimeMillis()
 )
 
 object User {
