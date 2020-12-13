@@ -29,6 +29,7 @@ stages:
   - build
   - test
   - deploy
+  - deploy-test
 
 build:
   stage: build
@@ -65,3 +66,13 @@ deploy:
     - dpl --provider=heroku --app=codeflow-timesheets-staging --api-key=$HEROKU_API_KEY
   only:
     - master
+
+deploy-test:
+  stage: deploy-test
+  script:
+    - apt-get install rubygems ruby-dev -y
+    - gem install dpl
+    - dpl --provider=heroku --app=codeflow-timesheets-dpl-test --api-key=$HEROKU_API_KEY
+  rules:
+    - if: '$CI_COMMIT_REF_NAME != "master"'
+      when: manual
