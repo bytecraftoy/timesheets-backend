@@ -5,7 +5,7 @@ import play.api.libs.json.{Json, OFormat, OWrites, Reads, JsValue, _}
 import scala.collection.mutable.ArrayBuffer
 
 case class Project(
-  id: Int = Project.all.maxBy(_.id).id + 1,
+  id: Long = Project.all.maxBy(_.id).id + 1,
   name: String = "",
   description: String = "",
   owner: Employee = Employee.dummyManager,
