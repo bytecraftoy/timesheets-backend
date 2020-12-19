@@ -47,7 +47,7 @@ object User {
       lastName = "Developer"
     )
 
-  implicit def apply(i: Int): User = User.all.filter(_.id == i).head
+  def byId(i: Long): User = User.all.filter(_.id == i).head
 
   implicit def employeeFormat: OFormat[User] =
     Json.using[Json.WithDefaultValues].format[User]

@@ -30,9 +30,9 @@ class ProjectControllerSpec
         """{"name": "Projekti",
           |"description": "kuvaus",
           |"client": "Client 1",
-          |"owner": "1",
-          |"billable": true,
-          |"id": 1002}""".stripMargin
+          |"owner": 1,
+          |"billable": true
+          }""".stripMargin
       val json = Json.parse(jsonString)
 
       val request = FakeRequest(POST, "/projects")

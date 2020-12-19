@@ -76,7 +76,10 @@ case class AddProjectDTO(
       name = this.name,
       description = this.description,
       client = this.client,
-      owner = User(this.owner),
+      owner = User.byId(this.owner),
+      creator = User.byId(this.owner),
+      managers = List(User.byId(this.owner)),
+      lastEditor = User.byId(this.owner),
       billable = this.billable
     )
 }
