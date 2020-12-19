@@ -62,3 +62,24 @@ object Project {
   val all: ArrayBuffer[Project]   = ArrayBuffer(dummy, dummy2)
   def add(project: Project): Unit = all append project
 }
+
+case class AddProjectDTO(
+  name: String,
+  description: String,
+  client: String,
+  owner: Long,
+  billable: Boolean
+) {
+
+  def asProject: Project =
+    Project(
+      name = this.name,
+      description = this.description,
+      client = this.client,
+      owner = User(this.owner),
+      billable = this.billable
+    )
+}
+object AddProjectDTO {
+  implicit val readProjectDTO: Reads[AddProjectDTO] = Json.reads[AddProjectDTO]
+}
