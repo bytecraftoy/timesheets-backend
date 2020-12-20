@@ -10,7 +10,7 @@ case class TimeInput(
   id: Long = TimeInput.all.maxBy(_.id).id + 1,
   input: BigDecimal = 0,
   project: Project = Project.dummy,
-  employee: Employee = Employee.dummyEmployee,
+  employee: User = User.dummyEmployee,
   date: LocalDate = LocalDate.now(),
   creationTimestamp: Long = System.currentTimeMillis(),
   lastEdited: Long = System.currentTimeMillis()
@@ -22,7 +22,7 @@ object TimeInput {
     id = 1,
     input = 7.5,
     project = Project.dummy,
-    employee = Employee.dummyEmployee,
+    employee = User.dummyEmployee,
     date = LocalDate.parse("2020-11-16"),
     creationTimestamp = 100000000000L,
     lastEdited = 100000000000L
@@ -31,7 +31,7 @@ object TimeInput {
     id = 2,
     input = 7.5,
     project = Project.dummy,
-    employee = Employee.dummyEmployee,
+    employee = User.dummyEmployee,
     date = LocalDate.parse("2020-11-17"),
     creationTimestamp = 100000000000L,
     lastEdited = 100000000000L
@@ -40,7 +40,7 @@ object TimeInput {
     id = 3,
     input = 7.5,
     project = Project.dummy,
-    employee = Employee.dummyEmployee,
+    employee = User.dummyEmployee,
     date = LocalDate.parse("2020-11-18"),
     creationTimestamp = 100000000000L,
     lastEdited = 100000000000L
@@ -49,7 +49,7 @@ object TimeInput {
     id = 4,
     input = 7.5,
     project = Project.dummy,
-    employee = Employee.dummyEmployee,
+    employee = User.dummyEmployee,
     date = LocalDate.parse("2020-11-19"),
     creationTimestamp = 100000000000L,
     lastEdited = 100000000000L
@@ -58,7 +58,7 @@ object TimeInput {
     id = 5,
     input = 7.5,
     project = Project.dummy,
-    employee = Employee.dummyEmployee,
+    employee = User.dummyEmployee,
     date = LocalDate.parse("2020-11-20"),
     creationTimestamp = 100000000000L,
     lastEdited = 100000000000L
@@ -83,7 +83,7 @@ case class AddTimeInputDTO(
     TimeInput(
       input = this.input,
       project = Project(this.project),
-      employee = Employee(this.employee),
+      employee = User(this.employee),
       date =
         LocalDate.parse(
           this.date
