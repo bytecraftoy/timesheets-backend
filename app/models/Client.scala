@@ -4,8 +4,8 @@ import play.api.libs.json.{Json, OWrites, Reads}
 import scala.collection.mutable.ArrayBuffer
 
 case class Client(
-  id: Int = Client.all.maxBy(_.id).id + 1,
-  name: String = "client " + (Employee.all.maxBy(_.id).id + 1)
+  id: Long = Client.all.maxBy(_.id).id + 1,
+  name: String = "client " + (User.all.maxBy(_.id).id + 1)
 )
 
 object Client {

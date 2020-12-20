@@ -1,9 +1,10 @@
 package controllers
 
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsError, JsObject, JsSuccess, JsValue, Json}
+
 import javax.inject._
 import play.api.mvc._
-import models.Project
+import models.{AddProjectDTO, Project}
 
 // https://www.playframework.com/documentation/2.8.x/ScalaJsonHttp
 
@@ -16,20 +17,23 @@ class ProjectController @Inject() (cc: ControllerComponents)
       Ok(json)
     }
 
-  def addProject: Action[AnyContent] =
-    Action { request =>
-      val json =
-        Json
-          .using[Json.WithDefaultValues]
-          .parse(request.body.asJson.get.toString)
-      val emp =
-        models.Employee(
-          json.as[JsObject].value("owner").toString.filterNot(_ == '"').toInt
-        ) // TODO: handle lack of id
-      val updatedJson =
-        json.as[JsObject] ++ Json.obj("owner" -> emp)
-      val project = updatedJson.as[Project]
-      Project.add(project)
-      Ok(updatedJson)
+  val addProject: Action[JsValue] = Action(parse.json) { implicit request =>
+    request.body.validate[AddProjectDTO] match {
+      case JsSuccess(createProjectDTO, _) => {
+        createProjectDTO.asProject match {
+          case p: Project => {
+            Project.add(p)
+            Ok(Json.toJson(p))
+          }
+          case other => InternalServerError
+        }
+
+      }
+      case JsError(errors) => {
+        println(errors)
+        BadRequest
+      }
     }
+
+  }
 }
