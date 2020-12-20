@@ -20,3 +20,9 @@ GET     /clients                    controllers.ClientController.listClients
 
 # Add a project
 POST    /projects                   controllers.ProjectController.addProject
+
+# List all timeinput for testing purposes
+GET     /hours                      controllers.TimeInputController.listTimeInput
+
+# Add a timeinput
+POST    /hours                      controllers.TimeInputController.addTimeInput

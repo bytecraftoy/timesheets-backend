@@ -82,8 +82,8 @@ case class AddTimeInputDTO(
   def asTimeInput: TimeInput = {
     TimeInput(
       input = this.input,
-      project = Project(this.project),
-      employee = User(this.employee),
+      project = Project.byId(this.project),
+      employee = User.byId(this.employee),
       date =
         LocalDate.parse(
           this.date
