@@ -56,6 +56,8 @@ object Project {
       lastEditor = User.dummyManager2
     )
 
+  def byId(i: Long): Project = Project.all.filter(_.id == i).head
+
   implicit def projectFormat: OFormat[Project] =
     Json.using[Json.WithDefaultValues].format[Project]
 
