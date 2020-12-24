@@ -22,6 +22,8 @@ object Client {
 
   implicit val writeClient: OWrites[Client] = Json.writes[Client]
 
+  def byId(i: Long): Client = Client.all.filter(_.id == i).head
+
   val all: ArrayBuffer[Client] =
     ArrayBuffer(client1, client2, client3, client4)
 

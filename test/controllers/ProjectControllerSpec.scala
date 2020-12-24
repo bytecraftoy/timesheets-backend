@@ -29,7 +29,7 @@ class ProjectControllerSpec
       val jsonString =
         """{"name": "Projekti",
           |"description": "kuvaus",
-          |"client": "Client 1",
+          |"client": 1,
           |"owner": 1,
           |"billable": true
           }""".stripMargin
