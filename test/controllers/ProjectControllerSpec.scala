@@ -43,6 +43,22 @@ class ProjectControllerSpec
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
     }
+
+    "reject invalid Project JSON" in {
+      val jsonString = "{}"
+      val json = Json.parse(jsonString)
+
+      val request = FakeRequest(POST, "/projects")
+        .withHeaders("Content-type" -> "application/json")
+        .withBody[JsValue](json)
+
+      val result = route(app, request).get
+      status(result) mustBe BAD_REQUEST
+    }
+
+    "result in a project being recorded" in {
+
+    }
   }
 
 }
