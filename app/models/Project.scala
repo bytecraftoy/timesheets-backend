@@ -11,7 +11,7 @@ case class Project(
   owner: User = User.dummyManager,
   creator: User = User.dummyManager,
   managers: List[User] = List(User.dummyManager),
-  client: String = "",
+  client: Client = Client.client1,
   billable: Boolean = true,
   employees: List[User] = List(),
   tags: List[String] = List(),
@@ -30,7 +30,7 @@ object Project {
       owner = User.dummyManager,
       creator = User.dummyManager,
       managers = List(User.dummyManager, User.dummyManager2),
-      client = "Some client",
+      client = Client.client1,
       billable = false,
       employees = List(User.dummyEmployee, User.dummyEmployee2),
       tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
@@ -47,7 +47,7 @@ object Project {
       owner = User.dummyManager2,
       creator = User.dummyManager2,
       managers = List(User.dummyManager2),
-      client = "Some client",
+      client = Client.client2,
       billable = true,
       employees = List(User.dummyEmployee2),
       tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
@@ -68,7 +68,7 @@ object Project {
 case class AddProjectDTO(
   name: String,
   description: String,
-  client: String,
+  client: Long,
   owner: Long,
   billable: Boolean
 ) {
@@ -77,7 +77,7 @@ case class AddProjectDTO(
     Project(
       name = this.name,
       description = this.description,
-      client = this.client,
+      client = Client.byId(this.client),
       owner = User.byId(this.owner),
       creator = User.byId(this.owner),
       managers = List(User.byId(this.owner)),
