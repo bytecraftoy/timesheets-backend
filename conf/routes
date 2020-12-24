@@ -4,25 +4,25 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /                           controllers.HomeController.index
+GET         /                    controllers.HomeController.index
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file        controllers.Assets.versioned(path="/public", file: Asset)
 
 # List all projects as JSON
-GET     /projects                   controllers.ProjectController.listProjects
+GET         /projects            controllers.ProjectController.listProjects
 
 # List all managers [for now, they are just the employees]
-GET     /managers                   controllers.ManagerController.listEmployees
+GET         /managers            controllers.ManagerController.listEmployees
 
 # List all clients
-GET     /clients                    controllers.ClientController.listClients
+GET         /clients             controllers.ClientController.listClients
 
 # Add a project
-POST    /projects                   controllers.ProjectController.addProject
+POST        /projects            controllers.ProjectController.addProject
 
-# List all timeinput for testing purposes
-GET     /hours                      controllers.TimeInputController.listTimeInput
+# List timeinput per project
+GET         /hours               controllers.TimeInputController.getData(startDate: String ?= "getAll", endDate: String ?= "")
 
 # Add a timeinput
-POST    /hours                      controllers.TimeInputController.addTimeInput
+POST        /hours               controllers.TimeInputController.add
