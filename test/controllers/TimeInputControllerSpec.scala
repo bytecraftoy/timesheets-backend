@@ -7,35 +7,31 @@ import play.api.test.Helpers._
 import play.api.libs.json.Json
 import play.api.libs.json.JsValue
 
-class ProjectControllerSpec
+class TimeInputControllerSpec
     extends PlaySpec
     with GuiceOneAppPerTest
     with Injecting {
 
-  "ProjectController GET" should {
-
+  "TimeInputController GET" should {
     "return JSON data" in {
-      val request  = FakeRequest(GET, "/projects")
-      val projects = route(app, request).get
+      val request = FakeRequest(GET, "/hours")
+      val result  = route(app, request).get
 
-      status(projects) mustBe OK
-      contentType(projects) mustBe Some("application/json")
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
     }
   }
 
-  "ProjectController POST" should {
-
-    "parse Project JSON correctly" in {
+  "TimeInputController POST" should {
+    "parse TimeInput JSON correctly" in {
       val jsonString =
-        """{"name": "Projekti",
-          |"description": "kuvaus",
-          |"client": 1,
-          |"owner": 1,
-          |"billable": true
-          }""".stripMargin
+        """{"input": 7.5,
+          |"project": 1000,
+          |"employee": 1,
+          |"date": "2020-12-17"}""".stripMargin
       val json = Json.parse(jsonString)
 
-      val request = FakeRequest(POST, "/projects")
+      val request = FakeRequest(POST, "/hours")
         .withHeaders("Content-type" -> "application/json")
         .withBody[JsValue](json)
 
@@ -44,5 +40,4 @@ class ProjectControllerSpec
       contentType(result) mustBe Some("application/json")
     }
   }
-
 }

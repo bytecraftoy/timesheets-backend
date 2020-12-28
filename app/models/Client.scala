@@ -4,8 +4,8 @@ import play.api.libs.json.{Json, OWrites, Reads}
 import scala.collection.mutable.ArrayBuffer
 
 case class Client(
-  id: Int = Client.all.maxBy(_.id).id + 1,
-  name: String = "client " + (Employee.all.maxBy(_.id).id + 1)
+  id: Long = Client.all.maxBy(_.id).id + 1,
+  name: String = "client " + (User.all.maxBy(_.id).id + 1)
 )
 
 object Client {
@@ -21,6 +21,8 @@ object Client {
   implicit val readClient: Reads[Client] = Json.reads[Client]
 
   implicit val writeClient: OWrites[Client] = Json.writes[Client]
+
+  def byId(i: Long): Client = Client.all.filter(_.id == i).head
 
   val all: ArrayBuffer[Client] =
     ArrayBuffer(client1, client2, client3, client4)
