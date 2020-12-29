@@ -30,8 +30,7 @@ class ProjectController @Inject() (cc: ControllerComponents)
 
       }
       case JsError(errors) => {
-        println(errors)
-        BadRequest
+        BadRequest // TODO: log errors
       }
     }
 
