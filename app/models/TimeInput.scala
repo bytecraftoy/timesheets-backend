@@ -48,7 +48,7 @@ object TimeInput {
   val input4: TimeInput = TimeInput(
     id = 4,
     input = 7.5,
-    project = Project.dummy,
+    project = Project.dummy2,
     employee = User.dummyEmployee,
     date = LocalDate.parse("2020-11-19"),
     creationTimestamp = 100000000000L,
@@ -57,7 +57,7 @@ object TimeInput {
   val input5: TimeInput = TimeInput(
     id = 5,
     input = 7.5,
-    project = Project.dummy,
+    project = Project.dummy2,
     employee = User.dummyEmployee,
     date = LocalDate.parse("2020-11-20"),
     creationTimestamp = 100000000000L,
@@ -69,6 +69,12 @@ object TimeInput {
 
   val all: ArrayBuffer[TimeInput] =
     ArrayBuffer(input1, input2, input3, input4, input5)
+
+  def byProject(i: Long): ArrayBuffer[TimeInput] =
+    TimeInput.all.filter(_.project.id == i)
+
+  def byTimeInterval(start: LocalDate, end: LocalDate): ArrayBuffer[TimeInput] =
+    TimeInput.all.filter(x => (x.date.isAfter(start) && x.date.isBefore(end)))
 
   def add(timeInput: TimeInput): Unit = all append timeInput
 }

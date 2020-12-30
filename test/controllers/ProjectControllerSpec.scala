@@ -43,6 +43,38 @@ class ProjectControllerSpec
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
     }
+
+    "reject invalid Project JSON" in {
+      val jsonString = "{}"
+      val json = Json.parse(jsonString)
+
+      val request = FakeRequest(POST, "/projects")
+        .withHeaders("Content-type" -> "application/json")
+        .withBody[JsValue](json)
+
+      val result = route(app, request).get
+      status(result) mustBe BAD_REQUEST
+    }
+
+    "result in a Project being recorded and retrievable" in {
+      val jsonString =
+        """{"name": "Test Project",
+          |"description": "Can this project be retrieved?",
+          |"client": 1,
+          |"owner": 1,
+          |"billable": true
+          }""".stripMargin
+      val json = Json.parse(jsonString)
+
+      val request = FakeRequest(POST, "/projects")
+        .withHeaders("Content-type" -> "application/json")
+        .withBody[JsValue](json)
+
+      val result = route(app, request).get
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      models.Project.all.exists(_.description=="Can this project be retrieved?") mustEqual(true)
+    }
   }
 
 }
