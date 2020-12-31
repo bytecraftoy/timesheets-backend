@@ -15,11 +15,30 @@ import play.api.mvc.Results.Ok
 import javax.inject.Inject
 import scala.concurrent.Future
 
+import play.api.inject.Injector
+import play.api.mvc.Results.Ok
+import javax.inject.Inject
+import scala.concurrent.Future
+
+import scala.reflect.ClassTag
+import play.api.inject.guice.GuiceApplicationBuilder
+
+
 // https://www.playframework.com/documentation/2.8.x/ScalaTestingWithDatabases
+
+// https://stackoverflow.com/questions/34159857/specs2-how-to-test-a-class-with-more-than-one-injected-dependency
+// Play's default test framework does not play well with Play's default DI. Therefore this helper object:
+object Inject {
+  lazy val injector: Injector = (new GuiceApplicationBuilder).injector()
+  def inject[T: ClassTag]: T = injector.instanceOf[T]
+}
 
 class DatabaseSpec extends PlaySpec {
 
-  def testDB[T](block: Database => T) =
+  // Inject app database configuration.
+  val appDatabase: Database = Inject.inject[Database]
+
+  def testDB[T](block: Database => T): T=
     Databases.withInMemory(
       name = "test",
       urlOptions = Map(
@@ -68,7 +87,7 @@ class DatabaseSpec extends PlaySpec {
       SqlParser.long("owned_by") ~
       SqlParser.long("created_by") ~
       SqlParser.long("last_edited_by") ~
-      SqlParser.long("id_client_Client")
+      SqlParser.long("client_id")
   ) map {
     case name ~
           description ~
@@ -78,7 +97,7 @@ class DatabaseSpec extends PlaySpec {
           owned_by ~
           created_by ~
           last_edited_by ~
-          id_client => ("%s, " +
+          client_id => ("%s, " +
                         "description: %s, " +
                         "created: %s, " +
                         "edited: %s, " +
@@ -95,7 +114,7 @@ class DatabaseSpec extends PlaySpec {
         owned_by.toString,
         created_by.toString,
         last_edited_by.toString,
-        id_client.toString)
+        client_id.toString)
   }
 
   val allProjectsParser: ResultSetParser[List[String]] = projectParser.*
@@ -107,11 +126,10 @@ class DatabaseSpec extends PlaySpec {
       }
     }
 
-    "have a table Project" in {
+    "have a table project" in {
       testDB { test_db =>
         test_db.withConnection { implicit conn =>
-          //val insertion: Boolean = SQL("INSERT INTO Project")
-          val result: Boolean = SQL("SELECT * FROM Project")
+          val result: Boolean = SQL("SELECT * FROM project")
             .execute()
 
           result mustBe true
@@ -119,13 +137,12 @@ class DatabaseSpec extends PlaySpec {
       }
     }
 
-    "not have a table Projects" in {
+    "not have a table projects" in {
       val thrown = intercept[Exception] {
         testDB { test_db =>
           test_db.withConnection { implicit conn =>
-            //val insertion: Boolean = SQL("INSERT INTO Project")
             try {
-              val result: Boolean = SQL("SELECT * FROM Projects")
+              val result: Boolean = SQL("SELECT * FROM projects")
                 .execute()
             } catch {
               case notFound: Exception => throw new Exception("Not found")
@@ -136,12 +153,11 @@ class DatabaseSpec extends PlaySpec {
       thrown.getMessage mustBe "Not found"
     }
 
-    "have the ability to add an AppUser" in {
+    "have the ability to add an appUser" in {
       testDB { test_db =>
         test_db.withConnection { implicit conn =>
           val id: Option[Long] =
-            SQL(
-              "INSERT INTO AppUser(first_name, " +
+            SQL("INSERT INTO app_user(first_name, " +
                 "last_name," +
                 "is_manager," +
                 "timestamp_created," +
@@ -160,7 +176,8 @@ class DatabaseSpec extends PlaySpec {
               )
               .executeInsert()
           val expectType: Long = 1
-          id.get.getClass mustBe (expectType.getClass)
+
+          id.get.getClass mustBe expectType.getClass
         }
       }
     }
@@ -170,7 +187,7 @@ class DatabaseSpec extends PlaySpec {
         test_db.withConnection { implicit conn =>
           val id: Option[Long] =
             SQL(
-              "INSERT INTO Project(name, " +
+              "INSERT INTO project(name, " +
                 "description," +
                 "timestamp_created," +
                 "timestamp_edited," +
@@ -178,7 +195,7 @@ class DatabaseSpec extends PlaySpec {
                 "owned_by," +
                 "created_by," +
                 "last_edited_by," +
-                "id_client_Client)" +
+                "client_id)" +
                 "values({name}," +
                 "{description}," +
                 "{timestamp_created}," +
@@ -187,7 +204,7 @@ class DatabaseSpec extends PlaySpec {
                 "{owned_by}," +
                 "{created_by}," +
                 "{last_edited_by}," +
-                "{id_client_Client})"
+                "{client_id})"
             ).on(
                 "name"              -> "Testiprojekti",
                 "description"       -> "Luotu testausta varten",
@@ -197,11 +214,11 @@ class DatabaseSpec extends PlaySpec {
                 "owned_by"          -> "1",
                 "created_by"        -> "1",
                 "last_edited_by"    -> "1",
-                "id_client_Client"  -> "1"
+                "client_id"  -> "1"
               )
               .executeInsert()
           val expectType: Long = 1
-          id.get.getClass mustBe (expectType.getClass)
+          id.get.getClass mustBe expectType.getClass
         }
       }
     }
@@ -211,7 +228,7 @@ class DatabaseSpec extends PlaySpec {
         test_db.withConnection { implicit conn =>
           val id: Option[Long] =
             SQL(
-              "INSERT INTO Project(name, " +
+              "INSERT INTO project(name, " +
                 "description," +
                 "timestamp_created," +
                 "timestamp_edited," +
@@ -219,7 +236,7 @@ class DatabaseSpec extends PlaySpec {
                 "owned_by," +
                 "created_by," +
                 "last_edited_by," +
-                "id_client_Client)" +
+                "client_id)" +
                 "values({name}," +
                 "{description}," +
                 "{timestamp_created}," +
@@ -228,7 +245,7 @@ class DatabaseSpec extends PlaySpec {
                 "{owned_by}," +
                 "{created_by}," +
                 "{last_edited_by}," +
-                "{id_client_Client})"
+                "{client_id})"
             ).on(
                 "name"              -> "Testiprojekti",
                 "description"       -> "Luotu testausta varten",
@@ -238,12 +255,12 @@ class DatabaseSpec extends PlaySpec {
                 "owned_by"          -> "1",
                 "created_by"        -> "1",
                 "last_edited_by"    -> "1",
-                "id_client_Client"  -> "1"
+                "client_id"  -> "1"
               )
               .executeInsert()
-          val projectList: List[String] = SQL("SELECT * FROM Project")
+          val projectList: List[String] = SQL("SELECT * FROM project")
             .as(allProjectsParser)
-          projectList(0).contains("Testi_projekti") mustBe true
+          projectList.head.contains("Testi_projekti") mustBe true
           projectList(1).contains("Testiprojekti") mustBe true
         }
       }
@@ -256,14 +273,14 @@ class DatabaseSpec extends PlaySpec {
             try {
               val id: Option[Long] =
                 SQL(
-                  "INSERT INTO Project(name, " +
+                  "INSERT INTO project(name, " +
                     "description," +
                     "timestamp_created," +
                     "timestamp_edited," +
                     "billable," +
                     "created_by," +
                     "last_edited_by," +
-                    "id_client_Client)" +
+                    "client_id)" +
                     "values({name}," +
                     "{description}," +
                     "{timestamp_created}," +
@@ -271,7 +288,7 @@ class DatabaseSpec extends PlaySpec {
                     "{billable}," +
                     "{created_by}," +
                     "{last_edited_by}," +
-                    "{id_client_Client})"
+                    "{cliet_id})"
                 ).on(
                   "name" -> "Testiprojekti",
                   "description" -> "Luotu testausta varten",
@@ -280,7 +297,7 @@ class DatabaseSpec extends PlaySpec {
                   "billable" -> "TRUE",
                   "created_by" -> "1",
                   "last_edited_by" -> "1",
-                  "id_client_Client" -> "1"
+                  "client_id" -> "1"
                 )
                   .executeInsert()
             } catch {
@@ -299,7 +316,7 @@ class DatabaseSpec extends PlaySpec {
             try {
               val id: Option[Long] =
                 SQL(
-                  "INSERT INTO Project(id_project," +
+                  "INSERT INTO Project(project_id," +
                     "name, " +
                     "description," +
                     "timestamp_created," +
@@ -308,8 +325,8 @@ class DatabaseSpec extends PlaySpec {
                     "owned_by," +
                     "created_by," +
                     "last_edited_by," +
-                    "id_client_Client)" +
-                    "values({id_project}," +
+                    "client_id)" +
+                    "values({project_id}," +
                     "{name}," +
                     "{description}," +
                     "{timestamp_created}," +
@@ -318,9 +335,9 @@ class DatabaseSpec extends PlaySpec {
                     "{owned_by}" +
                     "{created_by}," +
                     "{last_edited_by}," +
-                    "{id_client_Client})"
+                    "{client_id})"
                 ).on(
-                  "id_project" -> "1",
+                  "project_id" -> "1",
                   "name" -> "Testiprojekti",
                   "description" -> "Luotu testausta varten",
                   "timestamp_created" -> "2014-11-21 04:25:10",
@@ -329,7 +346,7 @@ class DatabaseSpec extends PlaySpec {
                   "owned_by" -> "1",
                   "created_by" -> "1",
                   "last_edited_by" -> "1",
-                  "id_client_Client" -> "1"
+                  "client_id" -> "1"
                 )
                   .executeInsert()
             } catch {
@@ -343,24 +360,28 @@ class DatabaseSpec extends PlaySpec {
 
   }
 
+
   "The app database timesheet" should {
-    "have tables Project, Client, and AppUser" in {
-      val timesheetDB = Databases(
-        name = "timesheet",
-        driver = "org.h2.Driver",
-        url =
-          "jdbc:h2:mem:play;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=FALSE"
-      )
-      Evolutions.withEvolutions(timesheetDB)(timesheetDB.withConnection {
+    "have tables project, client, and app_user" in {
+      Evolutions.withEvolutions(appDatabase)(appDatabase.withConnection {
         implicit c =>
-          val projectResult: Boolean = SQL("Select * from Project").execute()
+          val projectResult: Boolean = SQL("Select * from project").execute()
           projectResult mustBe true
-          val appUserResult: Boolean = SQL("Select * from AppUser").execute()
+          val appUserResult: Boolean = SQL("Select * from app_user").execute()
           appUserResult mustBe true
-          val clientResult: Boolean = SQL("Select * from Client").execute()
+          val clientResult: Boolean = SQL("Select * from client").execute()
           clientResult mustBe true
       })
     }
+    "have the name timesheet" in {
+      Evolutions.withEvolutions(appDatabase)(appDatabase.withConnection {
+        implicit c =>
+          println("Database url: " + appDatabase.url)
+          println("data source: " + appDatabase.dataSource)
+          appDatabase.name mustBe "timesheet"
+      })
+    }
+
   }
 
 }

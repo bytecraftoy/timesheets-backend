@@ -29,7 +29,7 @@ stages:
   - build
   - test
   - deploy
-  - deploy-test
+  - manual-deploy-test
 
 build:
   stage: build
@@ -67,8 +67,8 @@ deploy:
   only:
     - master
 
-deploy-test:
-  stage: deploy-test
+manual-deploy-test:
+  stage: manual-deploy-test
   script:
     - apt-get install rubygems ruby-dev -y
     - gem install dpl
