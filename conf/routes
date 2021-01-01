@@ -21,8 +21,8 @@ GET         /clients             controllers.ClientController.listClients
 # Add a project
 POST        /projects            controllers.ProjectController.addProject
 
-# List timeinput per project
-GET         /hours               controllers.TimeInputController.getData(startDate: String ?= "getAll", endDate: String ?= "")
+# List user's hours per project TODO: remove default userId
+GET         /hours               controllers.TimeInputController.groupByProject(userId: String ?= "3", startDate: String ?= "getAll", endDate: String ?= "")
 
 # Add a timeinput
 POST        /hours               controllers.TimeInputController.add
