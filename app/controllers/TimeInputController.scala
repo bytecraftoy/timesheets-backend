@@ -60,4 +60,22 @@ class TimeInputController @Inject() (cc: ControllerComponents)
         }
       }
     }
+
+  def groupByProject(
+    employee: String,
+    start: String,
+    end: String
+  ): Action[AnyContent] =
+    Action {
+      val startDate =
+        if (start == "getAll") LocalDate.MIN else LocalDate.parse(start)
+      val endDate =
+        if (start == "getAll") LocalDate.MAX else LocalDate.parse(end)
+      val json = TimeInput.jsonGroupedByProject(
+        employeeId = employee.toLong,
+        start = startDate,
+        end = endDate
+      )
+      Ok(json)
+    }
 }
