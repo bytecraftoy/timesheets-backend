@@ -31,7 +31,7 @@ object TimeInput {
     input = 7.5,
     project = Project.dummy,
     employee = User.dummyEmployee,
-    date = LocalDate.parse("2020-11-16"),
+    date = LocalDate.parse("2020-12-16"),
     creationTimestamp = 100000000000L,
     lastEdited = 100000000000L
   )
@@ -40,7 +40,7 @@ object TimeInput {
     input = 7.5,
     project = Project.dummy,
     employee = User.dummyEmployee,
-    date = LocalDate.parse("2020-11-17"),
+    date = LocalDate.parse("2020-12-17"),
     creationTimestamp = 100000000000L,
     lastEdited = 100000000000L
   )
@@ -49,7 +49,7 @@ object TimeInput {
     input = 7.5,
     project = Project.dummy,
     employee = User.dummyEmployee,
-    date = LocalDate.parse("2020-11-18"),
+    date = LocalDate.parse("2020-12-18"),
     creationTimestamp = 100000000000L,
     lastEdited = 100000000000L
   )
@@ -58,7 +58,7 @@ object TimeInput {
     input = 7.5,
     project = Project.dummy2,
     employee = User.dummyEmployee,
-    date = LocalDate.parse("2020-11-19"),
+    date = LocalDate.parse("2020-12-28"),
     creationTimestamp = 100000000000L,
     lastEdited = 100000000000L
   )
@@ -67,7 +67,7 @@ object TimeInput {
     input = 7.5,
     project = Project.dummy2,
     employee = User.dummyEmployee,
-    date = LocalDate.parse("2020-11-20"),
+    date = LocalDate.parse("2020-12-30"),
     creationTimestamp = 100000000000L,
     lastEdited = 100000000000L
   )
@@ -91,9 +91,9 @@ object TimeInput {
     employeeId: Long,
     start: LocalDate = LocalDate.MIN,
     end: LocalDate = LocalDate.MAX
-  ): JsObject =
-    Json.obj(
-      "inputs" -> TimeInput.all
+  ): JsValue =
+    Json.toJson(
+      TimeInput.all
         .filter(
           t =>
             (t.date.isAfter(start) || t.date.isEqual(start))
