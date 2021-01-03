@@ -1,9 +1,8 @@
 package models
 
+import play.api.libs.json.{JsObject, JsValue, Json, OFormat, Reads}
+
 import java.time.LocalDate
-
-import play.api.libs.json.{Json, OFormat, Reads}
-
 import scala.collection.mutable.ArrayBuffer
 
 case class TimeInput(
@@ -16,7 +15,16 @@ case class TimeInput(
   lastEdited: Long = System.currentTimeMillis()
 //  billed: Boolean = false,
 //  confirmed: Boolean = false
-)
+) {
+  def compactJson: JsValue =
+    Json.obj(
+      "id"                -> id,
+      "input"             -> input,
+      "date"              -> date,
+      "creationTimestamp" -> creationTimestamp,
+      "lastEdited"        -> lastEdited
+    )
+}
 object TimeInput {
   val input1: TimeInput = TimeInput(
     id = 1,
@@ -74,9 +82,61 @@ object TimeInput {
     TimeInput.all.filter(_.project.id == i)
 
   def byTimeInterval(start: LocalDate, end: LocalDate): ArrayBuffer[TimeInput] =
-    TimeInput.all.filter(x => (x.date.isAfter(start) && x.date.isBefore(end)))
+    TimeInput.all.filter(x => x.date.isAfter(start) && x.date.isBefore(end))
 
   def add(timeInput: TimeInput): Unit = all append timeInput
+
+  def jsonByProject(
+    i: Long,
+    employeeId: Long,
+    start: LocalDate = LocalDate.MIN,
+    end: LocalDate = LocalDate.MAX
+  ): JsObject =
+    Json.obj(
+      "inputs" -> TimeInput.all
+        .filter(
+          t =>
+            (t.date.isAfter(start) || t.date.isEqual(start))
+              && (t.date.isBefore(end) || t.date.isEqual(end))
+              && t.employee.id == employeeId && t.project.id == i
+        )
+        .map(
+          ti =>
+            Json.obj(
+              "id"                -> ti.id,
+              "input"             -> ti.input,
+              "date"              -> ti.date,
+              "creationTimestamp" -> ti.creationTimestamp,
+              "lastEdited"        -> ti.lastEdited
+            )
+        )
+    )
+
+  def jsonGroupedByProject(
+    employeeId: Long,
+    start: LocalDate = LocalDate.MIN,
+    end: LocalDate = LocalDate.MAX
+  ): JsObject =
+    Json.obj(
+      "id"       -> employeeId,
+      "username" -> User.byId(employeeId).username,
+      "projects" -> TimeInput.all
+        .filter(
+          t =>
+            (t.date.isAfter(start) || t.date.isEqual(start))
+              && (t.date.isBefore(end) || t.date.isEqual(end))
+              && t.employee.id == employeeId
+        )
+        .groupBy(_.project.id)
+        .map(
+          kv =>
+            Json.obj(
+              "id"    -> kv._1,
+              "name"  -> Project.byId(kv._1).name,
+              "hours" -> kv._2.map(_.compactJson)
+            )
+        )
+    )
 }
 
 case class AddTimeInputDTO(
