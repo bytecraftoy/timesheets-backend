@@ -86,6 +86,32 @@ object TimeInput {
 
   def add(timeInput: TimeInput): Unit = all append timeInput
 
+  def jsonByProject(
+    i: Long,
+    employeeId: Long,
+    start: LocalDate = LocalDate.MIN,
+    end: LocalDate = LocalDate.MAX
+  ): JsObject =
+    Json.obj(
+      "inputs" -> TimeInput.all
+        .filter(
+          t =>
+            (t.date.isAfter(start) || t.date.isEqual(start))
+              && (t.date.isBefore(end) || t.date.isEqual(end))
+              && t.employee.id == employeeId && t.project.id == i
+        )
+        .map(
+          ti =>
+            Json.obj(
+              "id"                -> ti.id,
+              "input"             -> ti.input,
+              "date"              -> ti.date,
+              "creationTimestamp" -> ti.creationTimestamp,
+              "lastEdited"        -> ti.lastEdited
+            )
+        )
+    )
+
   def jsonGroupedByProject(
     employeeId: Long,
     start: LocalDate = LocalDate.MIN,
