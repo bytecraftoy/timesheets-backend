@@ -1,22 +1,39 @@
 # --- !Ups
-INSERT INTO app_user (first_name,
+INSERT INTO app_user (app_user_id,
+                      username,
+                      first_name,
                       last_name,
                       is_manager,
                       timestamp_created,
                       timestamp_edited)
-VALUES ('Eka', 'E_sukunimi', TRUE, '2004-10-19 10:23:54', '2004-10-19 10:23:54'),
-       ('Toka', 'T_sukunimi', TRUE, '2004-10-20 11:30:45', '2012-11-19 16:27:01');
+VALUES ('9fa407f4-7375-446b-92c6-c578839b7780',
+        'ekakäyttäjä',
+        'Eka',
+        'E_sukunimi',
+        TRUE,
+        '2004-10-19 10:23:54',
+        '2004-10-19 10:23:54'),
+       ('06be4b85-8f65-4f65-8965-faba1216f199',
+        'tokakäyttäjä',
+        'Toka',
+        'T_sukunimi',
+        TRUE,
+        '2004-10-20 11:30:45',
+        '2012-11-19 16:27:01');
 
-INSERT INTO client (name,
+INSERT INTO client (client_id,
+                    name,
                     email,
                     timestamp_created,
                     timestamp_edited)
-VALUES ('Esimerkkiasiakas',
+VALUES ('1bb44a7e-cd7c-447d-a9e9-26495b52fa88',
+        'Esimerkkiasiakas',
         'asiakas@yritys.fi',
         '2004-10-20 11:30:45',
         '2012-11-19 16:27:01');
 
-INSERT INTO project (name,
+INSERT INTO project (project_id,
+                     name,
                      description,
                      timestamp_created,
                      timestamp_edited,
@@ -25,15 +42,16 @@ INSERT INTO project (name,
                      created_by,
                      last_edited_by,
                      client_id)
-VALUES ('Testi_projekti',
+VALUES ('44e4653d-7f71-4cf2-90f3-804f949ba264',
+        'Testi_projekti',
         'Testi-projektin kuvaus',
         '2004-10-19 10:23:54',
         '2004-10-19 10:23:54',
         TRUE,
-        1,
-        2,
-        2,
-        1);
+        '9fa407f4-7375-446b-92c6-c578839b7780',
+        '06be4b85-8f65-4f65-8965-faba1216f199',
+        '06be4b85-8f65-4f65-8965-faba1216f199',
+        '1bb44a7e-cd7c-447d-a9e9-26495b52fa88');
 
 # --- !Downs
 

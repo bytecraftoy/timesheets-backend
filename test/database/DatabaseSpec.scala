@@ -14,14 +14,15 @@ import play.api.mvc.Results.Ok
 
 import javax.inject.Inject
 import scala.concurrent.Future
-
 import play.api.inject.Injector
 import play.api.mvc.Results.Ok
+
 import javax.inject.Inject
 import scala.concurrent.Future
-
 import scala.reflect.ClassTag
 import play.api.inject.guice.GuiceApplicationBuilder
+
+import java.util.UUID
 
 
 // https://www.playframework.com/documentation/2.8.x/ScalaTestingWithDatabases
@@ -59,13 +60,15 @@ class DatabaseSpec extends PlaySpec {
     }
 
   val appUserParser: RowParser[String] = (
-    SqlParser.str("first_name") ~
+    SqlParser.get[UUID]("app_user_id") ~
+      SqlParser.str("username") ~
+      SqlParser.str("first_name") ~
       SqlParser.str("last_name") ~
       SqlParser.bool("is_manager") ~
       SqlParser.date("timestamp_created") ~
       SqlParser.date("timestamp_edited")
   ) map {
-    case first_name ~ last_name ~ is_manager ~ ts_created ~ ts_edited =>
+    case app_user_id ~ username ~ first_name ~ last_name ~ is_manager ~ ts_created ~ ts_edited =>
       first_name + " " +
         last_name +
         ", manager: " +
@@ -79,17 +82,19 @@ class DatabaseSpec extends PlaySpec {
   val allAppUsersParser: ResultSetParser[List[String]] = appUserParser.*
 
   val projectParser: RowParser[String] = (
-    SqlParser.str("name") ~
+    SqlParser.get[UUID]("project_id") ~
+      SqlParser.str("name") ~
       SqlParser.str("description") ~
       SqlParser.date("timestamp_created") ~
       SqlParser.date("timestamp_edited") ~
       SqlParser.bool("billable") ~
-      SqlParser.long("owned_by") ~
-      SqlParser.long("created_by") ~
-      SqlParser.long("last_edited_by") ~
-      SqlParser.long("client_id")
+      SqlParser.get[UUID]("owned_by") ~
+      SqlParser.get[UUID]("created_by") ~
+      SqlParser.get[UUID]("last_edited_by") ~
+      SqlParser.get[UUID]("client_id")
   ) map {
-    case name ~
+    case project_id ~
+          name ~
           description ~
           ts_created ~
           ts_edited ~
@@ -97,16 +102,19 @@ class DatabaseSpec extends PlaySpec {
           owned_by ~
           created_by ~
           last_edited_by ~
-          client_id => ("%s, " +
-                        "description: %s, " +
-                        "created: %s, " +
-                        "edited: %s, " +
+          client_id => ("id: %s, " +
+      "name: %s," +
+      "description: %s, " +
+      "created: %s, " +
+      "edited: %s, " +
       "billable: %s, " +
       "owner_id: %s, " +
       "creator_id: %s, " +
       "last_editor_id: %s, " +
       "client_id: %s ")
-      .format(name,
+      .format(
+        project_id.toString,
+        name,
         description,
         ts_created.toString,
         ts_edited.toString,
@@ -153,31 +161,35 @@ class DatabaseSpec extends PlaySpec {
       thrown.getMessage mustBe "Not found"
     }
 
+    // insert UUIDs https://stackoverflow.com/questions/30985604/how-to-insert-value-of-uuid
     "have the ability to add an appUser" in {
       testDB { test_db =>
         test_db.withConnection { implicit conn =>
-          val id: Option[Long] =
-            SQL("INSERT INTO app_user(first_name, " +
-                "last_name," +
-                "is_manager," +
-                "timestamp_created," +
-                "timestamp_edited)" +
-                "values({first_name}," +
-                "{last_name}," +
-                "{is_manager}," +
-                "{timestamp_created}," +
-                "{timestamp_edited})"
+          val id: Option[UUID] =
+            SQL("INSERT INTO app_user(app_user_id," +
+              "username, " +
+              "first_name, " +
+              "last_name," +
+              "is_manager," +
+              "timestamp_created," +
+              "timestamp_edited)" +
+              "values({app_user_id}::uuid," +
+              "{username}, " +
+              "{first_name}," +
+              "{last_name}," +
+              "{is_manager}," +
+              "{timestamp_created}," +
+              "{timestamp_edited})"
             ).on(
-                "first_name"        -> "Koli",
-                "last_name"         -> "Sukunimi3",
-                "is_manager"        -> "TRUE",
-                "timestamp_created" -> "2014-11-21 04:25:10",
-                "timestamp_edited"  -> "2014-11-21 04:25:10"
-              )
-              .executeInsert()
-          val expectType: Long = 1
-
-          id.get.getClass mustBe expectType.getClass
+              "app_user_id" -> "e17ed08e-91f5-43c4-84e8-3b2ac07e605d",
+              "username" -> "my user name",
+              "first_name"        -> "Koli",
+              "last_name"         -> "Sukunimi3",
+              "is_manager"        -> "TRUE",
+              "timestamp_created" -> "2014-11-21 04:25:10",
+              "timestamp_edited"  -> "2014-11-21 04:25:10"
+            )
+              .executeInsert(scalar[UUID].singleOpt)
         }
       }
     }
@@ -185,9 +197,10 @@ class DatabaseSpec extends PlaySpec {
     "have the ability to add a project row" in {
       testDB { test_db =>
         test_db.withConnection { implicit conn =>
-          val id: Option[Long] =
+          val id: Option[UUID] =
             SQL(
-              "INSERT INTO project(name, " +
+              "INSERT INTO project(project_id," +
+                "name, " +
                 "description," +
                 "timestamp_created," +
                 "timestamp_edited," +
@@ -196,29 +209,29 @@ class DatabaseSpec extends PlaySpec {
                 "created_by," +
                 "last_edited_by," +
                 "client_id)" +
-                "values({name}," +
+                "values({project_id}::uuid," +
+                "{name}," +
                 "{description}," +
                 "{timestamp_created}," +
                 "{timestamp_edited}," +
                 "{billable}," +
-                "{owned_by}," +
-                "{created_by}," +
-                "{last_edited_by}," +
-                "{client_id})"
+                "{owned_by}::uuid," +
+                "{created_by}::uuid," +
+                "{last_edited_by}::uuid," +
+                "{client_id}::uuid)"
             ).on(
+              "project_id"   -> "0b940f80-bff8-48c1-8270-483ea223e2e5",
                 "name"              -> "Testiprojekti",
                 "description"       -> "Luotu testausta varten",
                 "timestamp_created" -> "2014-11-21 04:25:10",
                 "timestamp_edited"  -> "2014-11-21 04:25:10",
                 "billable"          -> "TRUE",
-                "owned_by"          -> "1",
-                "created_by"        -> "1",
-                "last_edited_by"    -> "1",
-                "client_id"  -> "1"
+                "owned_by"          -> "9fa407f4-7375-446b-92c6-c578839b7780",
+                "created_by"        -> "9fa407f4-7375-446b-92c6-c578839b7780",
+                "last_edited_by"    -> "9fa407f4-7375-446b-92c6-c578839b7780",
+                "client_id"  -> "1bb44a7e-cd7c-447d-a9e9-26495b52fa88"
               )
-              .executeInsert()
-          val expectType: Long = 1
-          id.get.getClass mustBe expectType.getClass
+              .executeInsert(scalar[UUID].singleOpt)
         }
       }
     }
@@ -226,9 +239,10 @@ class DatabaseSpec extends PlaySpec {
     "return all projects" in {
       testDB { test_db =>
         test_db.withConnection { implicit conn =>
-          val id: Option[Long] =
+          val id: Option[UUID] =
             SQL(
-              "INSERT INTO project(name, " +
+              "INSERT INTO project(project_id," +
+                "name, " +
                 "description," +
                 "timestamp_created," +
                 "timestamp_edited," +
@@ -237,27 +251,29 @@ class DatabaseSpec extends PlaySpec {
                 "created_by," +
                 "last_edited_by," +
                 "client_id)" +
-                "values({name}," +
+                "values({project_id}::uuid," +
+                "{name}," +
                 "{description}," +
                 "{timestamp_created}," +
                 "{timestamp_edited}," +
                 "{billable}," +
-                "{owned_by}," +
-                "{created_by}," +
-                "{last_edited_by}," +
-                "{client_id})"
+                "{owned_by}::uuid," +
+                "{created_by}::uuid," +
+                "{last_edited_by}::uuid," +
+                "{client_id}::uuid)"
             ).on(
+              "project_id"   -> "92440b0b-62d6-499f-bc27-4931bb3fa344",
                 "name"              -> "Testiprojekti",
                 "description"       -> "Luotu testausta varten",
                 "timestamp_created" -> "2014-11-21 04:25:10",
                 "timestamp_edited"  -> "2014-11-21 04:25:10",
                 "billable"          -> "TRUE",
-                "owned_by"          -> "1",
-                "created_by"        -> "1",
-                "last_edited_by"    -> "1",
-                "client_id"  -> "1"
+                "owned_by"          -> "9fa407f4-7375-446b-92c6-c578839b7780",
+                "created_by"        -> "9fa407f4-7375-446b-92c6-c578839b7780",
+                "last_edited_by"    -> "9fa407f4-7375-446b-92c6-c578839b7780",
+                "client_id"  -> "1bb44a7e-cd7c-447d-a9e9-26495b52fa88"
               )
-              .executeInsert()
+              .executeInsert(scalar[UUID].singleOpt)
           val projectList: List[String] = SQL("SELECT * FROM project")
             .as(allProjectsParser)
           projectList.head.contains("Testi_projekti") mustBe true
@@ -271,9 +287,10 @@ class DatabaseSpec extends PlaySpec {
         testDB { test_db =>
           test_db.withConnection { implicit conn =>
             try {
-              val id: Option[Long] =
+              val id: UUID =
                 SQL(
-                  "INSERT INTO project(name, " +
+                  "INSERT INTO project(project_id," +
+                    "name, " +
                     "description," +
                     "timestamp_created," +
                     "timestamp_edited," +
@@ -281,25 +298,27 @@ class DatabaseSpec extends PlaySpec {
                     "created_by," +
                     "last_edited_by," +
                     "client_id)" +
-                    "values({name}," +
+                    "values({project_id}::uuid," +
+                    "{name}," +
                     "{description}," +
                     "{timestamp_created}," +
                     "{timestamp_edited}," +
                     "{billable}," +
-                    "{created_by}," +
-                    "{last_edited_by}," +
-                    "{cliet_id})"
+                    "{created_by}::uuid," +
+                    "{last_edited_by}::uuid," +
+                    "{client_id}::uuid)"
                 ).on(
+                  "project_id" -> "9eedef96-d8d3-401b-b5eb-cf61d8d61f63",
                   "name" -> "Testiprojekti",
                   "description" -> "Luotu testausta varten",
                   "timestamp_created" -> "2014-11-21 04:25:10",
                   "timestamp_edited" -> "2014-11-21 04:25:10",
                   "billable" -> "TRUE",
-                  "created_by" -> "1",
-                  "last_edited_by" -> "1",
-                  "client_id" -> "1"
+                  "created_by" -> "fa407f4-7375-446b-92c6-c578839b7780",
+                  "last_edited_by" -> "fa407f4-7375-446b-92c6-c578839b7780",
+                  "client_id" -> "1bb44a7e-cd7c-447d-a9e9-26495b52fa88"
                 )
-                  .executeInsert()
+                  .executeInsert(scalar[UUID].single)
             } catch {
               case notAllowed: Exception => throw new Exception("Not allowed")
             }
@@ -314,7 +333,7 @@ class DatabaseSpec extends PlaySpec {
         testDB { test_db =>
           test_db.withConnection { implicit conn =>
             try {
-              val id: Option[Long] =
+              val id: UUID =
                 SQL(
                   "INSERT INTO Project(project_id," +
                     "name, " +
@@ -326,29 +345,29 @@ class DatabaseSpec extends PlaySpec {
                     "created_by," +
                     "last_edited_by," +
                     "client_id)" +
-                    "values({project_id}," +
+                    "values({project_id}::uuid," +
                     "{name}," +
                     "{description}," +
                     "{timestamp_created}," +
                     "{timestamp_edited}," +
                     "{billable}," +
-                    "{owned_by}" +
-                    "{created_by}," +
-                    "{last_edited_by}," +
-                    "{client_id})"
+                    "{owned_by}::uuid," +
+                    "{created_by}::uuid," +
+                    "{last_edited_by}::uuid," +
+                    "{client_id}::uuid)"
                 ).on(
-                  "project_id" -> "1",
+                  "project_id" -> "44e4653d-7f71-4cf2-90f3-804f949ba264",
                   "name" -> "Testiprojekti",
                   "description" -> "Luotu testausta varten",
                   "timestamp_created" -> "2014-11-21 04:25:10",
                   "timestamp_edited" -> "2014-11-21 04:25:10",
                   "billable" -> "TRUE",
-                  "owned_by" -> "1",
-                  "created_by" -> "1",
-                  "last_edited_by" -> "1",
-                  "client_id" -> "1"
+                  "owned_by" -> "9fa407f4-7375-446b-92c6-c578839b7780",
+                  "created_by" -> "9fa407f4-7375-446b-92c6-c578839b7780",
+                  "last_edited_by" -> "9fa407f4-7375-446b-92c6-c578839b7780",
+                  "client_id" -> "1bb44a7e-cd7c-447d-a9e9-26495b52fa88"
                 )
-                  .executeInsert()
+                  .executeInsert(scalar[UUID].single)
             } catch {
               case notAllowed: Exception => throw new Exception("Not allowed")
             }
