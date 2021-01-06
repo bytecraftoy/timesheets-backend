@@ -1,14 +1,55 @@
 package controllers
 
-import java.time.LocalDate
+import dto.AddTimeInputDTO
 
-import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
+import java.time.LocalDate
+import play.api.libs.json.{Format, JsError, JsSuccess, JsValue, Json, OFormat, Reads}
+import play.api.libs.json._
+import play.api.libs.json.Reads._
+import play.api.libs.functional.syntax._
+
 import javax.inject._
 import play.api.mvc._
-import models.{AddTimeInputDTO, TimeInput}
+import models.{Project, ProjectRepository, TimeInput, TimeInputRepository, User}
 
-class TimeInputController @Inject() (cc: ControllerComponents)
+import java.util.UUID
+import scala.concurrent.ExecutionContext
+
+class TimeInputController @Inject() (cc: ControllerComponents,
+                                     timeInputRepository: TimeInputRepository,
+                                     projectRepository: ProjectRepository
+                                     ) (implicit executionContext: ExecutionContext)
     extends AbstractController(cc) {
+
+
+  case class AddTimeInputDTO(
+    input: Long,
+    project: UUID,
+    employee: UUID,
+    date: String
+  ) {
+    def asTimeInput: TimeInput = {
+      TimeInput(
+        input = this.input,
+        project = projectRepository.byId(this.project),
+        employee = User.byId(this.employee),
+        date =
+          LocalDate.parse(
+            this.date
+          ) // dateInput must be a String in format "yyyy-MM-dd"
+      )
+    }
+
+  }
+  object AddTimeInputDTO {
+    implicit val readTimeInputDTO: Reads[AddTimeInputDTO] =
+      Json.reads[AddTimeInputDTO]
+  }
+  implicit def projectFormat: OFormat[Project] =
+    Json.using[Json.WithDefaultValues].format[Project]
+
+  implicit def timeInputFormat: OFormat[TimeInput] =
+    Json.using[Json.WithDefaultValues].format[TimeInput]
 
   def getData(start: String, end: String): Action[AnyContent] = {
     if (start == "getAll") {
@@ -20,7 +61,7 @@ class TimeInputController @Inject() (cc: ControllerComponents)
 
   def getAll: Action[AnyContent] =
     Action {
-      val json = Json.toJson(TimeInput.all)
+      val json = Json.toJson(timeInputRepository.all)
       Ok(json)
     }
 
@@ -32,7 +73,7 @@ class TimeInputController @Inject() (cc: ControllerComponents)
         // TODO: log error
       }
       val timeInput =
-        TimeInput.byTimeInterval(startDate.minusDays(1), endDate.plusDays(1))
+        timeInputRepository.byTimeInterval(startDate.minusDays(1), endDate.plusDays(1))
       val json = Json.toJson(timeInput)
       Ok(json)
     }
@@ -42,9 +83,9 @@ class TimeInputController @Inject() (cc: ControllerComponents)
       request.body.validate[AddTimeInputDTO] match {
         case JsSuccess(createTimeInputDTO, _) => {
           createTimeInputDTO.asTimeInput match {
-            case t: TimeInput => {
-              TimeInput.add(t)
-              Ok(Json.toJson(t))
+            case timeInput: TimeInput => {
+              timeInputRepository.add(timeInput)
+              Ok(Json.toJson(timeInput))
             }
             case other => InternalServerError
           }
@@ -56,7 +97,7 @@ class TimeInputController @Inject() (cc: ControllerComponents)
     }
 
   def byProject(
-    id: Long,
+    id: String,
     employee: String,
     start: String,
     end: String
@@ -66,9 +107,9 @@ class TimeInputController @Inject() (cc: ControllerComponents)
         if (start == "getAll") LocalDate.MIN else LocalDate.parse(start)
       val endDate =
         if (start == "getAll") LocalDate.MAX else LocalDate.parse(end)
-      val json = TimeInput.jsonByProject(
-        i = id,
-        employeeId = employee.toLong,
+      val json = timeInputRepository.jsonByProject(
+        i = UUID.fromString(id),
+        employeeId = UUID.fromString(employee),
         start = startDate,
         end = endDate
       )
@@ -85,11 +126,12 @@ class TimeInputController @Inject() (cc: ControllerComponents)
         if (start == "getAll") LocalDate.MIN else LocalDate.parse(start)
       val endDate =
         if (start == "getAll") LocalDate.MAX else LocalDate.parse(end)
-      val json = TimeInput.jsonGroupedByProject(
-        employeeId = employee.toLong,
+      val json = timeInputRepository.jsonGroupedByProject(
+        employeeId = UUID.fromString(employee),
         start = startDate,
         end = endDate
       )
       Ok(json)
     }
 }
+

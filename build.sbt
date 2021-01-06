@@ -18,7 +18,7 @@ libraryDependencies ++= Seq(
   evolutions,
   jdbc,
   "com.h2database" % "h2" % "1.4.195",
-  "org.playframework.anorm" %% "anorm" % "2.6.4",
+  "org.playframework.anorm" %% "anorm" % "2.6.8",
   "org.postgresql" % "postgresql" % "42.2.18"
 )
 
