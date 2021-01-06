@@ -16,8 +16,6 @@ CREATE TABLE app_user
 );
 
 
-
-
 CREATE TABLE project (
                     project_id uuid NOT NULL,
                     name text NOT NULL,
