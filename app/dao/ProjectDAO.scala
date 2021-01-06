@@ -76,22 +76,16 @@ class ProjectDAOAnorm @Inject()(db: Database) extends ProjectDAO {
 
         val allProjectsParser: ResultSetParser[List[Project]] = projectParser.*
 
-        val projectResult: List[Project] = SQL("SELECT project.project_id, " +
+        val projectResult: List[Project] = SQL("SELECT DISTINCT project.project_id, " +
           "project.name, project.description, " +
           "project.timestamp_created, project.timestamp_edited, " +
           "project.billable," +
           "project.owned_by, project.created_by, " +
           "project.last_edited_by, project.client_id," +
           "client.name, client.email, client.timestamp_created, " +
-          "client.timestamp_edited," +
-          "app_user.username," +
-          "app_user.first_name, app_user.last_name, " +
-          "app_user.email, " +
-          "app_user.phone_number, app_user.salary, " +
-          "app_user.is_manager, app_user.timestamp_created," +
-          "app_user.timestamp_edited " +
-          "FROM project, client, app_user " +
-          "WHERE project.client_id = client.client_id;")
+          "client.timestamp_edited " +
+          "FROM project " +
+          "INNER JOIN client ON (project.client_id = client.client_id);")
           .as(allProjectsParser)
 
         /* TODO: Add lists of managers and employees to the project

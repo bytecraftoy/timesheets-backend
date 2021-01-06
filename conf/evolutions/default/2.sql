@@ -42,7 +42,7 @@ INSERT INTO project (project_id,
                      created_by,
                      last_edited_by,
                      client_id)
-VALUES ('44e4653d-7f71-4cf2-90f3-804f949ba264',
+VALUES ('a3eb6db5-5212-46d0-bd08-8e852a45e0d3',
         'Testi_projekti',
         'Testi-projektin kuvaus',
         '2004-10-19 10:23:54',

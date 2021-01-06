@@ -356,7 +356,7 @@ class DatabaseSpec extends PlaySpec {
                     "{last_edited_by}::uuid," +
                     "{client_id}::uuid)"
                 ).on(
-                  "project_id" -> "44e4653d-7f71-4cf2-90f3-804f949ba264",
+                  "project_id" -> "a3eb6db5-5212-46d0-bd08-8e852a45e0d3",
                   "name" -> "Testiprojekti",
                   "description" -> "Luotu testausta varten",
                   "timestamp_created" -> "2014-11-21 04:25:10",
