@@ -2,7 +2,7 @@ package models
 
 import play.api.libs.json.{JsObject, JsValue, Json, OFormat, Reads}
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 import java.util.UUID
 import scala.collection.mutable.ArrayBuffer
 
@@ -27,7 +27,8 @@ case class TimeInput(
   employee: User = User.dummyEmployee,
   date: LocalDate = LocalDate.now(),
   creationTimestamp: Long = System.currentTimeMillis(),
-  lastEdited: Long = System.currentTimeMillis()
+  lastEdited: Long = System.currentTimeMillis(),
+  description: String = "This timeinput was created on " + LocalDateTime.now()
 //  billed: Boolean = false,
 //  confirmed: Boolean = false
 ) {
@@ -37,7 +38,7 @@ case class TimeInput(
       "input"             -> input,
       "date"              -> date,
       "creationTimestamp" -> creationTimestamp,
-      "lastEdited"        -> lastEdited
+      "lastEdited"        -> lastEdited,
+      "description"       -> description
     )
 }
-
