@@ -29,7 +29,7 @@ class TimeInputControllerSpec
   "TimeInputController POST" should {
     "parse TimeInput JSON correctly" in {
       val jsonString =
-        """{"input": 7.5,
+        """{"input": 450,
           |"project": 1000,
           |"employee": 1,
           |"date": "2020-12-17"}""".stripMargin
@@ -58,7 +58,7 @@ class TimeInputControllerSpec
 
     "result in a TimeInput being recorded and retrievable" in {
       val jsonString =
-        """{"input": 7.5,
+        """{"input": 450,
           |"project": 1000,
           |"employee": 1,
           |"date": "2000-12-17"}""".stripMargin
