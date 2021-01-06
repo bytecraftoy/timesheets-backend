@@ -1,6 +1,6 @@
 package models
 import com.google.inject.ImplementedBy
-import play.api.libs.json.{JsObject, Json, OFormat}
+import play.api.libs.json.{JsObject, JsValue, Json, OFormat}
 
 import java.time.LocalDate
 import java.util.UUID
@@ -14,23 +14,24 @@ trait TimeInputRepository extends Repository[TimeInput] {
   def byTimeInterval(start: LocalDate, end: LocalDate): Seq[TimeInput]
 
   def jsonByProject(
-                     i: UUID,
-                     employeeId: UUID,
-                     start: LocalDate = LocalDate.MIN,
-                     end: LocalDate = LocalDate.MAX
-                   ): JsObject
+    i: UUID,
+    employeeId: UUID,
+    start: LocalDate = LocalDate.MIN,
+    end: LocalDate = LocalDate.MAX
+  ): JsValue
 
   def jsonGroupedByProject(
-                            employeeId: UUID,
-                            start: LocalDate = LocalDate.MIN,
-                            end: LocalDate = LocalDate.MAX
-                          ): JsObject
+    employeeId: UUID,
+    start: LocalDate = LocalDate.MIN,
+    end: LocalDate = LocalDate.MAX
+  ): JsObject
 
 }
 
-class DevelopmentTimeInputRepository @Inject()(projectRepository: ProjectRepository)
-                                              (implicit executionContext: ExecutionContext)
-  extends TimeInputRepository {
+class DevelopmentTimeInputRepository @Inject() (
+  projectRepository: ProjectRepository
+)(implicit executionContext: ExecutionContext)
+    extends TimeInputRepository {
 
   val input1: TimeInput = TimeInput(
     id = UUID.fromString("9147e577-7303-4c59-9d77-8d1216968646"),
@@ -117,7 +118,8 @@ class DevelopmentTimeInputRepository @Inject()(projectRepository: ProjectReposit
       tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
       creationTimestamp = 100000000000L,
       lastEdited = 100000000010L,
-      lastEditor = User.dummyManager2),
+      lastEditor = User.dummyManager2
+    ),
     employee = User.dummyEmployee,
     date = LocalDate.parse("2020-11-19"),
     creationTimestamp = 100000000000L,
@@ -139,7 +141,8 @@ class DevelopmentTimeInputRepository @Inject()(projectRepository: ProjectReposit
       tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
       creationTimestamp = 100000000000L,
       lastEdited = 100000000010L,
-      lastEditor = User.dummyManager2),
+      lastEditor = User.dummyManager2
+    ),
     employee = User.dummyEmployee,
     date = LocalDate.parse("2020-11-20"),
     creationTimestamp = 100000000000L,
@@ -153,7 +156,8 @@ class DevelopmentTimeInputRepository @Inject()(projectRepository: ProjectReposit
     Json.using[Json.WithDefaultValues].format[TimeInput]
   }
 
-  val timeInputInMemory: ArrayBuffer[TimeInput] = ArrayBuffer(input1, input2, input3, input4, input5)
+  val timeInputInMemory: ArrayBuffer[TimeInput] =
+    ArrayBuffer(input1, input2, input3, input4, input5)
 
   def all: Seq[TimeInput] = timeInputInMemory.toSeq
 
@@ -165,17 +169,16 @@ class DevelopmentTimeInputRepository @Inject()(projectRepository: ProjectReposit
   def byTimeInterval(start: LocalDate, end: LocalDate): Seq[TimeInput] =
     all.filter(x => x.date.isAfter(start) && x.date.isBefore(end))
 
-  def add(timeInput: TimeInput): Unit =  timeInputInMemory append timeInput
-
+  def add(timeInput: TimeInput): Unit = timeInputInMemory append timeInput
 
   def jsonByProject(
-                     i: UUID,
-                     employeeId: UUID,
-                     start: LocalDate = LocalDate.MIN,
-                     end: LocalDate = LocalDate.MAX
-                   ): JsObject =
-    Json.obj(
-      "inputs" -> all
+    i: UUID,
+    employeeId: UUID,
+    start: LocalDate = LocalDate.MIN,
+    end: LocalDate = LocalDate.MAX
+  ): JsValue =
+    Json.toJson(
+      all
         .filter(
           t =>
             (t.date.isAfter(start) || t.date.isEqual(start))
@@ -195,10 +198,10 @@ class DevelopmentTimeInputRepository @Inject()(projectRepository: ProjectReposit
     )
 
   def jsonGroupedByProject(
-                            employeeId: UUID,
-                            start: LocalDate = LocalDate.MIN,
-                            end: LocalDate = LocalDate.MAX
-                          ): JsObject =
+    employeeId: UUID,
+    start: LocalDate = LocalDate.MIN,
+    end: LocalDate = LocalDate.MAX
+  ): JsObject =
     Json.obj(
       "id"       -> employeeId,
       "username" -> User.byId(employeeId).username,
