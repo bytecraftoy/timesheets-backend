@@ -7,7 +7,7 @@ import scala.collection.mutable.ArrayBuffer
 
 case class TimeInput(
   id: Long = TimeInput.all.maxBy(_.id).id + 1,
-  input: BigDecimal = 0,
+  input: Long = 0,
   project: Project = Project.dummy,
   employee: User = User.dummyEmployee,
   date: LocalDate = LocalDate.now(),
@@ -28,7 +28,7 @@ case class TimeInput(
 object TimeInput {
   val input1: TimeInput = TimeInput(
     id = 1,
-    input = 7.5,
+    input = 450,
     project = Project.dummy,
     employee = User.dummyEmployee,
     date = LocalDate.parse("2020-12-16"),
@@ -37,7 +37,7 @@ object TimeInput {
   )
   val input2: TimeInput = TimeInput(
     id = 2,
-    input = 7.5,
+    input = 450,
     project = Project.dummy,
     employee = User.dummyEmployee,
     date = LocalDate.parse("2020-12-17"),
@@ -46,7 +46,7 @@ object TimeInput {
   )
   val input3: TimeInput = TimeInput(
     id = 3,
-    input = 7.5,
+    input = 450,
     project = Project.dummy,
     employee = User.dummyEmployee,
     date = LocalDate.parse("2020-12-18"),
@@ -55,7 +55,7 @@ object TimeInput {
   )
   val input4: TimeInput = TimeInput(
     id = 4,
-    input = 7.5,
+    input = 450,
     project = Project.dummy2,
     employee = User.dummyEmployee,
     date = LocalDate.parse("2020-12-28"),
@@ -64,7 +64,7 @@ object TimeInput {
   )
   val input5: TimeInput = TimeInput(
     id = 5,
-    input = 7.5,
+    input = 450,
     project = Project.dummy2,
     employee = User.dummyEmployee,
     date = LocalDate.parse("2020-12-30"),
@@ -140,7 +140,7 @@ object TimeInput {
 }
 
 case class AddTimeInputDTO(
-  input: BigDecimal,
+  input: Long,
   project: Long,
   employee: Long,
   date: String
