@@ -57,6 +57,7 @@ class ClientController @Inject() (
   def add(name: String, email: String): Action[AnyContent] =
     Action {
       try {
+        val ZERO: Long = 0;
         val nameDec  = URLDecoder.decode(name, StandardCharsets.UTF_8.toString)
         val emailDec = URLDecoder.decode(email, StandardCharsets.UTF_8.toString)
         clientRepo.add(
@@ -64,8 +65,8 @@ class ClientController @Inject() (
             randomUUID(),
             nameDec,
             emailDec,
-            Calendar.getInstance().getTimeInMillis,
-            Calendar.getInstance().getTimeInMillis
+            ZERO,
+            ZERO
           )
         )
         Ok(s"""{"message": "Successfully inserted a client: $nameDec"}""")

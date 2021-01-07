@@ -42,9 +42,9 @@ class ClientDAOAnorm @Inject() (db: Database) extends ClientDAO with Logging {
     db.withConnection { implicit connection =>
       val sql =
         "INSERT INTO client (client_id, name, email, timestamp_created, timestamp_edited)" +
-          " VALUES ({id}, {name}, {email}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);"
-      logger.debug("ClientDAOAnorm.add, SQL = $sql")
-      SQL(sql).bind(client).executeInsert()
+          " VALUES ({id}::uuid, {name}, {email}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);"
+      logger.debug(s"ClientDAOAnorm.add, SQL = $sql")
+      SQL(sql).bind(client).executeInsert(anorm.SqlParser.scalar[java.util.UUID].singleOpt)
     }
   }
 
