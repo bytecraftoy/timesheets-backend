@@ -193,7 +193,8 @@ class DevelopmentTimeInputRepository @Inject() (
               "input"             -> ti.input,
               "date"              -> ti.date,
               "creationTimestamp" -> ti.creationTimestamp,
-              "lastEdited"        -> ti.lastEdited
+              "lastEdited"        -> ti.lastEdited,
+              "description"       -> ti.description
             )
         )
     )
@@ -204,8 +205,6 @@ class DevelopmentTimeInputRepository @Inject() (
     end: LocalDate = LocalDate.MAX
   ): JsObject =
     Json.obj(
-      "id"       -> employeeId,
-      "username" -> User.byId(employeeId).username,
       "projects" -> all
         .filter(
           timeInput =>
