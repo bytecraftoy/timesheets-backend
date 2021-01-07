@@ -26,6 +26,7 @@ import models.{
   TimeInputRepository,
   User
 }
+import play.api.Logging
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext
@@ -35,8 +36,8 @@ class TimeInputController @Inject() (
   timeInputRepository: TimeInputRepository,
   projectRepository: ProjectRepository
 )(implicit executionContext: ExecutionContext)
-    extends AbstractController(cc) {
-
+    extends AbstractController(cc)
+    with Logging {
 
   case class AddTimeInputDTO(
     input: Long,
@@ -104,14 +105,44 @@ class TimeInputController @Inject() (
         case JsSuccess(createTimeInputDTO, _) => {
           createTimeInputDTO.asTimeInput match {
             case timeInput: TimeInput => {
-              timeInputRepository.add(timeInput)
-              Ok(Json.toJson(timeInput))
+              if (timeInput.input < 0) {
+                val msg = "Time must be non-negative"
+                logger.error(msg)
+                BadRequest(
+                  Json.obj("message" -> msg)
+                ) // TODO: consider moving this check to DTO
+              } else {
+                if (
+                  timeInputRepository.all.exists(
+                    tir =>
+                      tir.id == timeInput.id
+                        || (tir.employee == timeInput.employee
+                          && tir.project == timeInput.project
+                          && tir.date == timeInput.date)
+                  ) // TODO: consider moving this uniqueness check to database
+                ) {
+                  val msg = "Input must not be a duplicate of any existing"
+                  logger.error(msg)
+                  Conflict(Json.obj("message" -> msg))
+                } else {
+                  timeInputRepository.add(timeInput)
+                  Ok(Json.toJson(timeInput))
+                }
+              }
             }
-            case other => InternalServerError
+            case other => {
+              logger.error(other.toString)
+              InternalServerError(
+                Json.obj("message" -> other.toString)
+              ) // TODO: handle more specific cases
+            }
           }
         }
         case JsError(errors) => {
-          BadRequest // TODO: log errors
+          logger.error(errors.toString)
+          BadRequest(
+            Json.obj("message" -> errors.toString())
+          ) // TODO: more specific error code
         }
       }
     }
