@@ -4,7 +4,9 @@ import com.google.inject.ImplementedBy
 import dao.ProjectDAO
 import play.api.libs.json.{Json, OFormat}
 
-import java.util.UUID
+import java.time.Clock
+import java.util.UUID.randomUUID
+import java.util.{Calendar, UUID}
 import javax.inject.Inject
 import scala.collection.mutable.ArrayBuffer
 
@@ -25,7 +27,7 @@ class DevelopmentProjectRepository @Inject()(projectDao: ProjectDAO) extends Pro
       owner = User.dummyManager,
       creator = User.dummyManager,
       managers = List(User.dummyManager, User.dummyManager2),
-      client = Client.client1,
+      client = Client(randomUUID(), "client " + Clock.systemUTC().instant(), "some@email.invalid", Calendar.getInstance().getTimeInMillis, Calendar.getInstance().getTimeInMillis),
       billable = false,
       employees = List(User.dummyEmployee, User.dummyEmployee2),
       tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
@@ -42,7 +44,7 @@ class DevelopmentProjectRepository @Inject()(projectDao: ProjectDAO) extends Pro
       owner = User.dummyManager2,
       creator = User.dummyManager2,
       managers = List(User.dummyManager2),
-      client = Client.client3,
+      client = Client(randomUUID(), "client " + Clock.systemUTC().instant(), "some@email.invalid", Calendar.getInstance().getTimeInMillis, Calendar.getInstance().getTimeInMillis),
       billable = false,
       employees = List(User.dummyEmployee2),
       tags = List("Back-end", "Front-end", "Fullstack", "Planning"),

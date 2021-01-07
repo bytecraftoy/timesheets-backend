@@ -33,8 +33,13 @@
 
   <logger name="play" level="INFO" />
   <logger name="application" level="DEBUG" />
+  <logger name="com.codeflow.timesheets" level="DEBUG" />
 
-  <root level="WARN">
+  <logger name="com.zaxxer.hikari">
+    <level value="ERROR"/>
+  </logger>
+
+  <root level="INFO">
     <appender-ref ref="ASYNCFILE" />
     <appender-ref ref="ASYNCSTDOUT" />
   </root>

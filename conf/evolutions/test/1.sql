@@ -53,11 +53,13 @@ ALTER TABLE project_app_user ADD CONSTRAINT app_user_fk FOREIGN KEY (app_user_id
 CREATE TABLE client (
                     client_id uuid NOT NULL,
                     name text,
-                    email text,
+                    email VARCHAR(256),
                     timestamp_created timestamp,
                     timestamp_edited timestamp,
                     CONSTRAINT client_pk PRIMARY KEY (client_id)
 );
+
+CREATE UNIQUE INDEX idx_client_email ON client(email);
 
 ALTER TABLE project ADD CONSTRAINT client_fk FOREIGN KEY (client_id)
     REFERENCES client (client_id)

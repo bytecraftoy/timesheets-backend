@@ -1,11 +1,11 @@
 package models
 
-import play.api.libs.json.{JsValue, Json, OFormat, OWrites, Reads, _}
+import play.api.libs.json.{Json, OFormat}
 
 import java.util.UUID.randomUUID
-import java.util.UUID
-import javax.inject.Inject
-import scala.collection.mutable.ArrayBuffer
+import java.util.{Calendar, UUID}
+
+import java.time.Clock
 
 case class Project (
                      id: UUID = randomUUID(),
@@ -14,7 +14,7 @@ case class Project (
                      owner: User = User.dummyManager,
                      creator: User = User.dummyManager,
                      managers: List[User] = List(),
-                     client: Client = Client.client1,
+                     client: Client = Client(randomUUID(), "client " + Clock.systemUTC().instant(), "some@email.invalid", Calendar.getInstance().getTimeInMillis, Calendar.getInstance().getTimeInMillis),
                      billable: Boolean = true,
                      employees: List[User] = List(),
                      tags: List[String] = List(),
@@ -25,28 +25,4 @@ case class Project (
                   ) {
   implicit def projectFormat: OFormat[Project] =
     Json.using[Json.WithDefaultValues].format[Project]
-}
-
-case class AddProjectDTO(
-  name: String,
-  description: String,
-  client: UUID,
-  owner: UUID,
-  billable: Boolean
-) {
-
-  def asProject: Project =
-    Project(
-      name = this.name,
-      description = this.description,
-      client = Client.byId(this.client),
-      owner = User.byId(this.owner),
-      creator = User.byId(this.owner),
-      managers = List(User.byId(this.owner)),
-      lastEditor = User.byId(this.owner),
-      billable = this.billable
-    )
-}
-object AddProjectDTO {
-  implicit val readProjectDTO: Reads[AddProjectDTO] = Json.reads[AddProjectDTO]
 }
