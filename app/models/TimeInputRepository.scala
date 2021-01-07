@@ -192,7 +192,8 @@ class DevelopmentTimeInputRepository @Inject() (
               "input"             -> ti.input,
               "date"              -> ti.date,
               "creationTimestamp" -> ti.creationTimestamp,
-              "lastEdited"        -> ti.lastEdited
+              "lastEdited"        -> ti.lastEdited,
+              "description"       -> ti.description
             )
         )
     )
