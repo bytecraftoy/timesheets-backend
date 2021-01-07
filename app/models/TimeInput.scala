@@ -2,9 +2,12 @@ package models
 
 import play.api.libs.json.{JsObject, JsValue, Json, OFormat, Reads}
 
-import java.time.{LocalDate, LocalDateTime}
 import java.util.UUID
-import scala.collection.mutable.ArrayBuffer
+import java.util.UUID.randomUUID
+import java.util.Calendar
+import java.time.Clock
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 case class TimeInput(
   id: UUID = UUID.randomUUID(),
@@ -16,7 +19,7 @@ case class TimeInput(
     owner = User.dummyManager,
     creator = User.dummyManager,
     managers = List(User.dummyManager, User.dummyManager2),
-    client = Client.client1,
+    client = Client(randomUUID(), "client " + Clock.systemUTC().instant(), "some@email.invalid", Calendar.getInstance().getTimeInMillis, Calendar.getInstance().getTimeInMillis),
     billable = false,
     employees = List(User.dummyEmployee, User.dummyEmployee2),
     tags = List("Back-end", "Front-end", "Fullstack", "Planning"),

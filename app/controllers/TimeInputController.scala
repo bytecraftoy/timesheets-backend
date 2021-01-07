@@ -3,22 +3,38 @@ package controllers
 import dto.AddTimeInputDTO
 
 import java.time.LocalDate
-import play.api.libs.json.{Format, JsError, JsSuccess, JsValue, Json, OFormat, Reads}
+import play.api.libs.json.{
+  Format,
+  JsError,
+  JsSuccess,
+  JsValue,
+  Json,
+  OFormat,
+  Reads
+}
 import play.api.libs.json._
 import play.api.libs.json.Reads._
 import play.api.libs.functional.syntax._
 
 import javax.inject._
 import play.api.mvc._
-import models.{Project, ProjectRepository, TimeInput, TimeInputRepository, User}
+import models.{
+  Client,
+  Project,
+  ProjectRepository,
+  TimeInput,
+  TimeInputRepository,
+  User
+}
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext
 
-class TimeInputController @Inject() (cc: ControllerComponents,
-                                     timeInputRepository: TimeInputRepository,
-                                     projectRepository: ProjectRepository
-                                     ) (implicit executionContext: ExecutionContext)
+class TimeInputController @Inject() (
+  cc: ControllerComponents,
+  timeInputRepository: TimeInputRepository,
+  projectRepository: ProjectRepository
+)(implicit executionContext: ExecutionContext)
     extends AbstractController(cc) {
 
 
@@ -28,6 +44,7 @@ class TimeInputController @Inject() (cc: ControllerComponents,
     employee: UUID,
     date: String
   ) {
+
     def asTimeInput: TimeInput = {
       TimeInput(
         input = this.input,
@@ -39,8 +56,8 @@ class TimeInputController @Inject() (cc: ControllerComponents,
           ) // dateInput must be a String in format "yyyy-MM-dd"
       )
     }
-
   }
+
   object AddTimeInputDTO {
     implicit val readTimeInputDTO: Reads[AddTimeInputDTO] =
       Json.reads[AddTimeInputDTO]
@@ -73,7 +90,10 @@ class TimeInputController @Inject() (cc: ControllerComponents,
         // TODO: log error
       }
       val timeInput =
-        timeInputRepository.byTimeInterval(startDate.minusDays(1), endDate.plusDays(1))
+        timeInputRepository.byTimeInterval(
+          startDate.minusDays(1),
+          endDate.plusDays(1)
+        )
       val json = Json.toJson(timeInput)
       Ok(json)
     }
@@ -134,4 +154,3 @@ class TimeInputController @Inject() (cc: ControllerComponents,
       Ok(json)
     }
 }
-

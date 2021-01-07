@@ -2,8 +2,9 @@ package models
 import com.google.inject.ImplementedBy
 import play.api.libs.json.{JsObject, JsValue, Json, OFormat}
 
-import java.time.LocalDate
-import java.util.UUID
+import java.time.{Clock, LocalDate}
+import java.util.{Calendar, UUID}
+import java.util.UUID.randomUUID
 import javax.inject.Inject
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext
@@ -43,7 +44,7 @@ class DevelopmentTimeInputRepository @Inject() (
       owner = User.dummyManager,
       creator = User.dummyManager,
       managers = List(User.dummyManager, User.dummyManager2),
-      client = Client.client1,
+      client = Client(randomUUID(), "client " + Clock.systemUTC().instant(), "some@email.invalid", Calendar.getInstance().getTimeInMillis, Calendar.getInstance().getTimeInMillis),
       billable = false,
       employees = List(User.dummyEmployee, User.dummyEmployee2),
       tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
@@ -66,7 +67,7 @@ class DevelopmentTimeInputRepository @Inject() (
       owner = User.dummyManager,
       creator = User.dummyManager,
       managers = List(User.dummyManager, User.dummyManager2),
-      client = Client.client1,
+      client = Client(randomUUID(), "client " + Clock.systemUTC().instant(), "some@email.invalid", Calendar.getInstance().getTimeInMillis, Calendar.getInstance().getTimeInMillis),
       billable = false,
       employees = List(User.dummyEmployee, User.dummyEmployee2),
       tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
@@ -89,7 +90,7 @@ class DevelopmentTimeInputRepository @Inject() (
       owner = User.dummyManager,
       creator = User.dummyManager,
       managers = List(User.dummyManager, User.dummyManager2),
-      client = Client.client1,
+      client = Client(randomUUID(), "client " + Clock.systemUTC().instant(), "some@email.invalid", Calendar.getInstance().getTimeInMillis, Calendar.getInstance().getTimeInMillis),
       billable = false,
       employees = List(User.dummyEmployee, User.dummyEmployee2),
       tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
@@ -112,7 +113,7 @@ class DevelopmentTimeInputRepository @Inject() (
       owner = User.dummyManager2,
       creator = User.dummyManager2,
       managers = List(User.dummyManager2),
-      client = Client.client3,
+      client = Client(randomUUID(), "client " + Clock.systemUTC().instant(), "some@email.invalid", Calendar.getInstance().getTimeInMillis, Calendar.getInstance().getTimeInMillis),
       billable = false,
       employees = List(User.dummyEmployee2),
       tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
@@ -135,7 +136,7 @@ class DevelopmentTimeInputRepository @Inject() (
       owner = User.dummyManager2,
       creator = User.dummyManager2,
       managers = List(User.dummyManager2),
-      client = Client.client3,
+      client = Client(randomUUID(), "client " + Clock.systemUTC().instant(), "some@email.invalid", Calendar.getInstance().getTimeInMillis, Calendar.getInstance().getTimeInMillis),
       billable = false,
       employees = List(User.dummyEmployee2),
       tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
