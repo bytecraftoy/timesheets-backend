@@ -16,7 +16,7 @@ GET         /projects                  controllers.ProjectController.listProject
 GET         /projects/:id/hours        controllers.TimeInputController.byProject(id: String, userId: String ?= "5f37bc60-3f7a-436a-a238-2b4f908fd235", startDate: String ?= "getAll", endDate: String ?= "")
 
 # List all managers [for now, they are just the employees]
-GET         /managers                  controllers.ManagerController.listEmployees
+GET         /managers                  controllers.ManagerController.listManagers
 
 # List all clients
 GET         /clients                   controllers.ClientController.listClients

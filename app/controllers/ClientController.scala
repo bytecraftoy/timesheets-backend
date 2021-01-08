@@ -26,6 +26,7 @@ class ClientController @Inject() (
         Ok(json)
       } catch {
         case error: Exception =>
+          logger.error(error.getMessage)
           BadRequest(s"""{"message": "Error retrieving clients: $error"}""")
             .as(JSON)
       }

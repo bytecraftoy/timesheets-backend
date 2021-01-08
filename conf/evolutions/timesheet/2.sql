@@ -53,9 +53,13 @@ VALUES ('a3eb6db5-5212-46d0-bd08-8e852a45e0d3',
         '06be4b85-8f65-4f65-8965-faba1216f199',
         '1bb44a7e-cd7c-447d-a9e9-26495b52fa88');
 
+
+INSERT INTO project_app_user (project_id, app_user_id)
+VALUES ('a3eb6db5-5212-46d0-bd08-8e852a45e0d3', '9fa407f4-7375-446b-92c6-c578839b7780');
+
 # --- !Downs
 
-DELETE FROM project WHERE name='Testi_projekti';
 DELETE FROM client WHERE name='Esimerkkiasiakas';
 DELETE FROM app_user WHERE first_name='Toka';
 DELETE FROM app_user WHERE first_name='Eka';
+DELETE FROM project WHERE name='Testi_projekti';

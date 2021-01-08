@@ -1,7 +1,7 @@
 package dao
 
 import anorm.{ResultSetParser, RowParser, SQL, SqlParser}
-import models.{Client, Project, User}
+import models.{Client, ClientRepository, Project, User, UserRepository}
 import play.api.db.Database
 import play.api.db.evolutions.Evolutions
 import dao.DAO
@@ -20,9 +20,13 @@ trait ProjectDAO extends DAO[Project] {
   def add(project: Project): Unit
 }
 
-
 // https://gist.github.com/davegurnell/4b432066b39949850b04
-class ProjectDAOAnorm @Inject()(db: Database) extends ProjectDAO with Logging {
+class ProjectDAOAnorm @Inject() (
+  db: Database,
+  userRepo: UserRepository,
+  clientRepo: ClientRepository
+) extends ProjectDAO
+    with Logging {
 
   val projectParser: RowParser[Project] = (
     SqlParser.get[UUID]("project.project_id") ~
@@ -39,45 +43,50 @@ class ProjectDAOAnorm @Inject()(db: Database) extends ProjectDAO with Logging {
       SqlParser.str("client.email") ~
       SqlParser.date("client.timestamp_created") ~
       SqlParser.date("client.timestamp_edited")
-    ) map {
+  ) map {
     case projectId ~
-      projectName ~
-      projectDescription ~
-      projectTsCreated ~
-      projectTsEdited ~
-      projectBillable ~
-      ownedById ~
-      createdById ~
-      lastEditedById ~
-      clientId ~
-      clientName ~
-      clientEmail ~
-      clientTsCreated ~
-      clientTsEdited
-    => {
-      val projectClient = Client(id = clientId, name = clientName)
-      val projectOwner = User.byId(ownedById)
-      val projectCreator = User.byId(createdById)
-      val projectEditor = User.byId(lastEditedById)
-      Project(id = projectId,
+        projectName ~
+        projectDescription ~
+        projectTsCreated ~
+        projectTsEdited ~
+        projectBillable ~
+        ownedById ~
+        createdById ~
+        lastEditedById ~
+        clientId ~
+        clientName ~
+        clientEmail ~
+        clientTsCreated ~
+        clientTsEdited => {
+      val projectClient =
+        clientRepo.byId(clientId) //Client(id = clientId, name = clientName)
+      val projectOwner    = userRepo.byId(ownedById)   //User.byId(ownedById)
+      val projectManagers = userRepo.getManagersByProjectId(projectId)
+      val projectCreator  = userRepo.byId(createdById) //User.byId(createdById)
+      val projectEditor =
+        userRepo.byId(lastEditedById) //User.byId(lastEditedById)
+      Project(
+        id = projectId,
         name = projectName,
         description = projectDescription,
         owner = projectOwner,
         creator = projectCreator,
+        managers = projectManagers.toList,
         client = projectClient,
         billable = projectBillable,
         creationTimestamp = projectTsCreated.getTime,
         lastEdited = projectTsEdited.getTime,
-        lastEditor = projectEditor)
+        lastEditor = projectEditor
+      )
     }
   }
 
-  def getAll(): Seq[Project] = db.withConnection {
-      implicit c =>
+  def getAll(): Seq[Project] =
+    db.withConnection { implicit c =>
+      val allProjectsParser: ResultSetParser[List[Project]] = projectParser.*
 
-        val allProjectsParser: ResultSetParser[List[Project]] = projectParser.*
-
-        val projectResult: List[Project] = SQL("SELECT DISTINCT project.project_id, " +
+      val projectResult: List[Project] = SQL(
+        "SELECT DISTINCT project.project_id, " +
           "project.name, project.description, " +
           "project.timestamp_created, project.timestamp_edited, " +
           "project.billable," +
@@ -86,52 +95,56 @@ class ProjectDAOAnorm @Inject()(db: Database) extends ProjectDAO with Logging {
           "client.name, client.email, client.timestamp_created, " +
           "client.timestamp_edited " +
           "FROM project " +
-          "INNER JOIN client ON (project.client_id = client.client_id);")
-          .as(allProjectsParser)
+          "INNER JOIN client ON (project.client_id = client.client_id);"
+      ).as(allProjectsParser)
 
-        /* TODO: Add lists of managers and employees to the project
+      /* TODO: Add lists of managers and employees to the project
         TODO: Add linking tables for managers and employees to SQL
         val projectsWithLists: List[Project] = projectResult.map{project =>
           val project_id = project.id
           val projectEmployees: List[User] = SQL("SELECT u.* from ...").as[User]
         }
 
-         */
+       */
 
-        projectResult
+      projectResult
     }
   def getById(projectId: UUID): Project = ???
-  def add(project: Project): Unit = db.withConnection { implicit connection =>
-    val sql =
-      "INSERT INTO project (project_id, " +
-        "name, " +
-        "description, " +
-        "timestamp_created, " +
-        "timestamp_edited, " +
-        "billable, " +
-        "owned_by, " +
-        "created_by," +
-        "last_edited_by, " +
-        "client_id) " +
-        "values({project_id}::uuid, " +
-        "{name}, " +
-        "{description}, " +
-        "CURRENT_TIMESTAMP, " +
-        "CURRENT_TIMESTAMP, " +
-        "{billable},  " +
-        "{owned_by}::uuid, " +
-        "{created_by}::uuid, " +
-        "{last_edited_by}::uuid, " +
-        "{client_id}::uuid);"
-    logger.debug(s"ProjectDAOAnorm.add, SQL = $sql")
-    SQL(sql).on("project_id" -> project.id,
-      "name" -> project.name,
-      "description" -> project.description,
-    "billable" -> project.billable,
-    "owned_by" -> project.owner.id,
-    "created_by" -> project.creator.id,
-    "last_edited_by" -> project.lastEditor.id,
-    "client_id" -> project.client.id)
-      .executeInsert(anorm.SqlParser.scalar[java.util.UUID].singleOpt)
-  }
+  def add(project: Project): Unit =
+    db.withConnection { implicit connection =>
+      val sql =
+        "INSERT INTO project (project_id, " +
+          "name, " +
+          "description, " +
+          "timestamp_created, " +
+          "timestamp_edited, " +
+          "billable, " +
+          "owned_by, " +
+          "created_by," +
+          "last_edited_by, " +
+          "client_id) " +
+          "values({project_id}::uuid, " +
+          "{name}, " +
+          "{description}, " +
+          "CURRENT_TIMESTAMP, " +
+          "CURRENT_TIMESTAMP, " +
+          "{billable},  " +
+          "{owned_by}::uuid, " +
+          "{created_by}::uuid, " +
+          "{last_edited_by}::uuid, " +
+          "{client_id}::uuid);"
+      logger.debug(s"ProjectDAOAnorm.add, SQL = $sql")
+      SQL(sql)
+        .on(
+          "project_id"     -> project.id,
+          "name"           -> project.name,
+          "description"    -> project.description,
+          "billable"       -> project.billable,
+          "owned_by"       -> project.owner.id,
+          "created_by"     -> project.creator.id,
+          "last_edited_by" -> project.lastEditor.id,
+          "client_id"      -> project.client.id
+        )
+        .executeInsert(anorm.SqlParser.scalar[java.util.UUID].singleOpt)
+    }
 }
