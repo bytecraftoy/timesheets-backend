@@ -60,5 +60,5 @@ class DevelopmentProjectRepository @Inject()(projectDao: ProjectDAO) extends Pro
 
   val projectsInMemory = ArrayBuffer(dummy, dummy2)
   def all: Seq[Project]  =  projectDao.getAll()++projectsInMemory.toSeq
-  def add(project: Project): Unit = projectsInMemory append project
+  def add(project: Project): Unit = projectDao.add(project)
 }
