@@ -7,6 +7,7 @@ import play.api.db.evolutions.Evolutions
 import dao.DAO
 import anorm._
 import com.google.inject.ImplementedBy
+import play.api.Logging
 
 import java.util.Calendar
 import java.util.UUID
@@ -21,7 +22,7 @@ trait ProjectDAO extends DAO[Project] {
 
 
 // https://gist.github.com/davegurnell/4b432066b39949850b04
-class ProjectDAOAnorm @Inject()(db: Database) extends ProjectDAO {
+class ProjectDAOAnorm @Inject()(db: Database) extends ProjectDAO with Logging {
 
   val projectParser: RowParser[Project] = (
     SqlParser.get[UUID]("project.project_id") ~
@@ -100,5 +101,37 @@ class ProjectDAOAnorm @Inject()(db: Database) extends ProjectDAO {
         projectResult
     }
   def getById(projectId: UUID): Project = ???
-  def add(project: Project): Unit = ???
+  def add(project: Project): Unit = db.withConnection { implicit connection =>
+    val sql =
+      "INSERT INTO project (project_id, " +
+        "name, " +
+        "description, " +
+        "timestamp_created, " +
+        "timestamp_edited, " +
+        "billable, " +
+        "owned_by, " +
+        "created_by," +
+        "last_edited_by, " +
+        "client_id) " +
+        "values({project_id}::uuid, " +
+        "{name}, " +
+        "{description}, " +
+        "CURRENT_TIMESTAMP, " +
+        "CURRENT_TIMESTAMP, " +
+        "{billable},  " +
+        "{owned_by}::uuid, " +
+        "{created_by}::uuid, " +
+        "{last_edited_by}::uuid, " +
+        "{client_id}::uuid);"
+    logger.debug(s"ProjectDAOAnorm.add, SQL = $sql")
+    SQL(sql).on("project_id" -> project.id,
+      "name" -> project.name,
+      "description" -> project.description,
+    "billable" -> project.billable,
+    "owned_by" -> project.owner.id,
+    "created_by" -> project.creator.id,
+    "last_edited_by" -> project.lastEditor.id,
+    "client_id" -> project.client.id)
+      .executeInsert(anorm.SqlParser.scalar[java.util.UUID].singleOpt)
+  }
 }
