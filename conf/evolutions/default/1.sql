@@ -44,12 +44,12 @@ CREATE TABLE project_app_user (
 ALTER TABLE project_app_user
     ADD CONSTRAINT project_fk FOREIGN KEY (project_id)
     REFERENCES project (project_id)
-    ON DELETE RESTRICT ON UPDATE CASCADE;
+    ON DELETE CASCADE ON UPDATE CASCADE;
 
 
 ALTER TABLE project_app_user ADD CONSTRAINT app_user_fk FOREIGN KEY (app_user_id)
     REFERENCES app_user (app_user_id)
-    ON DELETE RESTRICT ON UPDATE CASCADE;
+    ON DELETE CASCADE ON UPDATE CASCADE;
 
 
 CREATE TABLE client (

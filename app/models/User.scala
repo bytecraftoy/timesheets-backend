@@ -1,5 +1,6 @@
 package models
 
+import anorm.{Macro, ToParameterList}
 import play.api.libs.json.{Json, OFormat, OWrites, Reads}
 
 import java.util.UUID
@@ -68,6 +69,9 @@ object User {
 
   implicit def employeeFormat: OFormat[User] =
     Json.using[Json.WithDefaultValues].format[User]
+
+  implicit def toParameters: ToParameterList[User] =
+    Macro.toParameters[User]
 
   val all: ArrayBuffer[User] =
     ArrayBuffer(

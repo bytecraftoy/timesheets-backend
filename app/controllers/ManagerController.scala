@@ -1,16 +1,29 @@
 package controllers
 
 import play.api.libs.json.Json
+
 import javax.inject._
 import play.api.mvc._
-import models.User
+import models.UserRepository
+import play.api.Logging
 
-class ManagerController @Inject() (cc: ControllerComponents)
-    extends AbstractController(cc) {
+class ManagerController @Inject() (
+  cc: ControllerComponents,
+  userRepo: UserRepository
+) extends AbstractController(cc)
+    with Logging {
 
-  def listEmployees: Action[AnyContent] =
+  def listManagers: Action[AnyContent] =
     Action {
-      val json = Json.toJson(User.all)
-      Ok(json)
+      try {
+        val managers = userRepo.getAllManagers()
+        val json     = Json.toJson(managers)
+        Ok(json)
+      } catch {
+        case error: Exception =>
+          logger.error(error.getMessage)
+          BadRequest(s"""{"message": "Error retrieving managers: $error"}""")
+            .as(JSON)
+      }
     }
 }
