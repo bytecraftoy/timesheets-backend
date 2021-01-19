@@ -1,7 +1,5 @@
 package controllers
 
-import dto.AddTimeInputDTO
-
 import java.time.LocalDate
 import play.api.libs.json.{
   Format,
@@ -39,11 +37,15 @@ class TimeInputController @Inject() (
     extends AbstractController(cc)
     with Logging {
 
+  implicit def projectFormat: OFormat[Project] =
+    Json.using[Json.WithDefaultValues].format[Project]
+
   case class AddTimeInputDTO(
     input: Long,
     project: UUID,
     employee: UUID,
-    date: String
+    date: String,
+    description: String = ""
   ) {
 
     def asTimeInput: TimeInput = {
@@ -54,18 +56,16 @@ class TimeInputController @Inject() (
         date =
           LocalDate.parse(
             this.date
-          ) // dateInput must be a String in format "yyyy-MM-dd"
+          ), // dateInput must be a String in format "yyyy-MM-dd"
+        description = this.description
       )
     }
   }
 
   object AddTimeInputDTO {
     implicit val readTimeInputDTO: Reads[AddTimeInputDTO] =
-      Json.reads[AddTimeInputDTO]
+      Json.using[Json.WithDefaultValues].reads[AddTimeInputDTO]
   }
-  implicit def projectFormat: OFormat[Project] =
-    Json.using[Json.WithDefaultValues].format[Project]
-
   implicit def timeInputFormat: OFormat[TimeInput] =
     Json.using[Json.WithDefaultValues].format[TimeInput]
 

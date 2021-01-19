@@ -78,7 +78,8 @@ class TimeInputControllerSpec
         """{"input": 450,
           |"project": "44e4653d-7f71-4cf2-90f3-804f949ba264",
           |"employee": "a3f4e844-4199-439d-a463-2f07e87c6ca4",
-          |"date": "2000-12-17"}""".stripMargin
+          |"date": "2000-12-17",
+          |"description":"This is a test 17.12.00"}""".stripMargin
       val timeInputJson = Json.parse(validTimeInput)
 
       val timeInputCreate = FakeRequest(POST, hoursUrl)
@@ -98,7 +99,11 @@ class TimeInputControllerSpec
       val bodyTextContainsPostedTime =
         contentAsString(fetchResponse).contains("2000-12-17")
 
+      val bodyTextContainsPostedDescription =
+        contentAsString(fetchResponse).contains("This is a test 17.12.00")
+
       bodyTextContainsPostedTime mustEqual true
+      bodyTextContainsPostedDescription mustEqual true
     }
 
     "reject negative time input" in {
