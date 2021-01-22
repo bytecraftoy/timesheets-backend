@@ -1,7 +1,7 @@
 # --- !Ups
 CREATE TABLE app_user
 (
-	app_user_id uuid NOT NULL
+    app_user_id uuid NOT NULL
 		CONSTRAINT app_user_pk
 			PRIMARY KEY,
 	username text NOT NULL,
@@ -18,27 +18,28 @@ CREATE TABLE app_user
 
 
 
-CREATE TABLE project (
-                    project_id uuid NOT NULL,
-                    name text NOT NULL,
-                    description text DEFAULT NULL,
-                    timestamp_created timestamp NOT NULL,
-                    timestamp_edited timestamp NOT NULL,
-                    billable boolean NOT NULL DEFAULT TRUE,
-                    owned_by uuid NOT NULL,
-                    created_by uuid NOT NULL,
-                    last_edited_by uuid NOT NULL,
-                    client_id uuid NOT NULL,
-                    CONSTRAINT project_pk PRIMARY KEY (project_id)
-
+CREATE TABLE project
+(
+    project_id uuid NOT NULL,
+    name text NOT NULL,
+    description text DEFAULT NULL,
+    timestamp_created timestamp NOT NULL,
+    timestamp_edited timestamp NOT NULL,
+    billable boolean NOT NULL DEFAULT TRUE,
+    owned_by uuid NOT NULL,
+    created_by uuid NOT NULL,
+    last_edited_by uuid NOT NULL,
+    client_id uuid NOT NULL,
+    CONSTRAINT project_pk PRIMARY KEY (project_id)
 );
 
-CREATE TABLE project_app_user (
-                               project_id uuid NOT NULL,
-                               app_user_id uuid NOT NULL,
-                               CONSTRAINT project_app_user_pk
-                                PRIMARY KEY (project_id,
-                                             app_user_id)
+CREATE TABLE project_app_user
+(
+    project_id uuid NOT NULL,
+    app_user_id uuid NOT NULL,
+    CONSTRAINT project_app_user_pk
+        PRIMARY KEY (project_id,
+                     app_user_id)
 );
 
 ALTER TABLE project_app_user
@@ -52,13 +53,14 @@ ALTER TABLE project_app_user ADD CONSTRAINT app_user_fk FOREIGN KEY (app_user_id
     ON DELETE CASCADE ON UPDATE CASCADE;
 
 
-CREATE TABLE client (
-                    client_id uuid NOT NULL,
-                    name text,
-                    email VARCHAR(256),
-                    timestamp_created timestamp,
-                    timestamp_edited timestamp,
-                    CONSTRAINT client_pk PRIMARY KEY (client_id)
+CREATE TABLE client
+(
+    client_id uuid NOT NULL,
+    name text,
+    email VARCHAR(256),
+    timestamp_created timestamp,
+    timestamp_edited timestamp,
+    CONSTRAINT client_pk PRIMARY KEY (client_id)
 );
 
 CREATE UNIQUE INDEX idx_client_email ON client(email);
