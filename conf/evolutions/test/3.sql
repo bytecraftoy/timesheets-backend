@@ -7,7 +7,7 @@ CREATE TABLE timeinput
     project_id UUID NOT NULL,
     input_date DATE NOT NULL,
     minutes INTEGER DEFAULT NULL,
-    description VARCHAR(100) DEFAULT NULL,
+    description TEXT DEFAULT NULL,
     timestamp_created TIMESTAMP NOT NULL,
     timestamp_edited TIMESTAMP NOT NULL,
     CONSTRAINT timeinput_pk PRIMARY KEY (timeinput_id),
