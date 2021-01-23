@@ -40,6 +40,22 @@ class ProjectControllerSpec
       val projects = route(app, request).get
 
       status(projects) mustBe OK
+
+    }
+
+    "return projects by client id" in {
+      val clientId = "1bb44a7e-cd7c-447d-a9e9-26495b52fa88"
+      val getPath = s"/clients/$clientId/projects"
+      val requestClientProjects = FakeRequest(GET, getPath)
+        .withHeaders("Content-type" -> "application/json")
+
+      val response = route(app, requestClientProjects).get
+
+      status(response) mustBe OK
+      val responseBodyText = contentAsString(response)
+
+      responseBodyText.contains("Testi_projekti") mustEqual true
+      responseBodyText.contains("Väärä projekti") mustEqual false
     }
   }
 

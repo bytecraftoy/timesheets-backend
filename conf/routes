@@ -22,7 +22,10 @@ GET         /managers                  controllers.ManagerController.listManager
 GET         /clients                   controllers.ClientController.listClients
 
 # Get a client by client id1
-GET         /clientsbyid                   controllers.ClientController.byId(id: String)
+GET         /clientsbyid               controllers.ClientController.byId(id: String)
+
+# Get the projects of a client
+GET          /clients/:id/projects     controllers.ProjectController.listProjectsByClientId(id: String)
 
 # Add a client
 POST         /clients                  controllers.ClientController.add(name: String, email: String)
