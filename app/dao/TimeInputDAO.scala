@@ -47,14 +47,14 @@ class TimeInputDAOAnorm @Inject() (
 
   def byProject(projectId: UUID): Seq[TimeInput] = {
     val sql = SQL(
-      "SELECT * FROM timeinput WHERE project_id = {projectId} ORDER BY app_user_id ASC, input_date ASC;"
+      "SELECT * FROM timeinput WHERE project_id = {projectId}::uuid ORDER BY app_user_id ASC, input_date ASC;"
     ).on("projectId" -> projectId)
     getTimeInputs(sql)
   }
 
   def byEmployee(employeeId: UUID): Seq[TimeInput] = {
     val sql = SQL(
-      "SELECT * FROM timeinput WHERE app_user_id = {employeeId} ORDER BY project_id ASC, input_date ASC;"
+      "SELECT * FROM timeinput WHERE app_user_id = {employeeId}::uuid ORDER BY project_id ASC, input_date ASC;"
     ).on("employeeId" -> employeeId)
     getTimeInputs(sql)
   }
@@ -73,7 +73,7 @@ class TimeInputDAOAnorm @Inject() (
     } else {
 
       val sql = SQL(
-        "SELECT * FROM timeinput WHERE app_user_id = {employeeId} " +
+        "SELECT * FROM timeinput WHERE app_user_id = {employeeId}::uuid " +
           "AND input_date >= {start} AND input_date <= {end} ORDER BY project_id ASC, input_date ASC;"
       ).on("employeeId" -> employeeId, "start" -> start, "end" -> end)
 
@@ -86,8 +86,8 @@ class TimeInputDAOAnorm @Inject() (
     employeeId: UUID
   ): Seq[TimeInput] = {
     val sql = SQL(
-      "SELECT * FROM timeinput WHERE project_id = {projectId} " +
-        "AND app_user_id = {employeeId} ORDER BY input_date ASC;"
+      "SELECT * FROM timeinput WHERE project_id = {projectId}::uuid " +
+        "AND app_user_id = {employeeId}::uuid ORDER BY input_date ASC;"
     ).on("projectId" -> projectId, "employeeId" -> employeeId)
 
     getTimeInputs(sql)
@@ -108,8 +108,8 @@ class TimeInputDAOAnorm @Inject() (
     } else {
 
       val sql = SQL(
-        "SELECT * FROM timeinput WHERE project_id = {projectId} " +
-          "AND app_user_id = {employeeId} " +
+        "SELECT * FROM timeinput WHERE project_id = {projectId}::uuid " +
+          "AND app_user_id = {employeeId}::uuid " +
           "AND input_date >= {start} " +
           "AND input_date <= {end} ORDER BY input_date ASC;"
       ).on(
@@ -134,7 +134,7 @@ class TimeInputDAOAnorm @Inject() (
 
   def getById(timeInputId: UUID): TimeInput = {
     val sql = SQL(
-      "SELECT * FROM timeinput WHERE timeInput_id = {timeInputId} ;"
+      "SELECT * FROM timeinput WHERE timeInput_id = {timeInputId}::uuid ;"
     ).on("timeInputId" -> timeInputId)
 
     val results = getTimeInputs(sql)
