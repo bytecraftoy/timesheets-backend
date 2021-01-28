@@ -12,7 +12,7 @@ GET         /assets/*file              controllers.Assets.versioned(path="/publi
 # List all projects as JSON
 GET         /projects                  controllers.ProjectController.listProjects
 
-# List timeinput per user and per project for a specified timeinterval
+# List timeinput per user and per project for a specified timeinterval TODO: remove default userId
 GET         /projects/:id/hours        controllers.TimeInputController.byProject(id: String, userId: String ?= "5f37bc60-3f7a-436a-a238-2b4f908fd235", startDate: String ?= "getAll", endDate: String ?= "")
 
 # List all managers [for now, they are just the employees]
@@ -38,3 +38,6 @@ GET         /hours                     controllers.TimeInputController.groupByPr
 
 # Add a timeinput
 POST        /hours                     controllers.TimeInputController.add
+
+# Update a timeinput
+PUT        /hours                     controllers.TimeInputController.update

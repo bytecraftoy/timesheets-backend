@@ -1,5 +1,8 @@
 package models
+
 import com.google.inject.ImplementedBy
+import dao.TimeInputDAO
+import play.api.Logging
 import play.api.libs.json.{JsObject, JsValue, Json, OFormat}
 
 import java.time.{Clock, LocalDate}
@@ -10,12 +13,13 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext
 
 @ImplementedBy(classOf[DevelopmentTimeInputRepository])
-trait TimeInputRepository extends Repository[TimeInput] {
+trait TimeInputRepository extends Repository[TimeInput] with Logging {
+  def update(timeInput: TimeInput): Int
 
   def byTimeInterval(start: LocalDate, end: LocalDate): Seq[TimeInput]
 
   def jsonByProject(
-    i: UUID,
+    projectId: UUID,
     employeeId: UUID,
     start: LocalDate = LocalDate.MIN,
     end: LocalDate = LocalDate.MAX
@@ -26,159 +30,14 @@ trait TimeInputRepository extends Repository[TimeInput] {
     start: LocalDate = LocalDate.MIN,
     end: LocalDate = LocalDate.MAX
   ): JsObject
-
 }
 
 class DevelopmentTimeInputRepository @Inject() (
+  timeInputDAO: TimeInputDAO,
   projectRepository: ProjectRepository
 )(implicit executionContext: ExecutionContext)
-    extends TimeInputRepository {
-
-  val input1: TimeInput = TimeInput(
-    id = UUID.fromString("9147e577-7303-4c59-9d77-8d1216968646"),
-    input = 450,
-    project = Project(
-      id = UUID.fromString("44e4653d-7f71-4cf2-90f3-804f949ba264"),
-      name = "Dummy",
-      description = "This is a dummy project.",
-      owner = User.dummyManager,
-      creator = User.dummyManager,
-      managers = List(User.dummyManager, User.dummyManager2),
-      client = Client(
-        randomUUID(),
-        "client " + Clock.systemUTC().instant(),
-        "some@email.invalid",
-        Calendar.getInstance().getTimeInMillis,
-        Calendar.getInstance().getTimeInMillis
-      ),
-      billable = false,
-      employees = List(User.dummyEmployee, User.dummyEmployee2),
-      tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
-      creationTimestamp = 100000000000L,
-      lastEdited = 100000000010L,
-      lastEditor = User.dummyManager
-    ),
-    employee = User.dummyEmployee,
-    date = LocalDate.parse("2020-11-16"),
-    creationTimestamp = 100000000000L,
-    lastEdited = 100000000000L
-  )
-  val input2: TimeInput = TimeInput(
-    id = UUID.fromString("0f5e6551-ebf0-46bd-ad17-bc796043a25c"),
-    input = 450,
-    project = Project(
-      id = UUID.fromString("44e4653d-7f71-4cf2-90f3-804f949ba264"),
-      name = "Dummy",
-      description = "This is a dummy project.",
-      owner = User.dummyManager,
-      creator = User.dummyManager,
-      managers = List(User.dummyManager, User.dummyManager2),
-      client = Client(
-        randomUUID(),
-        "client " + Clock.systemUTC().instant(),
-        "some@email.invalid",
-        Calendar.getInstance().getTimeInMillis,
-        Calendar.getInstance().getTimeInMillis
-      ),
-      billable = false,
-      employees = List(User.dummyEmployee, User.dummyEmployee2),
-      tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
-      creationTimestamp = 100000000000L,
-      lastEdited = 100000000010L,
-      lastEditor = User.dummyManager
-    ),
-    employee = User.dummyEmployee,
-    date = LocalDate.parse("2020-11-17"),
-    creationTimestamp = 100000000000L,
-    lastEdited = 100000000000L
-  )
-  val input3: TimeInput = TimeInput(
-    id = UUID.fromString("5f37bc60-3f7a-436a-a238-2b4f908fd235"),
-    input = 450,
-    project = Project(
-      id = UUID.fromString("44e4653d-7f71-4cf2-90f3-804f949ba264"),
-      name = "Dummy",
-      description = "This is a dummy project.",
-      owner = User.dummyManager,
-      creator = User.dummyManager,
-      managers = List(User.dummyManager, User.dummyManager2),
-      client = Client(
-        randomUUID(),
-        "client " + Clock.systemUTC().instant(),
-        "some@email.invalid",
-        Calendar.getInstance().getTimeInMillis,
-        Calendar.getInstance().getTimeInMillis
-      ),
-      billable = false,
-      employees = List(User.dummyEmployee, User.dummyEmployee2),
-      tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
-      creationTimestamp = 100000000000L,
-      lastEdited = 100000000010L,
-      lastEditor = User.dummyManager
-    ),
-    employee = User.dummyEmployee,
-    date = LocalDate.parse("2020-11-18"),
-    creationTimestamp = 100000000000L,
-    lastEdited = 100000000000L
-  )
-  val input4: TimeInput = TimeInput(
-    id = UUID.fromString("6122d110-bf62-4d7b-b896-d3350363e256"),
-    input = 450,
-    project = Project(
-      id = UUID.fromString("6ffdeea7-c6bd-42e5-a5a3-49526cbd001a"),
-      name = "Another dummy",
-      description = "This is another dummy project.",
-      owner = User.dummyManager2,
-      creator = User.dummyManager2,
-      managers = List(User.dummyManager2),
-      client = Client(
-        randomUUID(),
-        "client " + Clock.systemUTC().instant(),
-        "some@email.invalid",
-        Calendar.getInstance().getTimeInMillis,
-        Calendar.getInstance().getTimeInMillis
-      ),
-      billable = false,
-      employees = List(User.dummyEmployee2),
-      tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
-      creationTimestamp = 100000000000L,
-      lastEdited = 100000000010L,
-      lastEditor = User.dummyManager2
-    ),
-    employee = User.dummyEmployee,
-    date = LocalDate.parse("2020-11-19"),
-    creationTimestamp = 100000000000L,
-    lastEdited = 100000000000L
-  )
-  val input5: TimeInput = TimeInput(
-    id = UUID.fromString("17f12c6b-4149-4d45-8dee-741147a930aa"),
-    input = 450,
-    project = Project(
-      id = UUID.fromString("6ffdeea7-c6bd-42e5-a5a3-49526cbd001a"),
-      name = "Another dummy",
-      description = "This is another dummy project.",
-      owner = User.dummyManager2,
-      creator = User.dummyManager2,
-      managers = List(User.dummyManager2),
-      client = Client(
-        randomUUID(),
-        "client " + Clock.systemUTC().instant(),
-        "some@email.invalid",
-        Calendar.getInstance().getTimeInMillis,
-        Calendar.getInstance().getTimeInMillis
-      ),
-      billable = false,
-      employees = List(User.dummyEmployee2),
-      tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
-      creationTimestamp = 100000000000L,
-      lastEdited = 100000000010L,
-      lastEditor = User.dummyManager2
-    ),
-    employee = User.dummyEmployee,
-    date = LocalDate.parse("2020-11-20"),
-    creationTimestamp = 100000000000L,
-    lastEdited = 100000000000L
-  )
+    extends TimeInputRepository
+    with Logging {
 
   implicit def projectFormat: OFormat[Project] =
     Json.using[Json.WithDefaultValues].format[Project]
@@ -187,35 +46,29 @@ class DevelopmentTimeInputRepository @Inject() (
     Json.using[Json.WithDefaultValues].format[TimeInput]
   }
 
-  val timeInputInMemory: ArrayBuffer[TimeInput] =
-    ArrayBuffer(input1, input2, input3, input4, input5)
+  def all: Seq[TimeInput] = timeInputDAO.getAll()
 
-  def all: Seq[TimeInput] = timeInputInMemory.toSeq
+  def byId(id: UUID): TimeInput = timeInputDAO.getById(id)
 
-  override def byId(id: UUID): TimeInput = all.filter(_.id == id).head
-
-  def byProject(i: UUID): Seq[TimeInput] =
-    all.filter(_.project.id == i)
+  def byProject(i: UUID): Seq[TimeInput] = timeInputDAO.byProject(i)
 
   def byTimeInterval(start: LocalDate, end: LocalDate): Seq[TimeInput] =
-    all.filter(x => x.date.isAfter(start) && x.date.isBefore(end))
+    timeInputDAO.byTimeInterval(start, end)
 
-  def add(timeInput: TimeInput): Unit = timeInputInMemory append timeInput
+  def add(timeInput: TimeInput): Unit = timeInputDAO.add(timeInput)
+
+  def update(timeInput: TimeInput): Int = timeInputDAO.update(timeInput)
 
   def jsonByProject(
-    i: UUID,
+    projectId: UUID,
     employeeId: UUID,
     start: LocalDate = LocalDate.MIN,
     end: LocalDate = LocalDate.MAX
-  ): JsValue =
+  ): JsValue = {
+
     Json.toJson(
-      all
-        .filter(
-          t =>
-            (t.date.isAfter(start) || t.date.isEqual(start))
-              && (t.date.isBefore(end) || t.date.isEqual(end))
-              && t.employee.id == employeeId && t.project.id == i
-        )
+      timeInputDAO
+        .byProjectAndEmployeeInterval(projectId, employeeId, start, end)
         .map(
           ti =>
             Json.obj(
@@ -228,28 +81,33 @@ class DevelopmentTimeInputRepository @Inject() (
             )
         )
     )
+  }
 
   def jsonGroupedByProject(
     employeeId: UUID,
     start: LocalDate = LocalDate.MIN,
     end: LocalDate = LocalDate.MAX
-  ): JsObject =
-    Json.obj(
-      "projects" -> all
-        .filter(
-          timeInput =>
-            (timeInput.date.isAfter(start) || timeInput.date.isEqual(start))
-              && (timeInput.date.isBefore(end) || timeInput.date.isEqual(end))
-              && timeInput.employee.id == employeeId
-        )
-        .groupBy(_.project.id)
-        .map(
-          projectIdToTimeInputs =>
-            Json.obj(
-              "id"    -> projectIdToTimeInputs._1,
-              "name"  -> projectRepository.byId(projectIdToTimeInputs._1).name,
-              "hours" -> projectIdToTimeInputs._2.map(_.compactJson)
-            )
-        )
-    )
+  ): JsObject = {
+    val timeInputs: Seq[TimeInput] =
+      timeInputDAO.byEmployeeInterval(employeeId, start, end)
+
+    if (timeInputs.size > 0) {
+      Json.obj(
+        "projects" -> timeInputs
+          .map(
+            timeInput =>
+              Json.obj(
+                "id"          -> timeInput.id,
+                "name"        -> projectRepository.byId(timeInput.project.id).name,
+                "hours"       -> timeInput.input,
+                "description" -> timeInput.description
+              )
+          )
+      )
+    }
+    else
+    {
+      Json.obj("projects" -> "")
+    }
+  }
 }

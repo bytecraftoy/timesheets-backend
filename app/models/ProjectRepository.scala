@@ -53,12 +53,12 @@ class DevelopmentProjectRepository @Inject()(projectDao: ProjectDAO) extends Pro
       lastEditor = User.dummyManager2
     )
 
-  def byId(id: UUID): Project = this.all.filter(_.id == id).head
+  def byId(id: UUID): Project = projectDao.getById(id)
 
   implicit def projectFormat: OFormat[Project] =
     Json.using[Json.WithDefaultValues].format[Project]
 
-  val projectsInMemory = ArrayBuffer(dummy, dummy2)
-  def all: Seq[Project]  =  projectDao.getAll()++projectsInMemory.toSeq
+  //val projectsInMemory = ArrayBuffer(dummy, dummy2)
+  def all: Seq[Project]  =  projectDao.getAll()//++projectsInMemory.toSeq
   def add(project: Project): Unit = projectDao.add(project)
 }
