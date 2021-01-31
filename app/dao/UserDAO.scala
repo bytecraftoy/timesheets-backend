@@ -17,34 +17,50 @@ trait UserDAO extends DAO[User] {
   def add(user: User): Unit
   def getAllManagers(): Seq[User]
   def getManagersByProjectId(projectId: UUID): Seq[User]
+  def getEmployeesByProjectId(projectId: UUID): Seq[User]
 }
 
 // https://gist.github.com/davegurnell/4b432066b39949850b04
 class UserDAOAnorm @Inject() (db: Database) extends UserDAO with Logging {
   def getAll(): Seq[User] = {
-    val sql = "SELECT * FROM app_user;"
-    logger.debug(s"UserDAOAnorm.getAll(), SQL = $sql")
+    val sql = SQL("SELECT * FROM app_user;").on()
+    logger.debug(s"""UserDAOAnorm.getAll(), SQL = $sql""")
     getUsers(sql)
   }
 
   def getAllManagers(): Seq[User] = {
-    val sql = "SELECT * FROM app_user where is_manager = true;"
-    logger.debug(s"UserDAOAnorm.getAllManagers(), SQL = $sql")
+    val sql = SQL("SELECT * FROM app_user where is_manager = true;").on()
+    logger.debug(s"""UserDAOAnorm.getAllManagers(), SQL = $sql""")
     getUsers(sql)
   }
 
   def getManagersByProjectId(projectId: UUID): Seq[User] = {
-    val sql =
+    val sql = SQL(
       s"SELECT * FROM app_user where is_manager = true and app_user_id IN " +
-        s"(SELECT app_user_id FROM project_app_user where project_id = '$projectId');"
-    logger.debug(s"UserDAOAnorm.getManagersByProjectId, SQL = $sql")
+        s"(SELECT app_user_id FROM project_app_user where project_id = {projectId}::uuid);"
+    ).on("projectId" -> projectId)
+    logger.debug(
+      s"""UserDAOAnorm.getManagersByProjectId($projectId), SQL = $sql"""
+    )
     getUsers(sql)
+  }
 
+  def getEmployeesByProjectId(projectId: UUID): Seq[User] = {
+    val sql = SQL(
+      s"SELECT * FROM app_user where app_user_id IN " +
+        s"(SELECT app_user_id FROM project_app_user where project_id = {projectId}::uuid);"
+    ).on("projectId" -> projectId)
+    logger.debug(
+      s"""UserDAOAnorm.getEmployeesByProjectId($projectId), SQL = $sql"""
+    )
+    getUsers(sql)
   }
 
   def getById(userId: UUID): User = {
-    val sql = "SELECT * FROM app_user WHERE app_user_id = '" + userId + "';"
-    logger.debug(s"UserDAOAnorm.getById(), SQL = $sql")
+    val sql =
+      SQL("SELECT * FROM app_user WHERE app_user_id = {app_user_id}::uuid;")
+        .on("app_user_id" -> userId)
+    logger.debug(s"""UserDAOAnorm.getById($userId), SQL = $sql""")
     val results = getUsers(sql)
     if (results.isEmpty) {
       null
@@ -65,7 +81,7 @@ class UserDAOAnorm @Inject() (db: Database) extends UserDAO with Logging {
     }
   }
 
-  def getUsers(sql: String): Seq[User] =
+  def getUsers(sql: SimpleSql[Row]): Seq[User] =
     db.withConnection { implicit c =>
       val userParser: RowParser[User] = (
         SqlParser.get[UUID]("app_user_id") ~
@@ -94,7 +110,11 @@ class UserDAOAnorm @Inject() (db: Database) extends UserDAO with Logging {
           )
       }
       val allUsersParser: ResultSetParser[List[User]] = userParser.*
-      val userResult: List[User]                      = SQL(sql).as(allUsersParser)
+      val userResult: List[User]                      = sql.as(allUsersParser)
+      logger.debug(s"For SQL: ${sql}")
+      logger.debug(
+        "UserDAO.getUsers() parsed " + userResult.size + " result rows."
+      )
       userResult
     }
 }

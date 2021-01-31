@@ -9,7 +9,6 @@ import java.util.UUID
 import java.util.UUID.randomUUID
 import javax.inject.Inject
 
-
 @ImplementedBy(classOf[DevelopmentClientRepository])
 trait ClientRepository extends Repository[Client] with Logging {
   def byId(clientId: UUID): Client
@@ -17,7 +16,8 @@ trait ClientRepository extends Repository[Client] with Logging {
   def add(client: Client): Unit
 }
 
-class DevelopmentClientRepository @Inject()(clientDao: ClientDAO) extends ClientRepository {
+class DevelopmentClientRepository @Inject() (clientDao: ClientDAO)
+    extends ClientRepository {
   val client1: Client = Client(id = randomUUID(), name = "Client 1")
   val client2: Client = Client(id = randomUUID(), name = "Client 2")
   val client3: Client = Client(id = randomUUID(), name = "Client 3")

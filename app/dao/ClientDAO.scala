@@ -44,7 +44,9 @@ class ClientDAOAnorm @Inject() (db: Database) extends ClientDAO with Logging {
         "INSERT INTO client (client_id, name, email, timestamp_created, timestamp_edited)" +
           " VALUES ({id}::uuid, {name}, {email}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);"
       logger.debug(s"ClientDAOAnorm.add, SQL = $sql")
-      SQL(sql).bind(client).executeInsert(anorm.SqlParser.scalar[java.util.UUID].singleOpt)
+      SQL(sql)
+        .bind(client)
+        .executeInsert(anorm.SqlParser.scalar[java.util.UUID].singleOpt)
     }
   }
 

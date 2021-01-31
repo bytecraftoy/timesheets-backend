@@ -17,7 +17,8 @@ trait ProjectRepository extends Repository[Project] {
   def add(project: Project): Unit
 }
 
-class DevelopmentProjectRepository @Inject()(projectDao: ProjectDAO) extends ProjectRepository {
+class DevelopmentProjectRepository @Inject() (projectDao: ProjectDAO)
+    extends ProjectRepository {
 
   val dummy: Project =
     Project(
@@ -27,7 +28,13 @@ class DevelopmentProjectRepository @Inject()(projectDao: ProjectDAO) extends Pro
       owner = User.dummyManager,
       creator = User.dummyManager,
       managers = List(User.dummyManager, User.dummyManager2),
-      client = Client(randomUUID(), "client " + Clock.systemUTC().instant(), "some@email.invalid", Calendar.getInstance().getTimeInMillis, Calendar.getInstance().getTimeInMillis),
+      client = Client(
+        randomUUID(),
+        "client " + Clock.systemUTC().instant(),
+        "some@email.invalid",
+        Calendar.getInstance().getTimeInMillis,
+        Calendar.getInstance().getTimeInMillis
+      ),
       billable = false,
       employees = List(User.dummyEmployee, User.dummyEmployee2),
       tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
@@ -44,7 +51,13 @@ class DevelopmentProjectRepository @Inject()(projectDao: ProjectDAO) extends Pro
       owner = User.dummyManager2,
       creator = User.dummyManager2,
       managers = List(User.dummyManager2),
-      client = Client(randomUUID(), "client " + Clock.systemUTC().instant(), "some@email.invalid", Calendar.getInstance().getTimeInMillis, Calendar.getInstance().getTimeInMillis),
+      client = Client(
+        randomUUID(),
+        "client " + Clock.systemUTC().instant(),
+        "some@email.invalid",
+        Calendar.getInstance().getTimeInMillis,
+        Calendar.getInstance().getTimeInMillis
+      ),
       billable = false,
       employees = List(User.dummyEmployee2),
       tags = List("Back-end", "Front-end", "Fullstack", "Planning"),
@@ -59,6 +72,6 @@ class DevelopmentProjectRepository @Inject()(projectDao: ProjectDAO) extends Pro
     Json.using[Json.WithDefaultValues].format[Project]
 
   //val projectsInMemory = ArrayBuffer(dummy, dummy2)
-  def all: Seq[Project]  =  projectDao.getAll()//++projectsInMemory.toSeq
+  def all: Seq[Project]           = projectDao.getAll() //++projectsInMemory.toSeq
   def add(project: Project): Unit = projectDao.add(project)
 }

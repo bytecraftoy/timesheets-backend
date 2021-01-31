@@ -30,6 +30,13 @@ trait TimeInputRepository extends Repository[TimeInput] with Logging {
     start: LocalDate = LocalDate.MIN,
     end: LocalDate = LocalDate.MAX
   ): JsObject
+
+  def timeInputsByProjectEmployeeInterval(
+    projectId: UUID,
+    employeeId: UUID,
+    startDate: LocalDate,
+    endDate: LocalDate
+  ): Seq[TimeInput]
 }
 
 class DevelopmentTimeInputRepository @Inject() (
@@ -58,6 +65,20 @@ class DevelopmentTimeInputRepository @Inject() (
   def add(timeInput: TimeInput): Unit = timeInputDAO.add(timeInput)
 
   def update(timeInput: TimeInput): Int = timeInputDAO.update(timeInput)
+
+  def timeInputsByProjectEmployeeInterval(
+    projectId: UUID,
+    employeeId: UUID,
+    startDate: LocalDate,
+    endDate: LocalDate
+  ): Seq[TimeInput] = {
+    timeInputDAO.byProjectAndEmployeeInterval(
+      projectId = projectId,
+      employeeId = employeeId,
+      start = startDate,
+      end = endDate
+    )
+  }
 
   def jsonByProject(
     projectId: UUID,
@@ -104,9 +125,7 @@ class DevelopmentTimeInputRepository @Inject() (
               )
           )
       )
-    }
-    else
-    {
+    } else {
       Json.obj("projects" -> "")
     }
   }

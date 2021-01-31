@@ -1,6 +1,14 @@
 package controllers
 
-import play.api.libs.json.{JsError, JsObject, JsSuccess, JsValue, Json, OFormat, Reads}
+import play.api.libs.json.{
+  JsError,
+  JsObject,
+  JsSuccess,
+  JsValue,
+  Json,
+  OFormat,
+  Reads
+}
 
 import javax.inject._
 import play.api.mvc._
@@ -15,7 +23,8 @@ class ProjectController @Inject() (
   cc: ControllerComponents,
   projectRepo: ProjectRepository,
   clientRepo: ClientRepository
-) extends AbstractController(cc) with Logging {
+) extends AbstractController(cc)
+    with Logging {
 
   implicit def projectFormat: OFormat[Project] =
     Json.using[Json.WithDefaultValues].format[Project]
@@ -29,8 +38,8 @@ class ProjectController @Inject() (
   def listProjectsByClientId(clientId: String): Action[AnyContent] =
     Action {
       try {
-        val clientUuid   = UUID.fromString(clientId)
-        val client = clientRepo.byId(clientUuid)
+        val clientUuid = UUID.fromString(clientId)
+        val client     = clientRepo.byId(clientUuid)
         if (client != null) {
           val clientProjects = projectRepo.all.filter(_.client == client)
           val projectsAsJson = Json.toJson(clientProjects)
@@ -44,8 +53,9 @@ class ProjectController @Inject() (
       } catch {
         case error: Exception =>
           logger.error(error.getMessage)
-          BadRequest(s"""{"message": "Error retrieving a client's projects: $error"}""")
-            .as(JSON)
+          BadRequest(
+            s"""{"message": "Error retrieving a client's projects: $error"}"""
+          ).as(JSON)
       }
     }
 
