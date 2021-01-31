@@ -139,11 +139,12 @@ class ProjectDAOAnorm @Inject() (
             createdById ~
             lastEditedById ~
             clientId => {
-          val projectClient   = clientRepo.byId(clientId)
-          val projectOwner    = userRepo.byId(ownedById)
-          val projectManagers = userRepo.getManagersByProjectId(projectId)
-          val projectCreator  = userRepo.byId(createdById)
-          val projectEditor   = userRepo.byId(lastEditedById)
+          val projectClient    = clientRepo.byId(clientId)
+          val projectOwner     = userRepo.byId(ownedById)
+          val projectManagers  = userRepo.getManagersByProjectId(projectId)
+          val projectEmployees = userRepo.getEmployeesByProjectId(projectId)
+          val projectCreator   = userRepo.byId(createdById)
+          val projectEditor    = userRepo.byId(lastEditedById)
           Project(
             id = projectId,
             name = projectName,
@@ -153,6 +154,7 @@ class ProjectDAOAnorm @Inject() (
             managers = projectManagers.toList,
             client = projectClient,
             billable = projectBillable,
+            employees = projectEmployees.toList,
             creationTimestamp = projectTsCreated.getTime,
             lastEdited = projectTsEdited.getTime,
             lastEditor = projectEditor

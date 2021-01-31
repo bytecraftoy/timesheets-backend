@@ -41,3 +41,6 @@ POST        /hours                     controllers.TimeInputController.add
 
 # Update a timeinput
 PUT        /hours                     controllers.TimeInputController.update
+
+# GET a client report
+GET        /report/client/:id             controllers.ReportController.getClientReport(id: String, projects: List[String], startDate: String, endDate: String)

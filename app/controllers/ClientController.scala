@@ -59,17 +59,9 @@ class ClientController @Inject() (
     Action {
       try {
         val ZERO: Long = 0;
-        val nameDec  = URLDecoder.decode(name, StandardCharsets.UTF_8.toString)
-        val emailDec = URLDecoder.decode(email, StandardCharsets.UTF_8.toString)
-        clientRepo.add(
-          Client(
-            randomUUID(),
-            nameDec,
-            emailDec,
-            ZERO,
-            ZERO
-          )
-        )
+        val nameDec    = URLDecoder.decode(name, StandardCharsets.UTF_8.toString)
+        val emailDec   = URLDecoder.decode(email, StandardCharsets.UTF_8.toString)
+        clientRepo.add(Client(randomUUID(), nameDec, emailDec, ZERO, ZERO))
         Ok(s"""{"message": "Successfully inserted a client: $nameDec"}""")
           .as(JSON)
       } catch {
