@@ -276,8 +276,22 @@ class DatabaseSpec extends PlaySpec {
               .executeInsert(scalar[UUID].singleOpt)
           val projectList: List[String] = SQL("SELECT * FROM project")
             .as(allProjectsParser)
-          projectList.head.contains("Testi_projekti") mustBe true
-          projectList(1).contains("Testiprojekti") mustBe true
+
+          var test1, test2: Boolean = false
+
+          var p: String = ""
+          for (p <- projectList)
+          {
+            if (p.contains("Testi_projekti")) {
+              test1 = true
+            }
+            if (p.contains("Testiprojekti")) {
+              test2 = true
+            }
+          }
+
+          test1 mustBe true
+          test2 mustBe true
         }
       }
     }
