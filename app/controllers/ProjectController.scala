@@ -12,7 +12,14 @@ import play.api.libs.json.{
 
 import javax.inject._
 import play.api.mvc._
-import models.{Client, ClientRepository, Project, ProjectRepository, User}
+import models.{
+  Client,
+  ClientRepository,
+  Project,
+  ProjectRepository,
+  User,
+  UserRepository
+}
 import play.api.Logging
 
 import java.util.UUID
@@ -22,7 +29,8 @@ import java.util.UUID
 class ProjectController @Inject() (
   cc: ControllerComponents,
   projectRepo: ProjectRepository,
-  clientRepo: ClientRepository
+  clientRepo: ClientRepository,
+  userRepo: UserRepository
 ) extends AbstractController(cc)
     with Logging {
 
@@ -50,6 +58,33 @@ class ProjectController @Inject() (
           ).as(JSON)
         }
 
+      } catch {
+        case error: Exception =>
+          logger.error(error.getMessage)
+          BadRequest(
+            s"""{"message": "Error retrieving a client's projects: $error"}"""
+          ).as(JSON)
+      }
+    }
+
+  def getUsersByProject(projectIds: List[String]): Action[AnyContent] =
+    Action {
+      try {
+        val projectUuids: List[UUID] =
+          projectIds.map(idString => UUID.fromString(idString))
+        logger.debug(
+          s"""projectIds = $projectIds, projectUuids = $projectUuids"""
+        )
+
+        val users =
+          projectUuids.map(uuid => userRepo.getEmployeesByProjectId(uuid))
+        val usersJson = Json.toJson(
+          users.flatten.distinct
+            .sortBy(user => user.lastName)
+            .sortBy(user => user.firstName)
+        )
+        logger.debug(s"""usersJson = $usersJson""")
+        Ok(usersJson)
       } catch {
         case error: Exception =>
           logger.error(error.getMessage)
