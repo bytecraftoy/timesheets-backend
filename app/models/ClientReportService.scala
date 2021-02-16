@@ -13,6 +13,7 @@ trait ClientReportService {
   def getReport(
     clientUuid: UUID,
     projectUuidList: List[UUID],
+    employeeUuidList: List[UUID],
     startDate: LocalDate,
     endDate: LocalDate
   ): ClientReport
@@ -61,6 +62,7 @@ class DevelopmentClientReportService @Inject() (
 
   def getSimpleEmployees(
     project: Project,
+    employeeUuidList: List[UUID],
     startDate: LocalDate,
     endDate: LocalDate
   ): List[EmployeeSimple] = {
@@ -69,7 +71,12 @@ class DevelopmentClientReportService @Inject() (
       s"""ClientReportService -> getSimpleEmployees(), project = ${project.id}, project.employees = ${project.employees}, start = $startDate, end = $endDate""".stripMargin
     )
 
-    project.employees.map { employee =>
+    val employeesToInclude: List[User] = project.employees.filter(user => employeeUuidList.contains(user.id))
+    logger.debug(
+      s"""ClientReportService -> getSimpleEmployees(), employeesToInclude = $employeesToInclude""".stripMargin
+    )
+
+    employeesToInclude.map { employee =>
       {
 
         val simpleTimeInputs: List[TimeInputSimple] = getSimpleTimeInputs(
@@ -96,6 +103,7 @@ class DevelopmentClientReportService @Inject() (
 
   def getSimpleProjects(
     projectUuidList: List[UUID],
+    employeeUuidList: List[UUID],
     startDate: LocalDate,
     endDate: LocalDate
   ): List[ProjectSimple] = {
@@ -111,6 +119,7 @@ class DevelopmentClientReportService @Inject() (
       {
         val simpleEmployees: List[EmployeeSimple] = getSimpleEmployees(
           project = project,
+          employeeUuidList = employeeUuidList,
           startDate = startDate,
           endDate = endDate
         )
@@ -134,6 +143,7 @@ class DevelopmentClientReportService @Inject() (
   def getReport(
     clientUuid: UUID,
     projectUuidList: List[UUID],
+    employeeUuidList: List[UUID],
     startDate: LocalDate,
     endDate: LocalDate
   ): ClientReport = {
@@ -145,6 +155,7 @@ class DevelopmentClientReportService @Inject() (
     val client: Client = clientRepo.byId(clientUuid)
     val simpleProjects: List[ProjectSimple] = getSimpleProjects(
       projectUuidList = projectUuidList,
+      employeeUuidList = employeeUuidList,
       startDate = startDate,
       endDate = endDate
     )
