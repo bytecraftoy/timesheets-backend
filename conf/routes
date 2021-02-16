@@ -46,4 +46,4 @@ POST        /hours                     controllers.TimeInputController.add
 PUT        /hours                     controllers.TimeInputController.update
 
 # GET a client report
-GET        /report/client/:id             controllers.ReportController.getClientReport(id: String, projects: List[String], startDate: String, endDate: String)
+GET        /report/client/:id             controllers.ReportController.getClientReport(id: String, projects: List[String], startDate: String, endDate: String, employees: List[String])

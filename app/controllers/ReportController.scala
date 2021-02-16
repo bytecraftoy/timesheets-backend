@@ -35,12 +35,15 @@ class ReportController @Inject() (
     clientIdString: String,
     projectIdStringList: List[String],
     startDateString: String,
-    endDateString: String
+    endDateString: String,
+    employeeIdStringList: List[String]
   ): Action[AnyContent] =
     Action {
 
-      val projectUuids: List[UUID] = projectIdStringList
-        .map(idString => UUID.fromString(idString))
+      val projectUuids: List[UUID] =
+        projectIdStringList.map(idString => UUID.fromString(idString))
+      val employeeUuids: List[UUID] =
+        employeeIdStringList.map(idString => UUID.fromString(idString))
 
       logger.debug(
         s"""projectIdStringList = $projectIdStringList, projectUuids = $projectUuids"""
@@ -49,6 +52,7 @@ class ReportController @Inject() (
       val clientReport = clientReportService.getReport(
         clientUuid = UUID.fromString(clientIdString),
         projectUuidList = projectUuids,
+        employeeUuidList = employeeUuids,
         startDate = LocalDate.parse(startDateString),
         endDate = LocalDate.parse(endDateString)
       )
