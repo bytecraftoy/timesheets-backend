@@ -1,31 +1,17 @@
 package controllers
 
-import play.api.libs.json.{
-  JsError,
-  JsObject,
-  JsSuccess,
-  JsValue,
-  Json,
-  OFormat,
-  Reads
-}
-
-import javax.inject._
-import play.api.mvc._
-import models.{
-  Client,
-  ClientRepository,
-  Project,
-  ProjectRepository,
-  User,
-  UserRepository
-}
+import io.swagger.annotations.{Api, ApiOperation, ApiResponse, ApiResponses}
+import models._
 import play.api.Logging
+import play.api.libs.json._
+import play.api.mvc._
 
 import java.util.UUID
+import javax.inject._
 
 // https://www.playframework.com/documentation/2.8.x/ScalaJsonHttp
 
+@Api
 class ProjectController @Inject() (
   cc: ControllerComponents,
   projectRepo: ProjectRepository,
@@ -37,6 +23,17 @@ class ProjectController @Inject() (
   implicit def projectFormat: OFormat[Project] =
     Json.using[Json.WithDefaultValues].format[Project]
 
+  @ApiOperation(value = "Get all projects")
+  @ApiResponses(
+    Array(
+      new ApiResponse(
+        code = 200,
+        message = "OK",
+        response = classOf[Project],
+        responseContainer = "List"
+      )
+    )
+  )
   def listProjects: Action[AnyContent] =
     Action {
       val projectsAsJson = Json.toJson(projectRepo.all)

@@ -2,6 +2,7 @@ package models
 
 import com.google.inject.ImplementedBy
 import dao.ClientDAO
+import io.swagger.annotations.Api
 import play.api.Logging
 import play.api.libs.json.{Json, OWrites, Reads}
 

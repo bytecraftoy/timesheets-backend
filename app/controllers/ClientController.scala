@@ -1,23 +1,35 @@
 package controllers
 
-import play.api.libs.json.{Json, Reads}
-
-import javax.inject._
-import play.api.mvc._
-import models.{Client, ClientRepository, Project, User}
+import io.swagger.annotations._
+import models.{Client, ClientRepository}
 import play.api.Logging
+import play.api.libs.json.Json
+import play.api.mvc._
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import java.util.{Calendar, UUID}
+import java.util.UUID
 import java.util.UUID.randomUUID
+import javax.inject._
 
+@Api
 class ClientController @Inject() (
   cc: ControllerComponents,
   clientRepo: ClientRepository
 ) extends AbstractController(cc)
     with Logging {
 
+  @ApiOperation(value = "Get all clients")
+  @ApiResponses(
+    Array(
+      new ApiResponse(
+        code = 200,
+        message = "OK",
+        response = classOf[Client],
+        responseContainer = "List"
+      )
+    )
+  )
   def listClients: Action[AnyContent] =
     Action {
       try {
@@ -32,7 +44,20 @@ class ClientController @Inject() (
       }
     }
 
-  def byId(id: String): Action[AnyContent] =
+  @ApiOperation(value = "Return a client matching the parameter UUID, if found")
+  @ApiResponses(
+    Array(
+      new ApiResponse(
+        code = 200,
+        message = "Returned a client",
+        response = classOf[Client]
+      ),
+      new ApiResponse(code = 400, message = "Error retrieving client")
+    )
+  )
+  def byId(
+    @ApiParam(value = "UUID of the client to fetch", required = true) id: String
+  ): Action[AnyContent] =
     Action {
       try {
         val uuid   = UUID.fromString(id)
@@ -55,6 +80,7 @@ class ClientController @Inject() (
       }
     }
 
+  @ApiOperation(value = "Insert new client")
   def add(name: String, email: String): Action[AnyContent] =
     Action {
       try {
@@ -71,29 +97,4 @@ class ClientController @Inject() (
             .as(JSON)
       }
     }
-
-  case class AddProjectDTO(
-    name: String,
-    description: String,
-    client: UUID,
-    owner: UUID,
-    billable: Boolean
-  ) {
-
-    def asProject: Project =
-      Project(
-        name = this.name,
-        description = this.description,
-        client = clientRepo.byId(this.client),
-        owner = User.byId(this.owner),
-        creator = User.byId(this.owner),
-        managers = List(User.byId(this.owner)),
-        lastEditor = User.byId(this.owner),
-        billable = this.billable
-      )
-  }
-  object AddProjectDTO {
-    implicit val readProjectDTO: Reads[AddProjectDTO] =
-      Json.reads[AddProjectDTO]
-  }
 }

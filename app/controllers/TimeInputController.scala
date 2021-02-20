@@ -1,5 +1,7 @@
 package controllers
 
+import io.swagger.annotations.Api
+
 import java.time.LocalDate
 import play.api.libs.json.{
   Format,
@@ -32,6 +34,7 @@ import java.util.{Date, UUID}
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext
 
+@Api
 class TimeInputController @Inject() (
   cc: ControllerComponents,
   timeInputRepository: TimeInputRepository,

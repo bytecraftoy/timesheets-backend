@@ -1,5 +1,6 @@
 package controllers
 
+import io.swagger.annotations.Api
 import play.api.libs.json.Json
 
 import javax.inject._
@@ -7,6 +8,7 @@ import play.api.mvc._
 import models.UserRepository
 import play.api.Logging
 
+@Api
 class ManagerController @Inject() (
   cc: ControllerComponents,
   userRepo: UserRepository
