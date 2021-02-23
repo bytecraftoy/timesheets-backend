@@ -1,7 +1,7 @@
 package controllers
 
 import akka.http.scaladsl.model.HttpHeader.ParsingResult.Ok
-import models.ClientReportService
+import models.{ClientReportService, SalaryReportService}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
@@ -11,14 +11,7 @@ import play.api.inject.Injector
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{Action, AnyContent}
 import play.api.test.{FakeRequest, Injecting}
-import play.api.test.Helpers.{
-  GET,
-  contentType,
-  defaultAwaitTimeout,
-  route,
-  status,
-  writeableOf_AnyContentAsEmpty
-}
+import play.api.test.Helpers.{GET, contentType, defaultAwaitTimeout, route, status, writeableOf_AnyContentAsEmpty}
 
 import scala.concurrent.ExecutionContext
 import scala.reflect.ClassTag
@@ -41,6 +34,9 @@ class ReportControllerSpec
   val reportController: ReportController =
     ReportInject.inject[ReportController]
 
+  val salaryReportService: SalaryReportService =
+    ReportInject.inject[SalaryReportService]
+
   implicit lazy val executionContext = ReportInject.inject[ExecutionContext]
 
   val applicationJson = "application/json"
@@ -55,7 +51,10 @@ class ReportControllerSpec
   val clientReportFull =
     s"""/report/client/$testClientUUIDString?projects=$testProjectUUIDString&startDate=$startDateString&endDate=$endDateString&employees=$testEmployeeUUIDString"""
 
-  "ReportController GET" should {
+  val salaryReportPath = "/report/employee/"
+  val salaryReportFull = s"""/report/employee/$testEmployeeUUIDString?startDate=$startDateString&endDate=$endDateString&clients=$testClientUUIDString"""
+
+  "ReportController getClientReport" should {
     "return an Action" in {
       val getClientReportReturn = reportController.getClientReport(
         clientIdString = testClientUUIDString,
@@ -68,7 +67,7 @@ class ReportControllerSpec
       getClientReportReturn.isInstanceOf[Action[AnyContent]] mustBe true
     }
 
-    "return JSON data" in {
+    "return data in JSON" in {
       logger.debug(
         s"""ReportControllerSpec --> return JSON data: URL: $clientReportFull"""
       )
@@ -80,4 +79,31 @@ class ReportControllerSpec
       contentType(fetchResponse) mustBe Some(applicationJson)
     }
   }
+
+
+  "ReportController getSalaryReport" should {
+    "return an Action" in {
+      val getSalaryReportReturn = reportController.getSalaryReport(
+        employeeIdString = testEmployeeUUIDString,
+        clientIdStrings = List(testClientUUIDString),
+        startDateString = startDateString,
+        endDateString = endDateString
+      )
+
+      getSalaryReportReturn.isInstanceOf[Action[AnyContent]] mustBe true
+    }
+
+    "return data in JSON" in {
+      logger.debug(
+        s"""ReportControllerSpec --> return JSON data: URL: $salaryReportFull"""
+      )
+
+      val reportFetch   = FakeRequest(GET, salaryReportFull)
+      val fetchResponse = route(app, reportFetch).get
+
+      status(fetchResponse) mustBe OK
+      contentType(fetchResponse) mustBe Some(applicationJson)
+    }
+  }
+
 }

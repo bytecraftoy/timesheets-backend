@@ -6,7 +6,6 @@ import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 
-
 @ImplementedBy(classOf[DevelopmentClientReportService])
 trait ClientReportService {
 
@@ -71,7 +70,8 @@ class DevelopmentClientReportService @Inject() (
       s"""ClientReportService -> getSimpleEmployees(), project = ${project.id}, project.employees = ${project.employees}, start = $startDate, end = $endDate""".stripMargin
     )
 
-    val employeesToInclude: List[User] = project.employees.filter(user => employeeUuidList.contains(user.id))
+    val employeesToInclude: List[User] =
+      project.employees.filter(user => employeeUuidList.contains(user.id))
     logger.debug(
       s"""ClientReportService -> getSimpleEmployees(), employeesToInclude = $employeesToInclude""".stripMargin
     )
@@ -148,9 +148,11 @@ class DevelopmentClientReportService @Inject() (
     endDate: LocalDate
   ): ClientReport = {
 
-    logger.debug(
-      s"""ClientReportService -> getReport(), client = $clientUuid, projectList = $projectUuidList, start = $startDate, end = $endDate"""
-    )
+    logger.debug(s"""ClientReportService -> getReport(),
+         |client = $clientUuid,
+         |projectList = $projectUuidList,
+         |start = $startDate,
+         |end = $endDate""".stripMargin)
 
     val client: Client = clientRepo.byId(clientUuid)
     val simpleProjects: List[ProjectSimple] = getSimpleProjects(
