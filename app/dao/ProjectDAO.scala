@@ -60,9 +60,10 @@ class ProjectDAOAnorm @Inject() (
         clientTsEdited => {
       val projectClient =
         clientRepo.byId(clientId) //Client(id = clientId, name = clientName)
-      val projectOwner    = userRepo.byId(ownedById)   //User.byId(ownedById)
-      val projectManagers = userRepo.getManagersByProjectId(projectId)
-      val projectCreator  = userRepo.byId(createdById) //User.byId(createdById)
+      val projectOwner     = userRepo.byId(ownedById)   //User.byId(ownedById)
+      val projectManagers  = userRepo.getManagersByProjectId(projectId)
+      val projectEmployees = userRepo.getEmployeesByProjectId(projectId)
+      val projectCreator   = userRepo.byId(createdById) //User.byId(createdById)
       val projectEditor =
         userRepo.byId(lastEditedById) //User.byId(lastEditedById)
       Project(
@@ -73,6 +74,7 @@ class ProjectDAOAnorm @Inject() (
         creator = projectCreator,
         managers = projectManagers.toList,
         client = projectClient,
+        employees = projectEmployees.toList,
         billable = projectBillable,
         creationTimestamp = projectTsCreated.getTime,
         lastEdited = projectTsEdited.getTime,
@@ -98,23 +100,24 @@ class ProjectDAOAnorm @Inject() (
           "INNER JOIN client ON (project.client_id = client.client_id);"
       ).as(allProjectsParser)
 
-      /* TODO: Add lists of managers and employees to the project
-        TODO: Add linking tables for managers and employees to SQL
-        val projectsWithLists: List[Project] = projectResult.map{project =>
-          val project_id = project.id
-          val projectEmployees: List[User] = SQL("SELECT u.* from ...").as[User]
-        }
-
-       */
-
       projectResult
     }
 
   def getById(projectId: UUID): Project =
     db.withConnection { implicit c =>
       val sql =
-        "SELECT project_id, name, description, timestamp_created, timestamp_edited, billable, owned_by, created_by, last_edited_by, client_id" +
-          " FROM project WHERE project_id = '" + projectId + "';"
+        "SELECT project_id, " +
+          "name, " +
+          "description, " +
+          "timestamp_created, " +
+          "timestamp_edited, " +
+          "billable, " +
+          "owned_by, " +
+          "created_by, " +
+          "last_edited_by, " +
+          "client_id" +
+          " FROM project " +
+          "WHERE project_id = {projectId}::uuid;"
       logger.debug(s"ProjectDAOAnorm.getById(), SQL = $sql")
 
       val projectParser: RowParser[Project] = (
@@ -162,7 +165,9 @@ class ProjectDAOAnorm @Inject() (
         }
       }
       val allProjectsParser: ResultSetParser[List[Project]] = projectParser.*
-      val results                                           = SQL(sql).as(allProjectsParser)
+      val results = SQL(sql)
+        .on("projectId" -> projectId)
+        .as(allProjectsParser)
       if (results.isEmpty) {
         null
       } else {

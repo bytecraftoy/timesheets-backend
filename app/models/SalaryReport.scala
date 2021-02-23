@@ -19,9 +19,18 @@ case class SimpleClient(
   projects: List[SimpleProject]
 )
 
+case class SimpleTimeInput(
+  id: UUID,
+  description: String,
+  input: Long,
+  created: Long,
+  updated: Long,
+  date: LocalDate
+)
+
 case class SimpleProject(
   id: UUID,
   name: String,
   projectTotal: Long, // inputted minutes
-  timeInputs: List[TimeInput]
+  timeInputs: List[SimpleTimeInput]
 )

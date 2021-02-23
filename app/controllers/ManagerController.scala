@@ -24,6 +24,7 @@ class ManagerController @Inject() (
           logger.error(error.getMessage)
           BadRequest(s"""{"message": "Error retrieving managers: $error"}""")
             .as(JSON)
+
       }
     }
 }
