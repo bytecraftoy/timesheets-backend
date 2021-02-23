@@ -38,11 +38,7 @@ class ProjectDAOAnorm @Inject() (
       SqlParser.get[UUID]("project.owned_by") ~
       SqlParser.get[UUID]("project.created_by") ~
       SqlParser.get[UUID]("project.last_edited_by") ~
-      SqlParser.get[UUID]("project.client_id") ~
-      SqlParser.str("client.name") ~
-      SqlParser.str("client.email") ~
-      SqlParser.date("client.timestamp_created") ~
-      SqlParser.date("client.timestamp_edited")
+      SqlParser.get[UUID]("project.client_id")
   ) map {
     case projectId ~
         projectName ~
@@ -53,19 +49,13 @@ class ProjectDAOAnorm @Inject() (
         ownedById ~
         createdById ~
         lastEditedById ~
-        clientId ~
-        clientName ~
-        clientEmail ~
-        clientTsCreated ~
-        clientTsEdited => {
-      val projectClient =
-        clientRepo.byId(clientId) //Client(id = clientId, name = clientName)
-      val projectOwner     = userRepo.byId(ownedById)   //User.byId(ownedById)
+        clientId => {
+      val projectClient    = clientRepo.byId(clientId)
+      val projectOwner     = userRepo.byId(ownedById)
       val projectManagers  = userRepo.getManagersByProjectId(projectId)
       val projectEmployees = userRepo.getEmployeesByProjectId(projectId)
-      val projectCreator   = userRepo.byId(createdById) //User.byId(createdById)
-      val projectEditor =
-        userRepo.byId(lastEditedById) //User.byId(lastEditedById)
+      val projectCreator   = userRepo.byId(createdById)
+      val projectEditor    = userRepo.byId(lastEditedById)
       Project(
         id = projectId,
         name = projectName,
@@ -82,11 +72,11 @@ class ProjectDAOAnorm @Inject() (
       )
     }
   }
+  val allProjectsParser: ResultSetParser[List[Project]] = projectParser.*
 
   def getAll(): Seq[Project] =
     db.withConnection { implicit c =>
       val allProjectsParser: ResultSetParser[List[Project]] = projectParser.*
-
       val projectResult: List[Project] = SQL(
         "SELECT DISTINCT project.project_id, " +
           "project.name, project.description, " +
@@ -99,7 +89,6 @@ class ProjectDAOAnorm @Inject() (
           "FROM project " +
           "INNER JOIN client ON (project.client_id = client.client_id);"
       ).as(allProjectsParser)
-
       projectResult
     }
 
@@ -120,51 +109,6 @@ class ProjectDAOAnorm @Inject() (
           "WHERE project_id = {projectId}::uuid;"
       logger.debug(s"ProjectDAOAnorm.getById(), SQL = $sql")
 
-      val projectParser: RowParser[Project] = (
-        SqlParser.get[UUID]("project.project_id") ~
-          SqlParser.str("project.name") ~
-          SqlParser.str("project.description") ~
-          SqlParser.date("project.timestamp_created") ~
-          SqlParser.date("project.timestamp_edited") ~
-          SqlParser.bool("project.billable") ~
-          SqlParser.get[UUID]("project.owned_by") ~
-          SqlParser.get[UUID]("project.created_by") ~
-          SqlParser.get[UUID]("project.last_edited_by") ~
-          SqlParser.get[UUID]("project.client_id")
-      ) map {
-        case projectId ~
-            projectName ~
-            projectDescription ~
-            projectTsCreated ~
-            projectTsEdited ~
-            projectBillable ~
-            ownedById ~
-            createdById ~
-            lastEditedById ~
-            clientId => {
-          val projectClient    = clientRepo.byId(clientId)
-          val projectOwner     = userRepo.byId(ownedById)
-          val projectManagers  = userRepo.getManagersByProjectId(projectId)
-          val projectEmployees = userRepo.getEmployeesByProjectId(projectId)
-          val projectCreator   = userRepo.byId(createdById)
-          val projectEditor    = userRepo.byId(lastEditedById)
-          Project(
-            id = projectId,
-            name = projectName,
-            description = projectDescription,
-            owner = projectOwner,
-            creator = projectCreator,
-            managers = projectManagers.toList,
-            client = projectClient,
-            billable = projectBillable,
-            employees = projectEmployees.toList,
-            creationTimestamp = projectTsCreated.getTime,
-            lastEdited = projectTsEdited.getTime,
-            lastEditor = projectEditor
-          )
-        }
-      }
-      val allProjectsParser: ResultSetParser[List[Project]] = projectParser.*
       val results = SQL(sql)
         .on("projectId" -> projectId)
         .as(allProjectsParser)
