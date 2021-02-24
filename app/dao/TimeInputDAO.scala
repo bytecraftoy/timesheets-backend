@@ -41,20 +41,24 @@ class TimeInputDAOAnorm @Inject() (
     with Logging {
 
   def getAll(): Seq[TimeInput] = {
-    val sql = SQL("SELECT * FROM timeinput;").on()
+    val sql = SQL("SELECT * FROM timeinput;")
     getTimeInputs(sql)
   }
 
   def byProject(projectId: UUID): Seq[TimeInput] = {
     val sql = SQL(
-      "SELECT * FROM timeinput WHERE project_id = {projectId}::uuid ORDER BY app_user_id ASC, input_date ASC;"
+      "SELECT * FROM timeinput " +
+        "WHERE project_id = {projectId}::uuid " +
+        "ORDER BY app_user_id ASC, input_date ASC;"
     ).on("projectId" -> projectId)
     getTimeInputs(sql)
   }
 
   def byEmployee(employeeId: UUID): Seq[TimeInput] = {
     val sql = SQL(
-      "SELECT * FROM timeinput WHERE app_user_id = {employeeId}::uuid ORDER BY project_id ASC, input_date ASC;"
+      "SELECT * FROM timeinput " +
+        "WHERE app_user_id = {employeeId}::uuid " +
+        "ORDER BY project_id ASC, input_date ASC;"
     ).on("employeeId" -> employeeId)
     getTimeInputs(sql)
   }
@@ -67,14 +71,17 @@ class TimeInputDAOAnorm @Inject() (
 
     if (start == LocalDate.MIN && end == LocalDate.MAX) {
       logger.debug(
-        "Calling TimeInputDAOAnorm.byEmployee() instead. Dates are start MIN and end MAX."
+        "Calling TimeInputDAOAnorm.byEmployee() instead. " +
+          "Dates are start MIN and end MAX."
       )
       byEmployee(employeeId)
     } else {
 
       val sql = SQL(
-        "SELECT * FROM timeinput WHERE app_user_id = {employeeId}::uuid " +
-          "AND input_date >= {start} AND input_date <= {end} ORDER BY project_id ASC, input_date ASC;"
+        "SELECT * FROM timeinput " +
+          "WHERE app_user_id = {employeeId}::uuid " +
+          "AND input_date >= {start} AND input_date <= {end} " +
+          "ORDER BY project_id ASC, input_date ASC;"
       ).on("employeeId" -> employeeId, "start" -> start, "end" -> end)
 
       getTimeInputs(sql)
@@ -102,7 +109,8 @@ class TimeInputDAOAnorm @Inject() (
 
     if (start == LocalDate.MIN && end == LocalDate.MAX) {
       logger.debug(
-        "Calling TimeInputDAOAnorm.byProjectAndEmployee() instead. Dates are start MIN and end MAX."
+        "Calling TimeInputDAOAnorm.byProjectAndEmployee() instead. " +
+          "Dates are start MIN and end MAX."
       )
       byProjectAndEmployee(projectId, employeeId)
     } else {
@@ -125,8 +133,10 @@ class TimeInputDAOAnorm @Inject() (
 
   def byTimeInterval(start: LocalDate, end: LocalDate): Seq[TimeInput] = {
     val sql = SQL(
-      "SELECT * FROM timeinput WHERE input_date >= {start} " +
-        "AND input_date <= {end} ORDER BY app_user_id ASC, project_id ASC, input_date ASC;"
+      "SELECT * FROM timeinput " +
+        "WHERE input_date >= {start} " +
+        "AND input_date <= {end} " +
+        "ORDER BY app_user_id ASC, project_id ASC, input_date ASC;"
     ).on("start" -> start, "end" -> end)
 
     getTimeInputs(sql)
@@ -134,7 +144,8 @@ class TimeInputDAOAnorm @Inject() (
 
   def getById(timeInputId: UUID): TimeInput = {
     val sql = SQL(
-      "SELECT * FROM timeinput WHERE timeInput_id = {timeInputId}::uuid ;"
+      "SELECT * FROM timeinput " +
+        "WHERE timeInput_id = {timeInputId}::uuid ;"
     ).on("timeInputId" -> timeInputId)
 
     val results = getTimeInputs(sql)
@@ -148,8 +159,22 @@ class TimeInputDAOAnorm @Inject() (
   def add(timeInput: TimeInput): Unit = {
     db.withConnection { implicit connection =>
       val sql =
-        "INSERT INTO timeInput (timeInput_id, app_user_id, project_id, input_date, minutes, description, timestamp_created, timestamp_edited)" +
-          " VALUES ({id}::uuid, {employee.id}::uuid, {project.id}::uuid, {date}, {input}, {description}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);"
+        "INSERT INTO timeInput (timeInput_id, " +
+          "app_user_id, " +
+          "project_id, " +
+          "input_date, " +
+          "minutes, " +
+          "description, " +
+          "timestamp_created, " +
+          "timestamp_edited) " +
+          "VALUES ({id}::uuid, " +
+          "{employee.id}::uuid, " +
+          "{project.id}::uuid, " +
+          "{date}, " +
+          "{input}, " +
+          "{description}, " +
+          "CURRENT_TIMESTAMP, " +
+          "CURRENT_TIMESTAMP);"
       logger.debug(s"TimeInputDAOAnorm.add, SQL = $sql")
       SQL(sql)
         .on(

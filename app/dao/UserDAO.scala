@@ -23,13 +23,13 @@ trait UserDAO extends DAO[User] {
 // https://gist.github.com/davegurnell/4b432066b39949850b04
 class UserDAOAnorm @Inject() (db: Database) extends UserDAO with Logging {
   def getAll(): Seq[User] = {
-    val sql = SQL("SELECT * FROM app_user;").on()
+    val sql = SQL("SELECT * FROM app_user;")
     logger.debug(s"""UserDAOAnorm.getAll(), SQL = $sql""")
     getUsers(sql)
   }
 
   def getAllManagers(): Seq[User] = {
-    val sql = SQL("SELECT * FROM app_user where is_manager = true;").on()
+    val sql = SQL("SELECT * FROM app_user where is_manager = true;")
     logger.debug(s"""UserDAOAnorm.getAllManagers(), SQL = $sql""")
     getUsers(sql)
   }
@@ -72,8 +72,26 @@ class UserDAOAnorm @Inject() (db: Database) extends UserDAO with Logging {
   def add(user: User): Unit = {
     db.withConnection { implicit connection =>
       val sql =
-        "INSERT INTO app_user (app_user_id, username, first_name, last_name, email, phone_number, salary, is_manager, timestamp_created ~ timestamp_edited)" +
-          " VALUES ({id}::uuid, {username}, {firstName}, {lastName}, {email}, {phoneNumber}, {salary}, {isManager}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);"
+        "INSERT INTO app_user (app_user_id, " +
+          "username, " +
+          "first_name, " +
+          "last_name, " +
+          "email, " +
+          "phone_number, " +
+          "salary, " +
+          "is_manager, " +
+          "timestamp_created, " +
+          "timestamp_edited)" +
+          " VALUES ({id}::uuid, " +
+          "{username}, " +
+          "{firstName}, " +
+          "{lastName}, " +
+          "{email}, " +
+          "{phoneNumber}, " +
+          "{salary}, " +
+          "{isManager}, " +
+          "CURRENT_TIMESTAMP, " +
+          "CURRENT_TIMESTAMP);"
       logger.debug(s"UserDAOAnorm.add, SQL = $sql")
       SQL(sql)
         .bind(user)

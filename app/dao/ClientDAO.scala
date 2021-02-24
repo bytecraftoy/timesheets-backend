@@ -21,22 +21,45 @@ trait ClientDAO extends DAO[Client] {
 
 // https://gist.github.com/davegurnell/4b432066b39949850b04
 class ClientDAOAnorm @Inject() (db: Database) extends ClientDAO with Logging {
-  def getAll(): Seq[Client] = {
-    val sql = "SELECT * FROM client;"
-    logger.debug(s"ClientDAOAnorm.getAll(), SQL = $sql")
-    getClients(sql)
-  }
 
-  def getById(clientId: UUID): Client = {
-    val sql = "SELECT * FROM client WHERE client_id = '" + clientId + "';"
-    logger.debug(s"ClientDAOAnorm.getById(), SQL = $sql")
-    val results = getClients(sql)
-    if (results.isEmpty) {
-      null
-    } else {
-      results.head
-    }
+  val clientParser: RowParser[Client] = (
+    SqlParser.get[UUID]("client_id") ~
+      SqlParser.str("name") ~
+      SqlParser.str("email") ~
+      SqlParser.date("timestamp_created") ~
+      SqlParser.date("timestamp_edited")
+  ) map {
+    case client_id ~ name ~ email ~ timestamp_created ~ timestamp_edited =>
+      Client(
+        id = client_id,
+        name = name,
+        email = email,
+        timestamp_created = timestamp_created.getTime(),
+        timestamp_edited = timestamp_edited.getTime()
+      )
   }
+  val allClientsParser: ResultSetParser[List[Client]] = clientParser.*
+
+  def getAll(): Seq[Client] =
+    db.withConnection { implicit c =>
+      val sql = "SELECT * FROM client;"
+      logger.debug(s"ClientDAOAnorm.getAll(), SQL = $sql")
+      val clientResult: List[Client] = SQL(sql).as(allClientsParser)
+      clientResult
+    }
+
+  def getById(clientId: UUID): Client =
+    db.withConnection { implicit c =>
+      val sql = "SELECT * FROM client WHERE client_id = {clientId}::uuid;"
+      logger.debug(s"ClientDAOAnorm.getById(), SQL = $sql")
+      val clientResults =
+        SQL(sql).on("clientId" -> clientId).as(allClientsParser)
+      if (clientResults.isEmpty) {
+        null
+      } else {
+        clientResults.head
+      }
+    }
 
   def add(client: Client): Unit = {
     db.withConnection { implicit connection =>
@@ -50,26 +73,4 @@ class ClientDAOAnorm @Inject() (db: Database) extends ClientDAO with Logging {
     }
   }
 
-  def getClients(sql: String): Seq[Client] =
-    db.withConnection { implicit c =>
-      val clientParser: RowParser[Client] = (
-        SqlParser.get[UUID]("client_id") ~
-          SqlParser.str("name") ~
-          SqlParser.str("email") ~
-          SqlParser.date("timestamp_created") ~
-          SqlParser.date("timestamp_edited")
-      ) map {
-        case client_id ~ name ~ email ~ timestamp_created ~ timestamp_edited =>
-          Client(
-            id = client_id,
-            name = name,
-            email = email,
-            timestamp_created = timestamp_created.getTime(),
-            timestamp_edited = timestamp_edited.getTime()
-          )
-      }
-      val allClientsParser: ResultSetParser[List[Client]] = clientParser.*
-      val clientResult: List[Client]                      = SQL(sql).as(allClientsParser)
-      clientResult
-    }
 }
