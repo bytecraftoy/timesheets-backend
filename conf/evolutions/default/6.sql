@@ -24,7 +24,19 @@ VALUES
     '9fa407f4-7375-446b-92c6-c578839b7780',
     '06be4b85-8f65-4f65-8965-faba1216f199',
     '06be4b85-8f65-4f65-8965-faba1216f199',
-    '1bb44a7e-cd7c-447d-a9e9-26495b52fa88'
+    '5be59e8a-63f5-4f22-8b12-c7128fb40add'
+),
+(
+    'd7e738a2-60cf-4336-b7d9-5216ef960e3a',
+    'Projekti Kolmonen',
+    'Kolmanen-projektin kuvaus',
+    '2021-01-30 13:21:00',
+    '2021-01-31 13:21:00',
+    TRUE,
+    '9fa407f4-7375-446b-92c6-c578839b7780',
+    '06be4b85-8f65-4f65-8965-faba1216f199',
+    '06be4b85-8f65-4f65-8965-faba1216f199',
+    '19f0abb2-fd4f-4db5-b5d6-1549a24c291f'
 );
 
 
@@ -56,12 +68,23 @@ VALUES
     FALSE,
     '2011-03-04 15:23:27',
     '2016-02-01 08:12:41'
-);
+),
+(
+    'c7af4280-7cc0-45aa-84ad-15156a17663e',
+    'e_eteva',
+    'Eppu',
+    'Etevä',
+    FALSE,
+    '2012-03-04 15:23:27',
+    '2018-02-01 08:12:41'
+)
+;
 
 INSERT INTO project_app_user (project_id, app_user_id)
 VALUES
 ('a1eda1a6-a749-4932-9f48-16fe5b6a8ce9', '4276164d-d8c3-47d5-8f65-a6255ce71567'),
-('a1eda1a6-a749-4932-9f48-16fe5b6a8ce9', '618d79bd-5afd-4f82-b265-729eb7b7e9f0')
+('a1eda1a6-a749-4932-9f48-16fe5b6a8ce9', '618d79bd-5afd-4f82-b265-729eb7b7e9f0'),
+('d7e738a2-60cf-4336-b7d9-5216ef960e3a', 'c7af4280-7cc0-45aa-84ad-15156a17663e')
 ;
 
 INSERT INTO timeinput
@@ -175,10 +198,19 @@ VALUES
     'Tulosten esittely',
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
+),
+(
+    'b15c7760-bfff-4879-9950-9d023d60efeb',
+    'c7af4280-7cc0-45aa-84ad-15156a17663e',
+    'd7e738a2-60cf-4336-b7d9-5216ef960e3a',
+    '2021-03-05',
+    120,
+    'Testi-datan lisäämistä',
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
 )
+
 ;
-
-
 
 
 
@@ -194,12 +226,20 @@ DELETE FROM timeinput where timeinput_id IN (
 '250d8d82-aa12-42b8-be26-b80e42fc57e6',
 'f9abd021-aa9c-4902-a299-8e3875764ca3',
 '293b553d-c1cc-483b-9285-b0e3de4e1beb',
-'318b6a9e-6a08-4f77-853c-9e119d01aeae'
+'318b6a9e-6a08-4f77-853c-9e119d01aeae',
+'b15c7760-bfff-4879-9950-9d023d60efeb'
 );
 
 DELETE FROM project_app_user WHERE project_id = 'a1eda1a6-a749-4932-9f48-16fe5b6a8ce9' AND
 app_user_id IN ('4276164d-d8c3-47d5-8f65-a6255ce71567', '618d79bd-5afd-4f82-b265-729eb7b7e9f0');
 
-DELETE FROM app_user WHERE app_user_id IN ('4276164d-d8c3-47d5-8f65-a6255ce71567', '618d79bd-5afd-4f82-b265-729eb7b7e9f0');
+DELETE FROM project_app_user WHERE project_id = 'd7e738a2-60cf-4336-b7d9-5216ef960e3a' AND
+        app_user_id = 'c7af4280-7cc0-45aa-84ad-15156a17663e';
 
-DELETE FROM project WHERE project_id = 'a1eda1a6-a749-4932-9f48-16fe5b6a8ce9';
+DELETE FROM app_user WHERE app_user_id IN ('4276164d-d8c3-47d5-8f65-a6255ce71567',
+                                           '618d79bd-5afd-4f82-b265-729eb7b7e9f0',
+                                           'c7af4280-7cc0-45aa-84ad-15156a17663e'
+                                          );
+
+DELETE FROM project WHERE project_id IN ('a1eda1a6-a749-4932-9f48-16fe5b6a8ce9',
+                                         'd7e738a2-60cf-4336-b7d9-5216ef960e3a');

@@ -44,6 +44,20 @@ VALUES
     'asiakas@yritys.fi',
     '2004-10-20 11:30:45',
     '2012-11-19 16:27:01'
+),
+(
+    '5be59e8a-63f5-4f22-8b12-c7128fb40add',
+    'Asiakas Kakkonen',
+    'kakkonen@firma.fi',
+    '2014-03-20 09:08:42',
+    '2016-06-19 17:39:39'
+),
+(
+    '19f0abb2-fd4f-4db5-b5d6-1549a24c291f',
+    'Asiakas Kolmonen',
+    'kolmonen@asiakas.fi',
+    '2018-10-21 10:30:46',
+    '2020-10-20 14:21:10'
 );
 
 INSERT INTO project
@@ -78,8 +92,12 @@ INSERT INTO project_app_user (project_id, app_user_id)
 VALUES ('a3eb6db5-5212-46d0-bd08-8e852a45e0d3', '9fa407f4-7375-446b-92c6-c578839b7780');
 
 # --- !Downs
+DELETE FROM project_app_user WHERE project_id = 'a3eb6db5-5212-46d0-bd08-8e852a45e0d3' AND
+        app_user_id IN ('9fa407f4-7375-446b-92c6-c578839b7780');
 
 DELETE FROM client WHERE name='Esimerkkiasiakas';
+DELETE FROM client WHERE name='Asiakas Kakkonen';
+DELETE FROM client WHERE name='Asiakas Kolmonen';
 DELETE FROM app_user WHERE first_name='Toka';
 DELETE FROM app_user WHERE first_name='Eka';
 DELETE FROM project WHERE name='Testi_projekti';
