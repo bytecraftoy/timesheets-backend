@@ -79,7 +79,7 @@ class ProjectDAOAnorm @Inject() (
       val allProjectsParser: ResultSetParser[List[Project]] = projectParser.*
       val projectResult: List[Project] = SQL(
         "SELECT DISTINCT project.project_id, " +
-          "project.name, project.description, " +
+          "project.name, upper(project.name) as project_upper, project.description, " +
           "project.timestamp_created, project.timestamp_edited, " +
           "project.billable," +
           "project.owned_by, project.created_by, " +
@@ -87,7 +87,8 @@ class ProjectDAOAnorm @Inject() (
           "client.name, client.email, client.timestamp_created, " +
           "client.timestamp_edited " +
           "FROM project " +
-          "INNER JOIN client ON (project.client_id = client.client_id);"
+          "INNER JOIN client ON (project.client_id = client.client_id) " +
+          "ORDER BY project_upper ASC ;"
       ).as(allProjectsParser)
       projectResult
     }
