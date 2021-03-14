@@ -13,7 +13,7 @@ GET         /assets/*file              controllers.Assets.versioned(path="/publi
 GET         /projects                  controllers.ProjectController.listProjects
 
 # List timeinput per user and per project for a specified timeinterval TODO: remove default userId
-GET         /projects/:id/hours        controllers.TimeInputController.byProject(id: String, userId: String ?= "5f37bc60-3f7a-436a-a238-2b4f908fd235", startDate: String ?= "getAll", endDate: String ?= "")
+GET         /projects/:id/hours        controllers.TimeInputController.byProject(id: String, userId: String ?= "4276164d-d8c3-47d5-8f65-a6255ce71567", startDate: String ?= "getAll", endDate: String ?= "")
 
 # List users of project(s)
 GET         /projects/employees        controllers.ProjectController.getUsersByProject(projects: List[String])
@@ -36,13 +36,14 @@ GET         /clientsbyid               controllers.ClientController.byId(id: Str
 GET          /clients/:id/projects     controllers.ProjectController.listProjectsByClientId(id: String)
 
 # Add a client
++ nocsrf # TODO: remove
 POST         /clients                  controllers.ClientController.add(name: String, email: String)
 
 # Add a project
 POST        /projects                  controllers.ProjectController.addProject
 
 # List user's hours per project TODO: remove default userId
-GET         /hours                     controllers.TimeInputController.groupByProject(userId: String ?= "a3f4e844-4199-439d-a463-2f07e87c6ca4", startDate: String ?= "getAll", endDate: String ?= "")
+GET         /hours                     controllers.TimeInputController.groupByProject(userId: String ?= "9fa407f4-7375-446b-92c6-c578839b7780", startDate: String ?= "getAll", endDate: String ?= "")
 
 # Add a timeinput
 POST        /hours                     controllers.TimeInputController.add
@@ -55,3 +56,9 @@ GET        /report/client/:id          controllers.ReportController.getClientRep
 
 # GET a salary report for an employee
 GET        /report/employee/:id        controllers.ReportController.getSalaryReport(id: String, clients: List[String], startDate: String, endDate: String)
+
+# Swagger resource listing
+GET        /swagger.json               controllers.ApiHelpController.getResources
+
+# Swagger UI
+GET        /docs/swagger-ui/*file      controllers.Assets.at(path: String = "/public/lib/swagger-ui", file: String)

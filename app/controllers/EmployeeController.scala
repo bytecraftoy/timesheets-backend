@@ -1,5 +1,6 @@
 package controllers
 
+import io.swagger.annotations.Api
 import models.{
   Client,
   ClientRepository,
@@ -19,6 +20,7 @@ import play.api.mvc.{
 import java.util.UUID
 import javax.inject.Inject
 
+@Api
 class EmployeeController @Inject() (
   cc: ControllerComponents,
   userRepository: UserRepository,

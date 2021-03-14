@@ -1,5 +1,6 @@
 package controllers
 
+import io.swagger.annotations.Api
 import models.{
   ClientReport,
   ClientReportService,
@@ -26,6 +27,7 @@ import java.time.LocalDate
 import java.util.UUID
 import javax.inject.Inject
 
+@Api
 class ReportController @Inject() (
   cc: ControllerComponents,
   clientReportService: ClientReportService,

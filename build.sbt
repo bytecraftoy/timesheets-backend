@@ -17,10 +17,14 @@ libraryDependencies += "org.scalatestplus" %% "junit-4-13" % "3.2.2.0" % "test"
 libraryDependencies ++= Seq(
   evolutions,
   jdbc,
-  "com.h2database" % "h2" % "1.4.195",
-  "org.playframework.anorm" %% "anorm" % "2.6.8",
-  "org.postgresql" % "postgresql" % "42.2.18"
+  "com.h2database"           % "h2"         % "1.4.195",
+  "org.playframework.anorm" %% "anorm"      % "2.6.8",
+  "org.postgresql"           % "postgresql" % "42.2.18"
 )
+
+// Swagger
+libraryDependencies += "com.github.dwickern" %% "swagger-play2.8" % "3.0.0"
+libraryDependencies += "org.webjars"          % "swagger-ui"      % "3.43.0"
 
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "com.codeflow.controllers._"
