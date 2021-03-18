@@ -15,6 +15,7 @@ trait UserDAO extends DAO[User] {
   def getAll(): Seq[User]
   def getById(userId: UUID): User
   def add(user: User): Unit
+  def addUserToProject(userId: UUID, projectId: UUID): Unit
   def getAllManagers(): Seq[User]
   def getManagersByProjectId(projectId: UUID): Seq[User]
   def getEmployeesByProjectId(projectId: UUID): Seq[User]
@@ -95,6 +96,20 @@ class UserDAOAnorm @Inject() (db: Database) extends UserDAO with Logging {
       logger.debug(s"UserDAOAnorm.add, SQL = $sql")
       SQL(sql)
         .bind(user)
+        .executeInsert(anorm.SqlParser.scalar[java.util.UUID].singleOpt)
+    }
+  }
+
+  def addUserToProject(userId: UUID, projectId: UUID): Unit = {
+    db.withConnection { implicit connection =>
+      val sql =
+        "INSERT INTO project_app_user (app_user_id, " +
+          "project_id)" +
+          " VALUES ({app_user_id}::uuid, " +
+          "{project_id}::uuid);"
+      logger.debug(s"UserDAOAnorm.addUserToProject, SQL = $sql")
+      SQL(sql)
+        .on("app_user_id" -> userId, "project_id" -> projectId)
         .executeInsert(anorm.SqlParser.scalar[java.util.UUID].singleOpt)
     }
   }
