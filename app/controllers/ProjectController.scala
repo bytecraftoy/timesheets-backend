@@ -1,6 +1,13 @@
 package controllers
 
-import io.swagger.annotations.{Api, ApiOperation, ApiResponse, ApiResponses}
+import io.swagger.annotations.{
+  Api,
+  ApiImplicitParam,
+  ApiImplicitParams,
+  ApiOperation,
+  ApiResponse,
+  ApiResponses
+}
 import models._
 import play.api.Logging
 import play.api.libs.json._
@@ -115,30 +122,46 @@ class ProjectController @Inject() (
       }
     }
 
-  val addProject: Action[JsValue] = Action(parse.json) { implicit request =>
-    request.body.validate[AddProjectDTO] match {
-      case JsSuccess(createProjectDTO, _) => {
-        createProjectDTO.asProject match {
-          case p: Project => {
-            if (p.employees.exists(_.id == p.owner.id)) {
-              val msg = "Owner cannot be an employee"
-              logger.error(msg)
-              BadRequest(Json.obj("message" -> msg))
-            } else {
-              projectRepo.add(p)
-              Ok(Json.toJson(p))
+  @ApiOperation(value = "Insert new project")
+  @ApiResponses(
+    Array(
+      new ApiResponse(code = 200, message = "OK", response = classOf[Project])
+    )
+  )
+  @ApiImplicitParams(
+    Array(
+      new ApiImplicitParam(
+        name = "Project to add",
+        paramType = "body",
+        dataType = "models.Project" // TODO: actually AddProjectDTO
+      )
+    )
+  )
+  def addProject: Action[JsValue] =
+    Action(parse.json) { implicit request =>
+      request.body.validate[AddProjectDTO] match {
+        case JsSuccess(createProjectDTO, _) => {
+          createProjectDTO.asProject match {
+            case p: Project => {
+              if (p.employees.exists(_.id == p.owner.id)) {
+                val msg = "Owner cannot be an employee"
+                logger.error(msg)
+                BadRequest(Json.obj("message" -> msg))
+              } else {
+                projectRepo.add(p)
+                Ok(Json.toJson(p))
+              }
+
             }
-
+            case other => InternalServerError
           }
-          case other => InternalServerError
-        }
 
-      }
-      case JsError(errors) => {
-        BadRequest // TODO: log errors
+        }
+        case JsError(errors) => {
+          BadRequest // TODO: log errors
+        }
       }
     }
-  }
 
   val updateProject: Action[JsValue] = Action(parse.json) { implicit request =>
     request.body.validate[UpdateProjectDTO] match {
