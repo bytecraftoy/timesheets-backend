@@ -96,8 +96,15 @@ class ProjectController @Inject() (
       case JsSuccess(createProjectDTO, _) => {
         createProjectDTO.asProject match {
           case p: Project => {
-            projectRepo.add(p)
-            Ok(Json.toJson(p))
+            if (p.employees.exists(_.id == p.owner.id)) {
+              val msg = "Owner cannot be an employee"
+              logger.error(msg)
+              BadRequest(Json.obj("message" -> msg))
+            } else {
+              projectRepo.add(p)
+              Ok(Json.toJson(p))
+            }
+
           }
           case other => InternalServerError
         }
@@ -114,18 +121,20 @@ class ProjectController @Inject() (
     description: String,
     client: UUID,
     owner: UUID,
-    billable: Boolean
+    billable: Boolean,
+    employees: List[UUID]
   ) {
     def asProject: Project =
       Project(
         name = this.name,
         description = this.description,
         client = clientRepo.byId(this.client),
-        owner = User.byId(this.owner),
-        creator = User.byId(this.owner),
-        managers = List(User.byId(this.owner)),
-        lastEditor = User.byId(this.owner),
-        billable = this.billable
+        owner = userRepo.byId(this.owner),
+        creator = userRepo.byId(this.owner),
+        managers = List(userRepo.byId(this.owner)),
+        lastEditor = userRepo.byId(this.owner),
+        billable = this.billable,
+        employees = this.employees.map(userRepo.byId(_))
       )
   }
   object AddProjectDTO {

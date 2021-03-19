@@ -26,7 +26,7 @@ class ProjectControllerSpec
     with Logging {
 
   val projectRepository: ProjectRepository = Inject.inject[ProjectRepository]
-  val applicationJson = "application/json"
+  val applicationJson                      = "application/json"
 
   "ProjectController GET" should {
 
@@ -63,11 +63,14 @@ class ProjectControllerSpec
     }
 
     "return users by project as JSON data" in {
-      val usersByProject = "/projects/employees?projects=a3eb6db5-5212-46d0-bd08-8e852a45e0d3"
+      val usersByProject =
+        "/projects/employees?projects=a3eb6db5-5212-46d0-bd08-8e852a45e0d3"
 
-      logger.debug(s"""ProjectControllerSpec --> return users by project as JSON data, URL = $usersByProject""")
+      logger.debug(
+        s"""ProjectControllerSpec --> return users by project as JSON data, URL = $usersByProject"""
+      )
 
-      val usersRequest = FakeRequest(GET, usersByProject)
+      val usersRequest  = FakeRequest(GET, usersByProject)
       val usersResponse = route(app, usersRequest).get
 
       status(usersResponse) mustBe OK
@@ -75,11 +78,14 @@ class ProjectControllerSpec
     }
 
     "return users by two projects as JSON data" in {
-      val usersByProject = "/projects/employees?projects=a3eb6db5-5212-46d0-bd08-8e852a45e0d3&projects=a1eda1a6-a749-4932-9f48-16fe5b6a8ce9"
+      val usersByProject =
+        "/projects/employees?projects=a3eb6db5-5212-46d0-bd08-8e852a45e0d3&projects=a1eda1a6-a749-4932-9f48-16fe5b6a8ce9"
 
-      logger.debug(s"""ProjectControllerSpec --> return users by two projects as JSON data, URL = $usersByProject""")
+      logger.debug(
+        s"""ProjectControllerSpec --> return users by two projects as JSON data, URL = $usersByProject"""
+      )
 
-      val usersRequest = FakeRequest(GET, usersByProject)
+      val usersRequest  = FakeRequest(GET, usersByProject)
       val usersResponse = route(app, usersRequest).get
 
       status(usersResponse) mustBe OK
@@ -96,6 +102,7 @@ class ProjectControllerSpec
           |"description": "kuvaus",
           |"client": "1bb44a7e-cd7c-447d-a9e9-26495b52fa88",
           |"owner": "9fa407f4-7375-446b-92c6-c578839b7780",
+          |"employees": [],
           |"billable": true
           }""".stripMargin
       val json = Json.parse(jsonString)
@@ -127,6 +134,7 @@ class ProjectControllerSpec
           |"description": "Can this project be retrieved?",
           |"client": "1bb44a7e-cd7c-447d-a9e9-26495b52fa88",
           |"owner": "9fa407f4-7375-446b-92c6-c578839b7780",
+          |"employees": [],
           |"billable": true
           }""".stripMargin
       val json = Json.parse(jsonString)

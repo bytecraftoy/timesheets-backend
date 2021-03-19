@@ -120,7 +120,7 @@ class ProjectDAOAnorm @Inject() (
       }
     }
 
-  def add(project: Project): Unit =
+  def add(project: Project): Unit = {
     db.withConnection { implicit connection =>
       val sql =
         "INSERT INTO project (project_id, " +
@@ -157,4 +157,8 @@ class ProjectDAOAnorm @Inject() (
         )
         .executeInsert(anorm.SqlParser.scalar[java.util.UUID].singleOpt)
     }
+    project.employees.foreach(
+      (employee) => userRepo.addUserToProject(employee.id, project.id)
+    )
+  }
 }
