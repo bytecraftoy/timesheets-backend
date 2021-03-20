@@ -116,6 +116,31 @@ class ProjectController @Inject() (
     }
   }
 
+  val updateProject: Action[JsValue] = Action(parse.json) { implicit request =>
+    request.body.validate[UpdateProjectDTO] match {
+      case JsSuccess(updateProjectDTO, _) => {
+        updateProjectDTO.asProject match {
+          case p: Project => {
+            if (p.employees.exists(_.id == p.owner.id)) {
+              val msg = "Owner cannot be an employee"
+              logger.error(msg)
+              BadRequest(Json.obj("message" -> msg))
+            } else {
+              projectRepo.update(p)
+              Ok(Json.toJson(p))
+            }
+
+          }
+          case other => InternalServerError
+        }
+
+      }
+      case JsError(errors) => {
+        BadRequest // TODO: log errors
+      }
+    }
+  }
+
   case class AddProjectDTO(
     name: String,
     description: String,
@@ -136,6 +161,34 @@ class ProjectController @Inject() (
         billable = this.billable,
         employees = this.employees.map(userRepo.byId(_))
       )
+  }
+
+  case class UpdateProjectDTO(
+    id: UUID,
+    name: String,
+    description: String,
+    client: UUID,
+    owner: UUID,
+    billable: Boolean,
+    employees: List[UUID]
+  ) {
+    def asProject: Project =
+      Project(
+        id = this.id,
+        name = this.name,
+        description = this.description,
+        client = clientRepo.byId(this.client),
+        owner = userRepo.byId(this.owner),
+        creator = userRepo.byId(this.owner),
+        managers = List(userRepo.byId(this.owner)),
+        lastEditor = userRepo.byId(this.owner),
+        billable = this.billable,
+        employees = this.employees.map(userRepo.byId(_))
+      )
+  }
+  object UpdateProjectDTO {
+    implicit val readProjectDTO: Reads[UpdateProjectDTO] =
+      Json.reads[UpdateProjectDTO]
   }
   object AddProjectDTO {
     implicit val readProjectDTO: Reads[AddProjectDTO] =

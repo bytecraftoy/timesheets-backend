@@ -15,6 +15,7 @@ trait UserRepository extends Repository[User] with Logging {
   def all: Seq[User]
   def add(user: User): Unit
   def addUserToProject(userId: UUID, projectId: UUID): Unit
+  def removeUserFromProject(userId: UUID, projectId: UUID): Unit
   def getAllManagers(): Seq[User]
   def getManagersByProjectId(projectId: UUID): Seq[User]
   def getEmployeesByProjectId(projectId: UUID): Seq[User]
@@ -36,4 +37,6 @@ class DevelopmentUserRepository @Inject() (userDao: UserDAO)
   def add(user: User): Unit    = ???
   def addUserToProject(userId: UUID, projectId: UUID): Unit =
     userDao.addUserToProject(userId, projectId)
+  def removeUserFromProject(userId: UUID, projectId: UUID): Unit =
+    userDao.removeUserFromProject(userId, projectId)
 }

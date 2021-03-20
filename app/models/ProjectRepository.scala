@@ -15,6 +15,7 @@ trait ProjectRepository extends Repository[Project] {
   def byId(i: UUID): Project
   def all: Seq[Project]
   def add(project: Project): Unit
+  def update(project: Project): Unit
 }
 
 class DevelopmentProjectRepository @Inject() (projectDao: ProjectDAO)
@@ -72,6 +73,7 @@ class DevelopmentProjectRepository @Inject() (projectDao: ProjectDAO)
     Json.using[Json.WithDefaultValues].format[Project]
 
   //val projectsInMemory = ArrayBuffer(dummy, dummy2)
-  def all: Seq[Project]           = projectDao.getAll() //++projectsInMemory.toSeq
-  def add(project: Project): Unit = projectDao.add(project)
+  def all: Seq[Project]              = projectDao.getAll() //++projectsInMemory.toSeq
+  def add(project: Project): Unit    = projectDao.add(project)
+  def update(project: Project): Unit = projectDao.update(project)
 }

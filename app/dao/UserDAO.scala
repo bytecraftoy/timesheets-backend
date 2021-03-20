@@ -16,6 +16,7 @@ trait UserDAO extends DAO[User] {
   def getById(userId: UUID): User
   def add(user: User): Unit
   def addUserToProject(userId: UUID, projectId: UUID): Unit
+  def removeUserFromProject(userId: UUID, projectId: UUID): Unit
   def getAllManagers(): Seq[User]
   def getManagersByProjectId(projectId: UUID): Seq[User]
   def getEmployeesByProjectId(projectId: UUID): Seq[User]
@@ -100,7 +101,7 @@ class UserDAOAnorm @Inject() (db: Database) extends UserDAO with Logging {
     }
   }
 
-  def addUserToProject(userId: UUID, projectId: UUID): Unit = {
+  def addUserToProject(userId: UUID, projectId: UUID): Unit =
     db.withConnection { implicit connection =>
       val sql =
         "INSERT INTO project_app_user (app_user_id, " +
@@ -112,7 +113,18 @@ class UserDAOAnorm @Inject() (db: Database) extends UserDAO with Logging {
         .on("app_user_id" -> userId, "project_id" -> projectId)
         .executeInsert(anorm.SqlParser.scalar[java.util.UUID].singleOpt)
     }
-  }
+
+  def removeUserFromProject(userId: UUID, projectId: UUID): Unit =
+    db.withConnection { implicit connection =>
+      val sql =
+        "DELETE FROM project_app_user " +
+          "WHERE app_user_id = {app_user_id}::uuid " +
+          "AND project_id = {project_id}::uuid;"
+      logger.debug(s"UserDAOAnorm.addUserToProject, SQL = $sql")
+      SQL(sql)
+        .on("app_user_id" -> userId, "project_id" -> projectId)
+        .executeInsert(anorm.SqlParser.scalar[java.util.UUID].singleOpt)
+    }
 
   def getUsers(sql: SimpleSql[Row]): Seq[User] =
     db.withConnection { implicit c =>
