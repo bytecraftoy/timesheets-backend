@@ -4,7 +4,6 @@ import io.swagger.annotations.Api
 
 import java.time.LocalDate
 import play.api.libs.json.{
-  Format,
   JsError,
   JsSuccess,
   JsValue,
@@ -18,8 +17,7 @@ import play.api.libs.functional.syntax._
 
 import javax.inject._
 import play.api.mvc._
-import models.{
-  Client,
+import models.{ 
   Project,
   ProjectRepository,
   TimeInput,
@@ -28,10 +26,7 @@ import models.{
 }
 import play.api.Logging
 
-import java.lang.IllegalArgumentException
-import java.time.format.DateTimeParseException
-import java.util.{Date, UUID}
-import scala.collection.mutable.ListBuffer
+import java.util.UUID
 import scala.concurrent.ExecutionContext
 
 @Api
@@ -46,12 +41,11 @@ class TimeInputController @Inject() (
   implicit def projectFormat: OFormat[Project] =
     Json.using[Json.WithDefaultValues].format[Project]
 
-  //TODO needs agreement with the team on simplifying the DTO as only one for add and update
   case class AddTimeInputDTO(
     input: Long,
     project: UUID,
     employee: UUID,
-    date: String,
+    date: LocalDate,
     description: String = ""
   ) {
 
@@ -60,17 +54,23 @@ class TimeInputController @Inject() (
         input = this.input,
         project = projectRepository.byId(this.project),
         employee = User.byId(this.employee),
-        date =
-          LocalDate.parse(
-            this.date
-          ), // dateInput must be a String in format "yyyy-MM-dd"
+        date = this.date,
         description = this.description
       )
     }
   }
   object AddTimeInputDTO {
-    implicit val readTimeInputDTO: Reads[AddTimeInputDTO] =
-      Json.using[Json.WithDefaultValues].reads[AddTimeInputDTO]
+    implicit val addTimeInputDTOReads: Reads[AddTimeInputDTO] = (
+      (JsPath \ "input")
+        .read[Long](min[Long](0))
+        .orElse(
+          Reads(_ => JsError("""Time input has to be a positive integer."""))
+        ) and
+        (JsPath \ "project").read[UUID] and
+        (JsPath \ "employee").read[UUID] and
+        (JsPath \ "date").read[LocalDate] and
+        (JsPath \ "description").read[String]
+    )(AddTimeInputDTO.apply _)
   }
   implicit def timeInputFormat: OFormat[TimeInput] =
     Json.using[Json.WithDefaultValues].format[TimeInput]
@@ -95,8 +95,15 @@ class TimeInputController @Inject() (
     }
   }
   object UpdateTimeInputDTO {
-    implicit val readTimeInputDTO: Reads[UpdateTimeInputDTO] =
-      Json.using[Json.WithDefaultValues].reads[UpdateTimeInputDTO]
+    implicit val updateTimeInputDTOReads: Reads[UpdateTimeInputDTO] = (
+      (JsPath \ "id").read[UUID] and
+        (JsPath \ "input")
+          .read[Long](min[Long](0))
+          .orElse(
+            Reads(_ => JsError("""Time input has to be a positive integer."""))
+          ) and
+        (JsPath \ "description").read[String]
+    )(UpdateTimeInputDTO.apply _)
   }
 
   def getData(start: String, end: String): Action[AnyContent] = {
@@ -115,70 +122,51 @@ class TimeInputController @Inject() (
 
   def byInterval(start: String, end: String): Action[AnyContent] =
     Action {
-      val startDate = LocalDate.parse(start)
-      val endDate   = LocalDate.parse(end)
-      if (startDate.isAfter(endDate)) {
-        val msg =
-          s"""Start date is later than end date. start = $startDate, end = $endDate"""
-        logger.error(msg)
-        BadRequest(Json.obj("message" -> msg))
-      } else {
-        try {
+      try {
+        val startDate = LocalDate.parse(start)
+        val endDate   = LocalDate.parse(end)
+        if (startDate.isAfter(endDate)) {
+          val msg =
+            s"""Start date is later than end date. start = $startDate, end = $endDate"""
+          logger.error(msg)
+          BadRequest(Json.obj("message" -> msg))
+        } else {
           val timeInput = timeInputRepository.byTimeInterval(startDate, endDate)
           val json      = Json.toJson(timeInput)
           Ok(json)
-        } catch {
-          case error: Exception =>
-            logger.error(error.getMessage)
-            val msg =
-              s"""Error retrieving timeinput byInterval: $error"""
-            BadRequest(Json.obj("message" -> msg))
         }
-
+      } catch {
+        case error: Exception =>
+          val msg =
+            s"""Error retrieving timeinput. Error: ${error.getMessage}"""
+          logger.error(
+            msg + s""" At byInterval, start = $start, end = $end""",
+            error
+          )
+          BadRequest(Json.obj("message" -> msg))
       }
     }
 
-  //TODO needs refactor, a validation pattern and more concise and better error handling
   def add(): Action[JsValue] = {
-    logger.debug("TimeInputController.add()")
-
     Action(parse.json) { implicit request =>
       request.body.validate[AddTimeInputDTO] match {
-        case JsSuccess(createTimeInputDTO, _) => {
-          createTimeInputDTO.asTimeInput match {
-            case timeInput: TimeInput => {
-              if (timeInput.input < 0) {
-                val msg = "Time must be non-negative"
-                logger.error(msg)
-                BadRequest(
-                  Json.obj("message" -> msg)
-                ) // TODO: consider moving this check to DTO
-              } else {
-                try {
-                  timeInputRepository.add(timeInput)
-                  Ok(Json.toJson(timeInput))
-                } catch {
-                  case error: Exception =>
-                    logger.error(error.getMessage)
-                    val msg =
-                      s"""Error inserting a client: $error"""
-                    BadRequest(Json.obj("message" -> msg))
-                }
-              }
-            }
-            case other => {
-              logger.error(other.toString)
-              InternalServerError(
-                Json.obj("message" -> other.toString)
-              ) // TODO: handle more specific cases
-            }
+        case JsSuccess(addTimeInputDTO, _) => {
+          try {
+            val timeInput = addTimeInputDTO.asTimeInput
+            timeInputRepository.add(timeInput)
+            Ok(Json.toJson(timeInput))
+          } catch {
+            case error: Exception =>
+              val msg =
+                s"""Error adding a timeinput, error: ${error.getMessage}"""
+              logger.error(msg, error)
+              BadRequest(Json.obj("message" -> msg))
           }
         }
-        case JsError(errors) => {
-          logger.error(errors.toString)
-          BadRequest(
-            Json.obj("message" -> errors.toString())
-          ) // TODO: more specific error code
+        case errors: JsError => {
+          val msg = s"""Error adding a timeinput, error: ${errors.toString}"""
+          logger.error(msg + s""", request body = ${request.body}""")
+          BadRequest(Json.obj("message" -> msg))
         }
       }
     }
@@ -188,51 +176,31 @@ class TimeInputController @Inject() (
     Action(parse.json) { implicit request =>
       request.body.validate[UpdateTimeInputDTO] match {
         case JsSuccess(updateTimeInputDTO, _) => {
-          updateTimeInputDTO.asTimeInput match {
-            case timeInput: TimeInput => {
-              if (timeInput.input < 0) {
-                val msg = "Time must be non-negative"
-                logger.error(msg)
-                BadRequest(
-                  Json.obj("message" -> msg)
-                ) // TODO: consider moving this check to DTO
-              } else {
-                try {
-                  val updateCount: Int = timeInputRepository.update(timeInput)
-                  if (updateCount > 0) {
-                    val msg =
-                      s"""Timeinput (${timeInput.id}) update successful."""
-                    logger.debug(msg)
-                    Ok(Json.toJson(timeInput))
-                  } else {
-                    val msg =
-                      s"""Nothing updated. TimeInput ID = ${timeInput.id}"""
-                    logger.error(msg)
-                    BadRequest(Json.obj("message" -> msg))
-                  }
-                } catch {
-                  case error: Exception =>
-                    val msg =
-                      s"""Error updating a client ($timeInput), error: $error, ${error
-                        .printStackTrace()}"""
-                    logger.error(msg)
-                    BadRequest(Json.obj("message" -> msg))
-                }
-              }
+          try {
+            val timeInput        = updateTimeInputDTO.asTimeInput
+            val updateCount: Int = timeInputRepository.update(timeInput)
+            if (updateCount > 0) {
+              val msg = s"""Timeinput update successful."""
+              logger.debug(msg + s""" Timeinput ID = ${timeInput.id}""")
+              Ok(Json.toJson(timeInput))
+            } else {
+              val msg = s"""Nothing updated."""
+              logger.error(msg + s"""" TimeInput ID = ${timeInput.id}""")
+              BadRequest(Json.obj("message" -> msg))
             }
-            case other => {
-              logger.error(other.toString)
-              InternalServerError(
-                Json.obj("message" -> other.toString)
-              ) // TODO: handle more specific cases
-            }
+          } catch {
+            case error: Exception =>
+              val msg =
+                s"""Error updating a timeinput, error: ${error.getMessage}"""
+              logger.error(msg, error)
+              BadRequest(Json.obj("message" -> msg))
           }
         }
-        case JsError(errors) => {
-          logger.error(errors.toString)
-          BadRequest(
-            Json.obj("message" -> errors.toString())
-          ) // TODO: more specific error code
+        case errors: JsError => {
+          val msg =
+            s"""Error updating a timeinput, validation errors: ${errors.toString}"""
+          logger.error(msg + s""", request body = ${request.body}""")
+          BadRequest(Json.obj("message" -> msg))
         }
       }
     }
@@ -244,11 +212,11 @@ class TimeInputController @Inject() (
     end: String
   ): Action[AnyContent] =
     Action {
-      val startDate =
-        if (start == "getAll") LocalDate.MIN else LocalDate.parse(start)
-      val endDate =
-        if (start == "getAll") LocalDate.MAX else LocalDate.parse(end)
       try {
+        val startDate =
+          if (start == "getAll") LocalDate.MIN else LocalDate.parse(start)
+        val endDate =
+          if (start == "getAll") LocalDate.MAX else LocalDate.parse(end)
         val json = timeInputRepository.jsonByProject(
           projectId = UUID.fromString(id),
           employeeId = UUID.fromString(employee),
@@ -259,8 +227,11 @@ class TimeInputController @Inject() (
       } catch {
         case error: Exception =>
           val msg =
-            s"""Error retrieving timeinput byProject: $error"""
-          logger.error(msg)
+            s"""Error retrieving timeinput. Error: ${error.getMessage}"""
+          logger.error(
+            msg + s""" At byProject, id = $id, employee = $employee, start = $start, end = $end""",
+            error
+          )
           BadRequest(Json.obj("message" -> msg))
       }
     }
@@ -271,11 +242,11 @@ class TimeInputController @Inject() (
     end: String
   ): Action[AnyContent] =
     Action {
-      val startDate =
-        if (start == "getAll") LocalDate.MIN else LocalDate.parse(start)
-      val endDate =
-        if (start == "getAll") LocalDate.MAX else LocalDate.parse(end)
       try {
+        val startDate =
+          if (start == "getAll") LocalDate.MIN else LocalDate.parse(start)
+        val endDate =
+          if (start == "getAll") LocalDate.MAX else LocalDate.parse(end)
         val json = timeInputRepository.jsonGroupedByProject(
           employeeId = UUID.fromString(employeeId),
           start = startDate,
@@ -285,8 +256,11 @@ class TimeInputController @Inject() (
       } catch {
         case error: Exception =>
           val msg =
-            s"""Error retrieving timeinput groupByProject, employeeId = $employeeId, start = $start, end = $end, error: $error"""
-          logger.error(msg)
+            s"""Error retrieving timeinput. Error: ${error.getMessage}"""
+          logger.error(
+            msg + s""" At groupByProject, employeeId = $employeeId, start = $start, end = $end""",
+            error
+          )
           BadRequest(Json.obj("message" -> msg))
       }
     }

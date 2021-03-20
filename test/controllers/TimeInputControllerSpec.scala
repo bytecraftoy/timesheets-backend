@@ -84,7 +84,8 @@ class TimeInputControllerSpec
         s"""{"input": 450,
           |"project": "$testProject",
           |"employee": "9fa407f4-7375-446b-92c6-c578839b7780",
-          |"date": "2000-12-01"}""".stripMargin
+          |"date": "2000-12-01",
+          |"description": "testikuvaus"}""".stripMargin
       val timeInputJson = Json.parse(validTimeInput)
 
       val timeInputCreate = FakeRequest(POST, hoursUrl)
@@ -148,7 +149,8 @@ class TimeInputControllerSpec
         s"""{"input": -450,
           |"project": "$testProject",
           |"employee": "9fa407f4-7375-446b-92c6-c578839b7780",
-          |"date": "2000-12-03"}""".stripMargin
+          |"date": "2000-12-03",
+          |"description": "testikuvaus"}""".stripMargin
       val timeInputJson = Json.parse(negativeTimeInput)
 
       val timeInputCreate = FakeRequest(POST, hoursUrl)
@@ -164,7 +166,8 @@ class TimeInputControllerSpec
         s"""{"input": 4.5,
           |"project": "$testProject",
           |"employee": "9fa407f4-7375-446b-92c6-c578839b7780",
-          |"date": "2000-12-04"}""".stripMargin
+          |"date": "2000-12-04",
+          |"description": "testikuvaus"}""".stripMargin
       val timeInputJson = Json.parse(decimalTimeInput)
 
       val timeInputCreate = FakeRequest(POST, hoursUrl)
@@ -180,7 +183,8 @@ class TimeInputControllerSpec
         s"""{"input": 450,
           |"project": "$testProject",
           |"employee": "9fa407f4-7375-446b-92c6-c578839b7780",
-          |"date": "2000-12-05"}""".stripMargin
+          |"date": "2000-12-05",
+          |"description": "testikuvaus"}""".stripMargin
       val timeInputJson = Json.parse(validTimeInput)
 
       val firstTimeInputCreate = FakeRequest(POST, hoursUrl)
