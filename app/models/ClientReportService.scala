@@ -14,7 +14,9 @@ trait ClientReportService {
     projectUuidList: List[UUID],
     employeeUuidList: List[UUID],
     startDate: LocalDate,
-    endDate: LocalDate
+    endDate: LocalDate,
+    billable: Boolean,
+    nonBillable: Boolean
   ): ClientReport
 
 }
@@ -105,7 +107,9 @@ class DevelopmentClientReportService @Inject() (
     projectUuidList: List[UUID],
     employeeUuidList: List[UUID],
     startDate: LocalDate,
-    endDate: LocalDate
+    endDate: LocalDate,
+    billable: Boolean,
+    nonBillable: Boolean
   ): List[ProjectSimple] = {
 
     logger.debug(
@@ -115,28 +119,41 @@ class DevelopmentClientReportService @Inject() (
     val complexProjects: List[Project] =
       projectUuidList.map(uuid => projectRepo.byId(uuid))
 
-    val simpleProjects: List[ProjectSimple] = complexProjects.map { project =>
-      {
-        val simpleEmployees: List[EmployeeSimple] = getSimpleEmployees(
-          project = project,
-          employeeUuidList = employeeUuidList,
-          startDate = startDate,
-          endDate = endDate
-        )
+    val simpleProjects: List[ProjectSimple] = complexProjects
+      .filter(
+        project =>
+          if (billable == true && nonBillable == true) { // this case shows all
+            project.billable == true || project.billable == false
+          } else if (billable == true && nonBillable == false) {
+            project.billable == true
+          } else if (nonBillable == true && billable == false) {
+            project.billable == false
+          } else { // both false so show none
+            false
+          }
+      )
+      .map { project =>
+        {
+          val simpleEmployees: List[EmployeeSimple] = getSimpleEmployees(
+            project = project,
+            employeeUuidList = employeeUuidList,
+            startDate = startDate,
+            endDate = endDate
+          )
 
-        val projectTotal: Long = simpleEmployees.foldRight(0L) {
-          (employee, i) => employee.employeeTotal + i
+          val projectTotal: Long = simpleEmployees.foldRight(0L) {
+            (employee, i) => employee.employeeTotal + i
+          }
+
+          ProjectSimple(
+            id = project.id,
+            name = project.name,
+            projectTotal = projectTotal,
+            billable = project.billable,
+            employees = simpleEmployees
+          )
         }
-
-        ProjectSimple(
-          id = project.id,
-          name = project.name,
-          projectTotal = projectTotal,
-          employees = simpleEmployees
-        )
       }
-    }
-
     simpleProjects
   }
 
@@ -145,21 +162,27 @@ class DevelopmentClientReportService @Inject() (
     projectUuidList: List[UUID],
     employeeUuidList: List[UUID],
     startDate: LocalDate,
-    endDate: LocalDate
+    endDate: LocalDate,
+    billable: Boolean,
+    nonBillable: Boolean
   ): ClientReport = {
 
     logger.debug(s"""ClientReportService -> getReport(),
          |client = $clientUuid,
          |projectList = $projectUuidList,
          |start = $startDate,
-         |end = $endDate""".stripMargin)
+         |end = $endDate,
+         |billable = $billable,
+         |nonBillable = $nonBillable""".stripMargin)
 
     val client: Client = clientRepo.byId(clientUuid)
     val simpleProjects: List[ProjectSimple] = getSimpleProjects(
       projectUuidList = projectUuidList,
       employeeUuidList = employeeUuidList,
       startDate = startDate,
-      endDate = endDate
+      endDate = endDate,
+      billable = billable,
+      nonBillable = nonBillable
     )
 
     val grandTotal = simpleProjects.foldRight(0L) { (project, i) =>
@@ -172,7 +195,9 @@ class DevelopmentClientReportService @Inject() (
       creationMillis = System.currentTimeMillis(),
       client = client,
       projects = simpleProjects,
-      grandTotal = grandTotal
+      grandTotal = grandTotal,
+      billable = billable,
+      nonBillable = nonBillable
     )
   }
 }

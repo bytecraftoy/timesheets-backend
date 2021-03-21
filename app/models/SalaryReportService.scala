@@ -14,7 +14,9 @@ trait SalaryReportService {
     employeeUuid: UUID,
     clientUuidList: List[UUID],
     startDate: LocalDate,
-    endDate: LocalDate
+    endDate: LocalDate,
+    billable: Boolean,
+    nonBillable: Boolean
   ): SalaryReport
 
 }
@@ -55,31 +57,48 @@ class DevelopmentSalaryReportService @Inject() (
     client: Client,
     employee: User,
     startDate: LocalDate,
-    endDate: LocalDate
+    endDate: LocalDate,
+    billable: Boolean,
+    nonBillable: Boolean
   ): List[SimpleProject] = {
 
     val allComplexProjects: List[Project] = projectRepo.all.toList
-    val simpleProjects: List[SimpleProject] = allComplexProjects
-      .filter(_.client == client)
-      .map { project =>
-        {
-          val timeInputs = getSimpleTimeInputs(
-            projectId = project.id,
-            employeeId = employee.id,
-            startDate = startDate,
-            endDate = endDate
-          )
-          val projectTotal: Long = timeInputs.foldLeft(0L) {
-            (accumulator, input) => accumulator + input.input
+
+    val simpleProjects: List[SimpleProject] =
+      allComplexProjects
+        .filter(_.client == client)
+        .filter(
+          project =>
+            if (billable == true && nonBillable == true) { // this case shows all
+              project.billable == true || project.billable == false
+            } else if (billable == true && nonBillable == false) {
+              project.billable == true
+            } else if (nonBillable == true && billable == false) {
+              project.billable == false
+            } else { // both false so show none
+              false
+            }
+        )
+        .map { project =>
+          {
+            val timeInputs = getSimpleTimeInputs(
+              projectId = project.id,
+              employeeId = employee.id,
+              startDate = startDate,
+              endDate = endDate
+            )
+            val projectTotal: Long = timeInputs.foldLeft(0L) {
+              (accumulator, input) => accumulator + input.input
+            }
+            SimpleProject(
+              id = project.id,
+              name = project.name,
+              projectTotal = projectTotal,
+              billable = project.billable,
+              timeInputs = timeInputs.toList
+            )
           }
-          SimpleProject(
-            id = project.id,
-            name = project.name,
-            projectTotal = projectTotal,
-            timeInputs = timeInputs.toList
-          )
         }
-      }
     simpleProjects
   }
 
@@ -87,7 +106,9 @@ class DevelopmentSalaryReportService @Inject() (
     clientUuidList: List[UUID],
     employee: User,
     startDate: LocalDate,
-    endDate: LocalDate
+    endDate: LocalDate,
+    billable: Boolean,
+    nonBillable: Boolean
   ): List[SimpleClient] = {
 
     val complexClients: List[Client] =
@@ -99,7 +120,9 @@ class DevelopmentSalaryReportService @Inject() (
           client = client,
           employee = employee,
           startDate = startDate,
-          endDate = endDate
+          endDate = endDate,
+          billable = billable,
+          nonBillable = nonBillable
         )
         val clientTotal: Long = simpleProjects.foldLeft(0L) {
           (accumulator, project) => accumulator + project.projectTotal
@@ -119,7 +142,9 @@ class DevelopmentSalaryReportService @Inject() (
     employeeUuid: UUID,
     clientUuidList: List[UUID],
     startDate: LocalDate,
-    endDate: LocalDate
+    endDate: LocalDate,
+    billable: Boolean,
+    nonBillable: Boolean
   ): SalaryReport = {
 
     logger.debug(s"""
@@ -127,14 +152,18 @@ class DevelopmentSalaryReportService @Inject() (
          |employeeUuid = $employeeUuid,
          |clientUuidList = $clientUuidList,
          |start = $startDate,
-         |end = $endDate""".stripMargin)
+         |end = $endDate,
+         |billable = $billable,
+         |nonBillable = $nonBillable""".stripMargin)
 
     val employee: User = userRepo.byId(employeeUuid)
     val simpleClients: List[SimpleClient] = getSimpleClients(
       clientUuidList = clientUuidList,
       employee = employee,
       startDate = startDate,
-      endDate = endDate
+      endDate = endDate,
+      billable: Boolean,
+      nonBillable: Boolean
     )
 
     val grandTotal: Long = simpleClients.foldLeft(0L) { (accumulator, client) =>
@@ -146,6 +175,8 @@ class DevelopmentSalaryReportService @Inject() (
       endDate = endDate,
       employee = employee,
       grandTotal = grandTotal,
+      billable = billable,
+      nonBillable = nonBillable,
       clients = simpleClients
     )
 

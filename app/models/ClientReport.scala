@@ -9,13 +9,16 @@ case class ClientReport(
   creationMillis: Long = System.currentTimeMillis(),
   client: Client,
   projects: List[ProjectSimple],
-  grandTotal: Long
+  grandTotal: Long,
+  billable: Boolean,
+  nonBillable: Boolean
 )
 
 case class ProjectSimple(
   id: UUID,
   name: String,
   projectTotal: Long,
+  billable: Boolean,
   employees: List[EmployeeSimple]
 )
 
