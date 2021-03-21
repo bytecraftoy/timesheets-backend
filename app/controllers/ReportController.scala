@@ -58,7 +58,9 @@ class ReportController @Inject() (
     projectIdStringList: List[String],
     startDateString: String,
     endDateString: String,
-    employeeIdStringList: List[String]
+    employeeIdStringList: List[String],
+    billable: Boolean,
+    nonBillable: Boolean
   ): Action[AnyContent] =
     Action {
       try {
@@ -72,7 +74,9 @@ class ReportController @Inject() (
           projectUuidList = projectUuids,
           employeeUuidList = employeeUuids,
           startDate = LocalDate.parse(startDateString),
-          endDate = LocalDate.parse(endDateString)
+          endDate = LocalDate.parse(endDateString),
+          billable = billable,
+          nonBillable = nonBillable
         )
         val clientReportJson = Json.toJson(clientReport)
         Ok(clientReportJson)
@@ -96,7 +100,9 @@ class ReportController @Inject() (
     employeeIdString: String,
     clientIdStrings: List[String],
     startDateString: String,
-    endDateString: String
+    endDateString: String,
+    billable: Boolean,
+    nonBillable: Boolean
   ): Action[AnyContent] =
     Action {
       try {
@@ -106,7 +112,9 @@ class ReportController @Inject() (
           employeeUuid = UUID.fromString(employeeIdString),
           clientUuidList = clientUuids,
           startDate = LocalDate.parse(startDateString),
-          endDate = LocalDate.parse(endDateString)
+          endDate = LocalDate.parse(endDateString),
+          billable = billable,
+          nonBillable = nonBillable
         )
         val salaryReportJson = Json.toJson(salaryReport)
 

@@ -33,6 +33,7 @@
 
   <logger name="play" level="ERROR" />
   <logger name="akka" level="ERROR" />
+  <logger name="swagger" level="ERROR" />
   <logger name="controllers.AssetsConfiguration" level="INFO" />
   <logger name="application" level="DEBUG" />
   <logger name="com.codeflow.timesheets" level="DEBUG" />

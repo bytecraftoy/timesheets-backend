@@ -52,10 +52,10 @@ POST        /hours                     controllers.TimeInputController.add
 PUT        /hours                      controllers.TimeInputController.update
 
 # GET a client report
-GET        /report/client/:id          controllers.ReportController.getClientReport(id: String, projects: List[String], startDate: String, endDate: String, employees: List[String])
+GET        /report/client/:id          controllers.ReportController.getClientReport(id: String, projects: List[String], startDate: String, endDate: String, employees: List[String], billable: Boolean ?= true, nonBillable: Boolean ?= true)
 
 # GET a salary report for an employee
-GET        /report/employee/:id        controllers.ReportController.getSalaryReport(id: String, clients: List[String], startDate: String, endDate: String)
+GET        /report/employee/:id        controllers.ReportController.getSalaryReport(id: String, clients: List[String], startDate: String, endDate: String, billable: Boolean ?= true, nonBillable: Boolean ?= true)
 
 # Swagger resource listing
 GET        /swagger.json               controllers.ApiHelpController.getResources

@@ -9,6 +9,8 @@ case class SalaryReport(
   created: Long = System.currentTimeMillis(),
   employee: User,
   grandTotal: Long, // inputted minutes
+  billable: Boolean,
+  nonBillable: Boolean,
   clients: List[SimpleClient]
 )
 
@@ -32,5 +34,6 @@ case class SimpleProject(
   id: UUID,
   name: String,
   projectTotal: Long, // inputted minutes
+  billable: Boolean,
   timeInputs: List[SimpleTimeInput]
 )
