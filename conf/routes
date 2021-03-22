@@ -42,6 +42,9 @@ POST         /clients                  controllers.ClientController.add(name: St
 # Add a project
 POST        /projects                  controllers.ProjectController.addProject
 
+# Update a project
+PUT         /projects                  controllers.ProjectController.updateProject
+
 # List user's hours per project TODO: remove default userId
 GET         /hours                     controllers.TimeInputController.groupByProject(userId: String ?= "9fa407f4-7375-446b-92c6-c578839b7780", startDate: String ?= "getAll", endDate: String ?= "")
 

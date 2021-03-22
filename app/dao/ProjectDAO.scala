@@ -18,6 +18,7 @@ trait ProjectDAO extends DAO[Project] {
   def getAll(): Seq[Project]
   def getById(projectId: UUID): Project
   def add(project: Project): Unit
+  def update(project: Project): Unit
 }
 
 // https://gist.github.com/davegurnell/4b432066b39949850b04
@@ -161,4 +162,52 @@ class ProjectDAOAnorm @Inject() (
       (employee) => userRepo.addUserToProject(employee.id, project.id)
     )
   }
+
+  def update(project: Project): Unit =
+    db.withConnection { implicit c =>
+      val sql =
+        "UPDATE project SET (name, " +
+          "description, " +
+          "billable, " +
+          "owned_by, " +
+          "client_id, " +
+          "last_edited_by, " +
+          "timestamp_edited)" +
+          " = ({name}, " +
+          "{description}, " +
+          "{billable}, " +
+          "{owned_by}::uuid, " +
+          "{client_id}::uuid, " +
+          "{last_edited_by}::uuid, " +
+          "CURRENT_TIMESTAMP)" +
+          " WHERE project_id = {id}::uuid;"
+      logger.debug(s"ProjectDAOAnorm.update, SQL = $sql")
+      val result: Int = SQL(sql)
+        .on(
+          "id"             -> project.id,
+          "name"           -> project.name,
+          "description"    -> project.description,
+          "billable"       -> project.billable,
+          "owned_by"       -> project.owner.id,
+          "last_edited_by" -> project.lastEditor.id,
+          "client_id"      -> project.client.id
+        )
+        .executeUpdate()
+
+      logger.debug(s"""ProjectDAOAnorm.update, updated $result rows.""")
+
+      val savedEmployees = userRepo.getEmployeesByProjectId(project.id)
+
+      val removedEmployees =
+        savedEmployees.filterNot(project.employees.contains(_))
+      val newEmployees = project.employees.filterNot(savedEmployees.contains(_))
+
+      removedEmployees.foreach(
+        (employee) => userRepo.removeUserFromProject(employee.id, project.id)
+      )
+      newEmployees.foreach(
+        (employee) => userRepo.addUserToProject(employee.id, project.id)
+      )
+      result
+    }
 }
