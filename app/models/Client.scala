@@ -1,10 +1,9 @@
 package models
 
 import anorm.{Macro, ToParameterList}
-import io.swagger.annotations.{Api, ApiModel, ApiModelProperty}
+import io.swagger.annotations.ApiModelProperty
 import play.api.libs.json.{Json, OFormat}
 
-import java.sql.Timestamp
 import java.time.Clock
 import java.util.UUID.randomUUID
 import java.util.{Calendar, UUID}
