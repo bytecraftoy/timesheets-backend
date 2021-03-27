@@ -26,6 +26,9 @@ GET         /employees                 controllers.EmployeeController.listEmploy
 
 GET         /employees/:id/clients     controllers.EmployeeController.listClientsOfEmployee(id: String)
 
+# Get the projects of an employee
+GET         /employees/:id/projects    controllers.ProjectController.listProjectsByEmployeeId(id: String)
+
 # List all clients
 GET         /clients                   controllers.ClientController.listClients
 

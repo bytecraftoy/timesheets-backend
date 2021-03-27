@@ -64,6 +64,30 @@ class ProjectController @Inject() (
       }
     }
 
+  @ApiOperation(value = "Get all projects the employee works on")
+  @ApiResponses(
+    Array(
+      new ApiResponse(
+        code = 200,
+        message = "OK",
+        response = classOf[Project],
+        responseContainer = "List"
+      )
+    )
+  )
+  def listProjectsByEmployeeId(employeeId: String) =
+    Action {
+      val employeeUuid = UUID.fromString(employeeId)
+      val projectsWithEmployee = projectRepo.all.filter(
+        project =>
+          project.employees.exists(_.id == employeeUuid)
+            || project.managers.exists(_.id == employeeUuid)
+            || project.owner.id == employeeUuid
+      ) // TODO: optimize/implement at DAO level
+      val projectsAsJson = Json.toJson(projectsWithEmployee)
+      Ok(projectsAsJson)
+    }
+
   def getUsersByProject(projectIds: List[String]): Action[AnyContent] =
     Action {
       try {
