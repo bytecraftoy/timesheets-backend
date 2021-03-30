@@ -60,6 +60,22 @@ class ProjectControllerSpec
       responseBodyText.contains("Väärä projekti") mustEqual false
     }
 
+    "return projects by employee id" in {
+      val employeeId = "4276164d-d8c3-47d5-8f65-a6255ce71567"
+      val getPath    = s"/employees/$employeeId/projects"
+      val requestEmployeeProjects = FakeRequest(GET, getPath)
+        .withHeaders("Content-type" -> "application/json")
+
+      val response = route(app, requestEmployeeProjects).get
+
+      status(response) mustBe OK
+      val responseBodyText = contentAsString(response)
+
+      responseBodyText.contains("Toinen projekti") mustEqual true
+      responseBodyText.contains("Loma") mustEqual true
+      responseBodyText.contains("Testi_projekti") mustEqual false
+    }
+
     "return users by project as JSON data" in {
       val usersByProject =
         "/projects/employees?projects=a3eb6db5-5212-46d0-bd08-8e852a45e0d3"
