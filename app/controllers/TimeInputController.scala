@@ -1,39 +1,24 @@
 package controllers
 
 import io.swagger.annotations.Api
+import models._
+import play.api.Logging
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Reads._
+import play.api.libs.json.{JsError, JsSuccess, JsValue, Json, OFormat, Reads, _}
+import play.api.mvc._
 
 import java.time.LocalDate
-import play.api.libs.json.{
-  JsError,
-  JsSuccess,
-  JsValue,
-  Json,
-  OFormat,
-  Reads
-}
-import play.api.libs.json._
-import play.api.libs.json.Reads._
-import play.api.libs.functional.syntax._
-
-import javax.inject._
-import play.api.mvc._
-import models.{ 
-  Project,
-  ProjectRepository,
-  TimeInput,
-  TimeInputRepository,
-  User
-}
-import play.api.Logging
-
 import java.util.UUID
+import javax.inject._
 import scala.concurrent.ExecutionContext
 
 @Api
 class TimeInputController @Inject() (
   cc: ControllerComponents,
   timeInputRepository: TimeInputRepository,
-  projectRepository: ProjectRepository
+  projectRepository: ProjectRepository,
+  userRepository: UserRepository
 )(implicit executionContext: ExecutionContext)
     extends AbstractController(cc)
     with Logging {
@@ -53,7 +38,7 @@ class TimeInputController @Inject() (
       TimeInput(
         input = this.input,
         project = projectRepository.byId(this.project),
-        employee = User.byId(this.employee),
+        employee = userRepository.byId(this.employee),
         date = this.date,
         description = this.description
       )
