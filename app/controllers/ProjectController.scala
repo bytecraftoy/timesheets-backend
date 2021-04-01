@@ -1,6 +1,14 @@
 package controllers
 
-import io.swagger.annotations.{Api, ApiOperation, ApiResponse, ApiResponses}
+import dto.{AddProjectDTO, UpdateProjectDTO}
+import io.swagger.annotations.{
+  Api,
+  ApiImplicitParam,
+  ApiImplicitParams,
+  ApiOperation,
+  ApiResponse,
+  ApiResponses
+}
 import models._
 import play.api.Logging
 import play.api.libs.json._
@@ -115,107 +123,84 @@ class ProjectController @Inject() (
       }
     }
 
-  val addProject: Action[JsValue] = Action(parse.json) { implicit request =>
-    request.body.validate[AddProjectDTO] match {
-      case JsSuccess(createProjectDTO, _) => {
-        createProjectDTO.asProject match {
-          case p: Project => {
-            if (p.employees.exists(_.id == p.owner.id)) {
-              val msg = "Owner cannot be an employee"
-              logger.error(msg)
-              BadRequest(Json.obj("message" -> msg))
-            } else {
-              projectRepo.add(p)
-              Ok(Json.toJson(p))
+  @ApiOperation(value = "Insert new project")
+  @ApiResponses(
+    Array(
+      new ApiResponse(code = 200, message = "OK", response = classOf[Project])
+    )
+  )
+  @ApiImplicitParams(
+    Array(
+      new ApiImplicitParam(
+        name = "Project to add",
+        paramType = "body",
+        dataType = "dto.AddProjectDTO"
+      )
+    )
+  )
+  def addProject: Action[JsValue] =
+    Action(parse.json) { implicit request =>
+      request.body.validate[AddProjectDTO] match {
+        case JsSuccess(createProjectDTO, _) => {
+          projectRepo.addProjectDTOasProject(createProjectDTO) match {
+            case project: Project => {
+              if (project.employees.exists(_.id == project.owner.id)) {
+                val msg = "Owner cannot be an employee"
+                logger.error(msg)
+                BadRequest(Json.obj("message" -> msg))
+              } else {
+                projectRepo.add(project)
+                Ok(Json.toJson(project))
+              }
             }
-
+            case other => InternalServerError
           }
-          case other => InternalServerError
         }
-
-      }
-      case JsError(errors) => {
-        BadRequest // TODO: log errors
+        case JsError(errors) => {
+          logger.error(errors.toString())
+          BadRequest
+        }
       }
     }
-  }
 
-  val updateProject: Action[JsValue] = Action(parse.json) { implicit request =>
-    request.body.validate[UpdateProjectDTO] match {
-      case JsSuccess(updateProjectDTO, _) => {
-        updateProjectDTO.asProject match {
-          case p: Project => {
-            if (p.employees.exists(_.id == p.owner.id)) {
-              val msg = "Owner cannot be an employee"
-              logger.error(msg)
-              BadRequest(Json.obj("message" -> msg))
-            } else {
-              projectRepo.update(p)
-              Ok(Json.toJson(p))
+  @ApiOperation(value = "Update existing project")
+  @ApiResponses(
+    Array(
+      new ApiResponse(code = 200, message = "OK", response = classOf[Project])
+    )
+  )
+  @ApiImplicitParams(
+    Array(
+      new ApiImplicitParam(
+        name = "New project properties",
+        paramType = "body",
+        dataType = "dto.UpdateProjectDTO"
+      )
+    )
+  )
+  def updateProject: Action[JsValue] =
+    Action(parse.json) { implicit request =>
+      request.body.validate[UpdateProjectDTO] match {
+        case JsSuccess(updateProjectDTO, _) => {
+          projectRepo.updateProjectDTOasProject(updateProjectDTO) match {
+            case project: Project => {
+              if (project.employees.exists(_.id == project.owner.id)) {
+                val msg = "Owner cannot be an employee"
+                logger.error(msg)
+                BadRequest(Json.obj("message" -> msg))
+              } else {
+                projectRepo.update(project)
+                Ok(Json.toJson(project))
+              }
             }
-
+            case other => InternalServerError
           }
-          case other => InternalServerError
         }
-
-      }
-      case JsError(errors) => {
-        BadRequest // TODO: log errors
+        case JsError(errors) => {
+          logger.error(errors.toString())
+          BadRequest
+        }
       }
     }
-  }
 
-  case class AddProjectDTO(
-    name: String,
-    description: String,
-    client: UUID,
-    owner: UUID,
-    billable: Boolean,
-    employees: List[UUID]
-  ) {
-    def asProject: Project =
-      Project(
-        name = this.name,
-        description = this.description,
-        client = clientRepo.byId(this.client),
-        owner = userRepo.byId(this.owner),
-        creator = userRepo.byId(this.owner),
-        managers = List(userRepo.byId(this.owner)),
-        lastEditor = userRepo.byId(this.owner),
-        billable = this.billable,
-        employees = this.employees.map(userRepo.byId(_))
-      )
-  }
-
-  case class UpdateProjectDTO(
-    id: UUID,
-    name: String,
-    description: String,
-    client: UUID,
-    owner: UUID,
-    billable: Boolean,
-    employees: List[UUID]
-  ) {
-    def asProject: Project =
-      Project(
-        id = this.id,
-        name = this.name,
-        description = this.description,
-        client = clientRepo.byId(this.client),
-        owner = userRepo.byId(this.owner),
-        creator = userRepo.byId(this.owner),
-        managers = List(userRepo.byId(this.owner)),
-        lastEditor = userRepo.byId(this.owner),
-        billable = this.billable,
-        employees = this.employees.map(userRepo.byId(_))
-      )
-  }
-  object UpdateProjectDTO {
-    implicit val readProjectDTO: Reads[UpdateProjectDTO] =
-      Json.reads[UpdateProjectDTO]
-  }
-  object AddProjectDTO {
-    implicit val readProjectDTO: Reads[AddProjectDTO] =
-      Json.reads[AddProjectDTO]
-  }
 }
