@@ -50,7 +50,8 @@ class UserDAOAnorm @Inject() (db: Database) extends UserDAO with Logging {
   def getEmployeesByProjectId(projectId: UUID): Seq[User] = {
     val sql = SQL(
       s"SELECT * FROM app_user where app_user_id IN " +
-        s"(SELECT app_user_id FROM project_app_user where project_id = {projectId}::uuid);"
+        s"((SELECT app_user_id FROM project_app_user where project_id = {projectId}::uuid) " +
+        s"UNION (SELECT owned_by FROM project where project_id = {projectId}::uuid)) ;"
     ).on("projectId" -> projectId)
     logger.debug(
       s"""UserDAOAnorm.getEmployeesByProjectId($projectId), SQL = $sql"""

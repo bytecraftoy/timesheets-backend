@@ -267,7 +267,7 @@ class ProjectControllerSpec
       contentType(resultPut) mustBe Some("application/json")
 
       projectRepository.byId(projectUuid).name mustEqual "Test Project, updated"
-      projectRepository.byId(projectUuid).employees.size mustEqual 1
+      projectRepository.byId(projectUuid).employees.size mustEqual 2
     }
   }
 
