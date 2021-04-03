@@ -6,7 +6,6 @@ import play.api.Logging
 import play.api.libs.json.{Json, OWrites, Reads}
 
 import java.util.UUID
-import java.util.UUID.randomUUID
 import javax.inject.Inject
 
 @ImplementedBy(classOf[DevelopmentUserRepository])

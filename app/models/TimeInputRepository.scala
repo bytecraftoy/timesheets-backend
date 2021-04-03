@@ -5,11 +5,9 @@ import dao.TimeInputDAO
 import play.api.Logging
 import play.api.libs.json.{JsObject, JsValue, Json, OFormat}
 
-import java.time.{Clock, LocalDate}
-import java.util.{Calendar, UUID}
-import java.util.UUID.randomUUID
+import java.time.LocalDate
+import java.util.UUID
 import javax.inject.Inject
-import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext
 
 @ImplementedBy(classOf[DevelopmentTimeInputRepository])

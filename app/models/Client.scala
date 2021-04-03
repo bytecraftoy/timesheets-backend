@@ -22,7 +22,7 @@ case class Client(
 )
 
 object Client {
-  implicit def ClientFormat: OFormat[Client] =
+  implicit def clientFormat: OFormat[Client] =
     Json.using[Json.WithDefaultValues].format[Client]
 
   implicit def toParameters: ToParameterList[Client] =

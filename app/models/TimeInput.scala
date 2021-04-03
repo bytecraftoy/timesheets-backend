@@ -1,10 +1,9 @@
 package models
 
-import anorm.{Macro, ToParameterList}
-import play.api.libs.json.{JsObject, JsValue, Json, OFormat, Reads}
+import play.api.libs.json.{JsValue, Json}
 
-import java.util.UUID
 import java.time.LocalDate
+import java.util.UUID
 
 case class TimeInput(
   id: UUID = UUID.randomUUID(),
