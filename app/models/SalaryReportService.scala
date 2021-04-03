@@ -79,6 +79,7 @@ class DevelopmentSalaryReportService @Inject() (
               false
             }
         )
+        .sortBy(project => project.name)
         .map { project =>
           {
             val timeInputs = getSimpleTimeInputs(
@@ -114,27 +115,29 @@ class DevelopmentSalaryReportService @Inject() (
     val complexClients: List[Client] =
       clientUuidList.map(uuid => clientRepo.byId(uuid))
 
-    val simpleClients: List[SimpleClient] = complexClients.map { client =>
-      {
-        val simpleProjects: List[SimpleProject] = getSimpleProjects(
-          client = client,
-          employee = employee,
-          startDate = startDate,
-          endDate = endDate,
-          billable = billable,
-          nonBillable = nonBillable
-        )
-        val clientTotal: Long = simpleProjects.foldLeft(0L) {
-          (accumulator, project) => accumulator + project.projectTotal
+    val simpleClients: List[SimpleClient] = complexClients
+      .sortBy(client => client.name)
+      .map { client =>
+        {
+          val simpleProjects: List[SimpleProject] = getSimpleProjects(
+            client = client,
+            employee = employee,
+            startDate = startDate,
+            endDate = endDate,
+            billable = billable,
+            nonBillable = nonBillable
+          )
+          val clientTotal: Long = simpleProjects.foldLeft(0L) {
+            (accumulator, project) => accumulator + project.projectTotal
+          }
+          SimpleClient(
+            id = client.id,
+            name = client.name,
+            clientTotal = clientTotal,
+            projects = simpleProjects
+          )
         }
-        SimpleClient(
-          id = client.id,
-          name = client.name,
-          clientTotal = clientTotal,
-          projects = simpleProjects
-        )
       }
-    }
     simpleClients
   }
 

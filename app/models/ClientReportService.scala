@@ -78,29 +78,32 @@ class DevelopmentClientReportService @Inject() (
       s"""ClientReportService -> getSimpleEmployees(), employeesToInclude = $employeesToInclude""".stripMargin
     )
 
-    employeesToInclude.map { employee =>
-      {
+    employeesToInclude
+      .sortBy(user => user.firstName)
+      .sortBy(user => user.lastName)
+      .map { employee =>
+        {
 
-        val simpleTimeInputs: List[TimeInputSimple] = getSimpleTimeInputs(
-          employee = employee,
-          project = project,
-          startDate = startDate,
-          endDate = endDate
-        )
+          val simpleTimeInputs: List[TimeInputSimple] = getSimpleTimeInputs(
+            employee = employee,
+            project = project,
+            startDate = startDate,
+            endDate = endDate
+          )
 
-        val employeeTotal: Long = simpleTimeInputs.foldRight(0L) {
-          (timeInput, i) => timeInput.input + i
+          val employeeTotal: Long = simpleTimeInputs.foldRight(0L) {
+            (timeInput, i) => timeInput.input + i
+          }
+
+          EmployeeSimple(
+            id = employee.id,
+            firstName = employee.firstName,
+            lastName = employee.lastName,
+            employeeTotal = employeeTotal,
+            timeInputs = simpleTimeInputs
+          )
         }
-
-        EmployeeSimple(
-          id = employee.id,
-          firstName = employee.firstName,
-          lastName = employee.lastName,
-          employeeTotal = employeeTotal,
-          timeInputs = simpleTimeInputs
-        )
       }
-    }
   }
 
   def getSimpleProjects(
@@ -132,6 +135,7 @@ class DevelopmentClientReportService @Inject() (
             false
           }
       )
+      .sortBy(project => project.name)
       .map { project =>
         {
           val simpleEmployees: List[EmployeeSimple] = getSimpleEmployees(
