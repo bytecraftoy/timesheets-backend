@@ -6,6 +6,7 @@ version := "1.0-SNAPSHOT"
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.13.3"
+crossScalaVersions := List("2.13", "2.12")  // allow compilation of older libraries
 
 libraryDependencies += guice
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
@@ -25,6 +26,9 @@ libraryDependencies ++= Seq(
 // Swagger
 libraryDependencies += "com.github.dwickern" %% "swagger-play2.8" % "3.0.0"
 libraryDependencies += "org.webjars"          % "swagger-ui"      % "3.43.0"
+
+// ISO types for currencies
+libraryDependencies += "com.vitorsvieira" % "scala-iso_2.12" % "0.1.2"
 
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "com.codeflow.controllers._"
