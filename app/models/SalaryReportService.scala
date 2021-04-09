@@ -46,6 +46,10 @@ class DevelopmentSalaryReportService @Inject() (
         id = input.id,
         description = input.description,
         input = input.input,
+        cost = HourlyCost(
+          input.project.hourlyCost.value * input.input / 60,
+          input.project.hourlyCost.currency
+        ),
         created = input.created,
         updated = input.edited,
         date = input.date
@@ -91,10 +95,15 @@ class DevelopmentSalaryReportService @Inject() (
             val projectTotal: Long = timeInputs.foldLeft(0L) {
               (accumulator, input) => accumulator + input.input
             }
+            val projectTotalCost = HourlyCost(
+              project.hourlyCost.value * projectTotal / 60,
+              project.hourlyCost.currency
+            )
             SimpleProject(
               id = project.id,
               name = project.name,
               projectTotal = projectTotal,
+              projectTotalCost = projectTotalCost,
               billable = project.billable,
               timeInputs = timeInputs.toList
             )
@@ -130,10 +139,17 @@ class DevelopmentSalaryReportService @Inject() (
           val clientTotal: Long = simpleProjects.foldLeft(0L) {
             (accumulator, project) => accumulator + project.projectTotal
           }
+          val clientTotalCost: HourlyCost =
+            simpleProjects.foldLeft(
+              HourlyCost(0, simpleProjects.head.projectTotalCost.currency)
+            ) { (accumulator, project) =>
+              accumulator + project.projectTotalCost
+            } // TODO: don't sum different project costs with potentially different currencies
           SimpleClient(
             id = client.id,
             name = client.name,
             clientTotal = clientTotal,
+            clientTotalCost = clientTotalCost,
             projects = simpleProjects
           )
         }
@@ -172,12 +188,18 @@ class DevelopmentSalaryReportService @Inject() (
     val grandTotal: Long = simpleClients.foldLeft(0L) { (accumulator, client) =>
       accumulator + client.clientTotal
     }
+    val grandTotalCost: HourlyCost = simpleClients.foldLeft(
+      HourlyCost(0, simpleClients.head.clientTotalCost.currency)
+    ) { (accumulator, client) =>
+      accumulator + client.clientTotalCost
+    }
 
     SalaryReport(
       startDate = startDate,
       endDate = endDate,
       employee = employee,
       grandTotal = grandTotal,
+      grandTotalCost = grandTotalCost,
       billable = billable,
       nonBillable = nonBillable,
       clients = simpleClients

@@ -10,6 +10,7 @@ case class ClientReport(
   client: Client,
   projects: List[ProjectSimple],
   grandTotal: Long,
+  grandTotalCost: HourlyCost,
   billable: Boolean,
   nonBillable: Boolean
 )
@@ -18,6 +19,7 @@ case class ProjectSimple(
   id: UUID,
   name: String,
   projectTotal: Long,
+  projectTotalCost: HourlyCost,
   billable: Boolean,
   employees: List[EmployeeSimple]
 )
@@ -27,6 +29,7 @@ case class EmployeeSimple(
   firstName: String,
   lastName: String,
   employeeTotal: Long,
+  employeeTotalCost: HourlyCost,
   timeInputs: List[TimeInputSimple]
 )
 
@@ -34,5 +37,6 @@ case class TimeInputSimple(
   id: UUID,
   date: LocalDate,
   input: Long,
+  cost: HourlyCost,
   description: String
 )

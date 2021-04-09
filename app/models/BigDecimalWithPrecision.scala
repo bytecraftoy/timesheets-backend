@@ -1,5 +1,7 @@
 package models
 
+import play.api.libs.json.{Json, OFormat}
+
 case class BigDecimalWithPrecision private (number: BigDecimal)
 
 object BigDecimalWithPrecision {
@@ -10,4 +12,7 @@ object BigDecimalWithPrecision {
     new BigDecimalWithPrecision(
       scala.math.BigDecimal.apply(number.toString(), defaultContext)
     )
+
+  implicit def bigDecimalWithPrecisionFormat: OFormat[BigDecimalWithPrecision] =
+    Json.using[Json.WithDefaultValues].format[BigDecimalWithPrecision]
 }
