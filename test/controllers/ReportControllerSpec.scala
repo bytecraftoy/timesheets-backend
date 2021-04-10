@@ -57,9 +57,10 @@ class ReportControllerSpec
     "4276164d-d8c3-47d5-8f65-a6255ce71567"
   val testEmployeeUUIDString: String = "9fa407f4-7375-446b-92c6-c578839b7780"
   val testClientUUIDString: String   = "1bb44a7e-cd7c-447d-a9e9-26495b52fa88"
-  val testNonBillableClientUUIDString: String   = "5be59e8a-63f5-4f22-8b12-c7128fb40add"
-  val startDateString: String        = "2020-01-01"
-  val endDateString: String          = "2021-04-30"
+  val testNonBillableClientUUIDString: String =
+    "5be59e8a-63f5-4f22-8b12-c7128fb40add"
+  val startDateString: String = "2020-01-01"
+  val endDateString: String   = "2021-04-30"
 
   val clientReportPath = "/report/client/"
   val clientReportFull =
