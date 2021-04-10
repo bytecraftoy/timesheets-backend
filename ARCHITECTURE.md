@@ -1,11 +1,4 @@
-Timesheets architectural overview
-=================================
-
-Frontend
---------
-
-Backend
--------
+# Timesheets architectural overview
 
 ### Scala
 
@@ -44,107 +37,84 @@ com.codeflow.timesheets
 
     2.  Services
 
-        -   Changes Data Transfer Objects to models and calls Data
-            Access Objects.
-        -   The data access operations should be in the persistence
-            layer (e.g. dao.add()).
-        -   Changes data from Data Access Objects to Data Transfer
-            Objects
+        - Changes Data Transfer Objects to models and calls Data
+          Access Objects.
+        - The data access operations should be in the persistence
+          layer (e.g. dao.add()).
+        - Changes data from Data Access Objects to Data Transfer
+          Objects
 
 3.  Persistence
 
     1.  Data Access Objects (DAOs)
 
-Domain language
-===============
+# Domain language
 
-| Concept              | Definition                       | Synonyms   | Määritelmä                           | Synonyymejä    |
-|----------------------|----------------------------------|------------|--------------------------------------|----------------|
-| Application          | The software program that        | App        |                                      |                |
-| Sovellus             | tracks and maintains             |            |                                      |                |
-|                      | timesheets. Used by an           |            |                                      |                |
-|                      | organization.                    |            |                                      |                |
-| Application Owner    | The individual or group with     |            | Yksilö tai ryhmä, joiden             |                |
-| Sovelluksen omistaja | the responsibility to ensure     |            | vastuulla on, että sovelluksen       |                |
-|                      | that the program(s) making       |            | muodostavat ohjelmat saavuttavat     |                |
-|                      | up the application               |            | tavoitteensa.                        |                |
-|                      | accomplishes its objectives      |            |                                      |                |
-| Architecture         | Structural composition of ﻿      |            |                                      |                |
-| Arkkitehtuuri        | the application and its          |            |                                      |                |
-|                      | supporting technologies          |            |                                      |                |
-| Billing              | The process of preparing         |            | Kuittien tai laskujen valmistelu     |                |
-| Laskutus             | or sending invoices﻿             |            | tai lähettämisprosessi﻿              |                |
-| Budget               | Project's planned costs          |            | Projektin suunnitellut tunti- ja ﻿   | Talousarvio    |
-| Budjetti             | in time and money﻿               |            | rahalliset kustannukset              |                |
-| Client               | A person or organization         | Customer   | Henkilö tai organisaatio, joka       | Toimeksiantaja |
-| Asiakas              | using the services of a          | Buyer      | käyttää yrityksen palveluja.         | Ostaja         |
-|                      | company. May buy several         |            | Voi ostaa useita projekteja.         |                |
-|                      | projects.                        |            |                                      |                |
-| Cost                 | The time and money that has      |            | Projektin suorittamiseen jo          | Toteutunut     |
-| Kustannus            | been used to execute a project.﻿ |            | käytetyt tunnit ja raha.             | kustannus﻿     |
-| Employee             | A person employed for wages      |            | Henkilö, joka työskentelee           | Alainen        |
-| Työntekijä           | or salary.﻿                      |            | palkallisesti.﻿                      |                |
-| Manager              | A person responsible for         | Supervisor | Henkilö, joka on vastuussa           | Johtaja        |
-| Manageri             | controlling or administering an  |            | organisaation tai työntekijöiden     | Esimies        |
-|                      | organization or group of staff﻿  |            | hallinnoinnista﻿                     |                |
-| Project              | An individual or collaborative   |            | Yksilön tai yhteinen hanke, joka     | Hanke          |
-| Projekti             | enterprise that is planned to    |            | on suunniteltu päämäärän             | Urakka         |
-|                      | achieve an aim. Takes time and   |            | saavuttamiseksi. Vie aikaa ja        |                |
-|                      | one or more tasks to complete.   |            | vaatii yhden tai useamman tehtävän.﻿ |                |
-| Report               | A human-readable and printable   |            | Ihmisselkoinen ja tulostettava       |                |
-| Raportti             | summary of a user-specified      |            | yhteenveto halutusta asiasta         |                |
-|                      | context.                         |            |                                      |                |
-| Task                 | A piece of work to be done or    |            | Suoritettava työ, joka vie aikaa.﻿   |                |
-| Tehtävä              | undertaken. Takes time.          |            |                                      |                |
-| Task description     | Description of what work was     | Comment    | Kuvaus tehdystä työstä tai kuinka    |                |
-| Tehtävän kuvaus      | done or how time was spent       |            | aikaa käytettiin tehtävän            |                |
-|                      | during a task﻿                   |            | suorittamiseen.﻿                     |                |
-| Time                 | The difference in numbers in a   |            | Erotus kellon numeroissa työsession  |                |
-| Aika                 | clock between the beginning and  |            | alun ja ja lopen välillä. Voidaan    |                |
-|                      | the end of a work session. Can   |            | esittää tunnin kymmenkantaisina      |                |
-|                      | be represented as hours with     |            | desimaaleina tai tunteina ja         |                |
-|                      | decimal fractions or with hours  |            | minuutteina.﻿                        |                |
-|                      | and minutes.﻿                    |            |                                      |                |
-| Timesheets           | Collective record of tasks and   |            | Tehtävien ja niiden viemän ajan      | Kellokortti    |
-| Työaikakortti        | time spent working.              |            | luettelo﻿.                           |                |
-|                      | The main purpose of the﻿         |            |                                      |                |
-|                      | application.                     |            |                                      |                |
-| User                 | A person who uses the            | End user   | Henkilö joka käyttää sovellusta      | Loppukäyttäjä  |
-| Käyttäjä             | application﻿.                    |            |                                      |                |
+## English
 
-Tool installation
-=================
+| Concept           | Definition                                                                                                                                                              | Synonyms          |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| Application       | The software program that tracks and maintains timesheets. Used by an organization.                                                                                     | App               |
+| Application Owner | The individual or group with the responsibility to ensure that the program(s) making up the application accomplishes its objectives                                     |                   |
+| Architecture      | Structural composition of the application and its supporting technologies                                                                                               |                   |
+| Billing           | The process of preparing or sending invoices.                                                                                                                           |                   |
+| Budget            | Project's planned costs in time and money.                                                                                                                              |                   |
+| Client            | A person or organization using the services of a company. May buy several projects.                                                                                     | Customer<br>Buyer |
+| Cost              | The time and money that has been used to execute a project.                                                                                                             |                   |
+| Employee          | A person billing hours in a project but not having any administrative or managerial role.                                                                               |                   |
+| Manager           | A person responsible for controlling or administering an organization or group of staff.                                                                                | Supervisor        |
+| Project           | An individual or collaborative enterprise that is planned to achieve an aim. Takes time and one or more tasks to complete.                                              |                   |
+| Report            | A human-readable and printable summary of a user-specified context.                                                                                                     |                   |
+| Task              | A piece of work to be done or undertaken. Takes time.                                                                                                                   |                   |
+| Task description  | Description of what work was done or how time was spent during a task.                                                                                                  | Comment           |
+| Time              | The difference in numbers in a clock between the beginning and the end of a work session. Can be represented as hours with decimal fractions or with hours and minutes. |                   |
+| Timesheets        | Collective record of tasks and time spent working. The main purpose of this application.                                                                                |                   |
+| User              | A person who uses the application.                                                                                                                                      | End user          |
 
-Backend
--------
+## Finnish
 
-### IntelliJ, sbt, openjdk
+| Käsite               | Määritelmä                                                                                                                                      | Synonyymejä              |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| Sovellus             |                                                                                                                                                 |                          |
+| Sovelluksen omistaja | Yksilö tai ryhmä, joiden vastuulla on, että sovelluksen muodostavat ohjelmat saavuttavat tavoitteensa.                                          |                          |
+| Arkkitehtuuri        |                                                                                                                                                 |                          |
+| Laskutus             | Kuittien tai laskujen valmistelu tai lähettämisprosessi.                                                                                        |                          |
+| Budjetti             | Projektin suunnitellut tunti- ja rahalliset kustannukset.                                                                                       | Talousarvio              |
+| Asiakas              | Henkilö tai organisaatio, joka käyttää yrityksen palveluja. Voi ostaa useita projekteja.                                                        | Toimeksiantaja<br>Ostaja |
+| Kustannus            | Projektin suorittamiseen jo käytetyt tunnit ja raha.                                                                                            | Toteutunut kustannus     |
+| Työntekijä           | Henkilö, joka tekee laskutettavia tunteja projekteissa, mutta ei ole johtavassa tai hallinnollisessa roolissa.                                  | Alainen                  |
+| Manageri             | Henkilö, joka on vastuussa organisaation tai työntekijöiden hallinnoinnista.                                                                    | Johtaja<br>Esihenkilö    |
+| Projekti             | Yksilön tai yhteinen hanke, joka on suunniteltu päämäärän saavuttamiseksi. Vie aikaa ja vaatii yhden tai useamman tehtävän.                     | Hanke<br>Urakka          |
+| Raportti             | Ihmisselkoinen ja tulostettava yhteenveto halutusta asiasta                                                                                     |                          |
+| Tehtävä              | Suoritettava työ, joka vie aikaa.                                                                                                               |                          |
+| Tehtävän kuvaus      | Kuvaus tehdystä työstä tai kuinka aikaa käytettiin tehtävän suorittamiseen.                                                                     |                          |
+| Aika                 | Erotus kellon numeroissa työsession alun ja ja lopen välillä. Voidaan esittää tunnin kymmenkantaisina desimaaleina tai tunteina ja minuutteina. |                          |
+| Työaikakortti        | Tehtävien ja niiden viemän ajan luettelo                                                                                                        | Kellokortti              |
+| Käyttäjä             | Henkilö joka käyttää sovellusta                                                                                                                 | Loppukäyttäjä            |
 
-<https://www.jetbrains.com/idea/download/other.html>
+# Tool installation
 
-Play-projektin pohja: sbt new playframework/play-scala-seed.g8
+### sbt, openjdk
 
 1.  MacOS
 
-    ``` shell
+    ```shell
     brew install openjdk
 
     brew install sbt
-
-    brew install intellij-idea-ce   # (tai ilman ce:tä, jos haluaa täyden)
     ```
 
 ### PostgreSQL
 
 1.  MacOS
 
-    ``` shell
+    ```shell
     brew install postgresql
     pg_ctl -D /usr/local/var/postgres start
     psql
     ```
 
-    ``` sql
+    ```sql
     CREATE ROLE "timesheet" SUPERUSER LOGIN ENCRYPTED PASSWORD 'tähän salasana';
     ```
 
@@ -164,36 +134,20 @@ Play-projektin pohja: sbt new playframework/play-scala-seed.g8
 
         db.timesheet.password=tähän salasana
 
-Frontend
---------
+# Database
 
-### MacOS [macos-2]
+## PostgreSQL
 
-``` shell
-brew cask install visual-studio-code
-brew install yarn
-```
+## H2
 
-Database
-========
+## Play Evolutions
 
-PostgreSQL
-----------
+- There is a conflict when adding new information from frontend to the
+  database and then rolling evolutions back
 
-H2
---
+## Schema
 
-Play Evolutions
----------------
-
--   There is a conflict when adding new information from frontend to the
-    database and then rolling evolutions back
-
-Schema
-------
-
-Swagger
-=======
+# Swagger
 
 <https://codeflow-timesheets-staging.herokuapp.com/docs/swagger-ui/index.html?url=/swagger.json>
 
@@ -204,34 +158,24 @@ disable Play's CSRF by adding `+ nocsrf` annotation above the affected
 routes in the [file:./conf/routes](./conf/routes) file. This creates a
 security vulnerability.
 
-Authorizations
-==============
+# Authorizations
 
-| Routes                     | Affected methods                 | Use case             | Manager | Employee | Specific user |
-|----------------------------|----------------------------------|----------------------|---------|----------|---------------|
-| GET *projects*:id/hours    | TimeInputController.byProject    | User can view and    |         |          | x             |
-| POST /hours                | TimeInputController.add          | edit own             |         |          |               |
-| PUT /hours                 | TimeInputController.update       | timeinputs           |         |          |               |
-| GET /projects              | ProjectController.listProjects   | User can view        |         |          | x             |
-|                            |                                  | own projects         |         |          |               |
-| GET /projects              | ProjectController.listProjects   | Manager can view all | x       |          |               |
-|                            |                                  | projects             |         |          |               |
-| POST /projects             | ProjectController.addProject     | Manager can add a    | x       |          |               |
-| GET /clients               | ClientController.listClients     | project              |         |          |               |
-| GET /managers              | ManagerController.listManagers   |                      |         |          |               |
-| GET /clients               | ClientController.listClients     | Manager can generate | x       |          |               |
-| GET *clients*:id/projects  | ProjectController.               | a billing report     |         |          |               |
-|                            | listProjectsByClientId           |                      |         |          |               |
-| GET /projects/employees    | ProjectController.               |                      |         |          |               |
-|                            | getUsersByProject                |                      |         |          |               |
-| GET *report/client*:id     | ReportController.                |                      |         |          |               |
-|                            | getClientReport                  |                      |         |          |               |
-| GET /employees             | EmployeeController.listEmployees | Manager can          | x       |          |               |
-| GET employees/:id/clients  | EmployeeController.              | generate a salary    |         |          |               |
-|                            | listClientsOfEmployee            | report for anyone    |         |          |               |
-| GET *report/employee*:id   | ReportController.                |                      |         |          |               |
-|                            | getSalaryReport                  |                      |         |          |               |
-| GET *employees*:id/clients | EmployeeController.              | Employee can         |         |          | x             |
-|                            | listClientsOfEmployee            | generate a salary    |         |          |               |
-| GET *report/employee*:id   | ReportController.                | report for oneself   |         |          |               |
-|                            | getSalaryReport                  |                      |         |          |               |
+| Routes                              | Affected methods                         | Use case                                           | Manager | Employee | Specific user |
+| ----------------------------------- | ---------------------------------------- | -------------------------------------------------- | ------- | -------- | ------------- |
+| GET _projects:id_/hours             | TimeInputController.byProject            | User can view own timeinputs.                      |         |          | x             |
+| POST /hours                         | TimeInputController.add                  | User can add own timeinputs.                       |         |          | x             |
+| PUT /hours                          | TimeInputController.update               | User can edit own timeinputs.                      |         |          | x             |
+| GET /projects                       | ProjectController.listProjects           | User can view own projects.                        |         |          | x             |
+| GET /projects                       | ProjectController.listProjects           | Manager can view all projects.                     | x       |          |               |
+| POST /projects                      | ProjectController.addProject             | Manager can add a project.                         | x       |          |               |
+| GET /clients                        | ClientController.listClients             | Manager can add a project.                         | x       |          |               |
+| GET /managers                       | ManagerController.listManagers           | Manager can add a project.                         | x       |          |               |
+| GET /clients                        | ClientController.listClients             | Manager can generate a billing report.             | x       |          |               |
+| GET _clients:id_/projects           | ProjectController.listProjectsByClientId | Manager can generate a billing report.             | x       |          |               |
+| GET /projects/employees             | ProjectController.getUsersByProject      | Manager can generate a billing report.             | x       |          |               |
+| GET report/_client:id_              | ReportController.getClientReport         | Manager can generate a billing report.             | x       |          |               |
+| GET /employees                      | EmployeeController.listEmployees         | Manager can generate a salary report for anyone.   | x       |          |               |
+| GET employees/_employee:id_/clients | EmployeeController.listClientsOfEmployee | Manager can generate a salary report for anyone.   | x       |          |               |
+| GET report/_employee:id_            | ReportController.getSalaryReport         | Manager can generate a salary report for anyone.   | x       |          |               |
+| GET _employees:id_/clients          | EmployeeController.listClientsOfEmployee | Employee can generate a salary report for oneself. |         |          | x             |
+| GET report/_employee:id_            | ReportController.getSalaryReport         | Employee can generate a salary report for oneself. |         |          | x             |
