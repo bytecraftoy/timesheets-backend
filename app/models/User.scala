@@ -14,8 +14,8 @@ case class User(
   phoneNumber: String = "0123456789",
   salary: BigDecimal = 0,
   isManager: Boolean = false,
-  creationTimestamp: Long = System.currentTimeMillis(),
-  lastEdited: Long = System.currentTimeMillis()
+  created: Long = System.currentTimeMillis(),
+  edited: Long = System.currentTimeMillis()
 )
 
 object User {

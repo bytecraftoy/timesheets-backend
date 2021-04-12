@@ -233,8 +233,8 @@ class TimeInputDAOAnorm @Inject() (
               .toLocalDate(),
             input = minutes,
             description = description.getOrElse(""),
-            creationTimestamp = timestamp_created.getTime(),
-            lastEdited = timestamp_edited.getTime()
+            created = timestamp_created.getTime(),
+            edited = timestamp_edited.getTime()
           )
       }
 

@@ -46,8 +46,8 @@ class DevelopmentSalaryReportService @Inject() (
         id = input.id,
         description = input.description,
         input = input.input,
-        created = input.creationTimestamp,
-        updated = input.lastEdited,
+        created = input.created,
+        updated = input.edited,
         date = input.date
       )
     }
