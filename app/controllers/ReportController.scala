@@ -1,19 +1,7 @@
 package controllers
 
-import io.swagger.annotations.Api
-import models.{
-  ClientReport,
-  ClientReportService,
-  EmployeeSimple,
-  ProjectSimple,
-  SalaryReport,
-  SalaryReportService,
-  SimpleClient,
-  SimpleProject,
-  SimpleTimeInput,
-  TimeInput,
-  TimeInputSimple
-}
+import io.swagger.annotations._
+import models._
 import play.api.Logging
 import play.api.libs.json.{Json, OWrites}
 import play.api.mvc.{
@@ -53,13 +41,30 @@ class ReportController @Inject() (
   implicit val salaryReportWrites: OWrites[SalaryReport] =
     Json.writes[SalaryReport]
 
+  @ApiOperation(value = "Get a client report")
+  @ApiResponses(
+    Array(
+      new ApiResponse(
+        code = 200,
+        message = "OK",
+        response = classOf[ClientReport]
+      )
+    )
+  )
   def getClientReport(
+    @ApiParam(value = "UUID of the client", required = true)
     clientIdString: String,
+    @ApiParam(value = "List of UUIDs of projects to include", required = true)
     projectIdStringList: List[String],
+    @ApiParam(value = "Starting date in ISO-8601 format", required = true)
     startDateString: String,
+    @ApiParam(value = "Ending date in ISO-8601 format", required = true)
     endDateString: String,
+    @ApiParam(value = "List of UUIDs of employees to include", required = true)
     employeeIdStringList: List[String],
+    @ApiParam(value = "Whether to include billable projects")
     billable: Boolean,
+    @ApiParam(value = "Whether to include non-billable projects")
     nonBillable: Boolean
   ): Action[AnyContent] =
     Action {
@@ -96,12 +101,28 @@ class ReportController @Inject() (
 
     }
 
+  @ApiOperation(value = "Get an employee's salary report")
+  @ApiResponses(
+    Array(
+      new ApiResponse(
+        code = 200,
+        message = "OK",
+        response = classOf[SalaryReport]
+      )
+    )
+  )
   def getSalaryReport(
+    @ApiParam(value = "UUID of the employee", required = true)
     employeeIdString: String,
+    @ApiParam(value = "List of UUIDs of clients to include", required = true)
     clientIdStrings: List[String],
+    @ApiParam(value = "Starting date in ISO-8601 format", required = true)
     startDateString: String,
+    @ApiParam(value = "Ending date in ISO-8601 format", required = true)
     endDateString: String,
+    @ApiParam(value = "Whether to include billable projects")
     billable: Boolean,
+    @ApiParam(value = "Whether to include non-billable projects")
     nonBillable: Boolean
   ): Action[AnyContent] =
     Action {

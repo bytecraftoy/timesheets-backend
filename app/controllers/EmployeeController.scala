@@ -1,11 +1,18 @@
 package controllers
 
-import io.swagger.annotations.Api
+import io.swagger.annotations.{
+  Api,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiResponses
+}
 import models.{
   Client,
   ClientRepository,
   Project,
   ProjectRepository,
+  User,
   UserRepository
 }
 import play.api.Logging
@@ -29,6 +36,17 @@ class EmployeeController @Inject() (
 ) extends AbstractController(cc)
     with Logging {
 
+  @ApiOperation(value = "Get all employees, including managers")
+  @ApiResponses(
+    Array(
+      new ApiResponse(
+        code = 200,
+        message = "OK",
+        response = classOf[User],
+        responseContainer = "List"
+      )
+    )
+  )
   def listEmployees: Action[AnyContent] =
     Action {
       try {
@@ -43,7 +61,26 @@ class EmployeeController @Inject() (
       }
     }
 
-  def listClientsOfEmployee(employeeId: String): Action[AnyContent] =
+  @ApiOperation(
+    value =
+      "Get all clients that have projects worked on by the specified employee"
+  )
+  @ApiResponses(
+    Array(
+      new ApiResponse(
+        code = 200,
+        message = "OK",
+        response = classOf[Client],
+        responseContainer = "List"
+      )
+    )
+  )
+  def listClientsOfEmployee(
+    @ApiParam(
+      value = "UUID of the employee",
+      required = true
+    ) employeeId: String
+  ): Action[AnyContent] =
     Action {
       try {
         val employeeUuid: UUID        = UUID.fromString(employeeId)

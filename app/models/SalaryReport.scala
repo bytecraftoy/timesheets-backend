@@ -1,5 +1,7 @@
 package models
 
+import io.swagger.annotations.ApiModelProperty
+
 import java.time.LocalDate
 import java.util.UUID
 
@@ -8,7 +10,8 @@ case class SalaryReport(
   endDate: LocalDate,
   created: Long = System.currentTimeMillis(),
   employee: User,
-  grandTotal: Long, // inputted minutes
+  @ApiModelProperty(value = "Inputted minutes")
+  grandTotal: Long,
   grandTotalCost: HourlyCost,
   billable: Boolean,
   nonBillable: Boolean,
@@ -18,7 +21,8 @@ case class SalaryReport(
 case class SimpleClient(
   id: UUID,
   name: String,
-  clientTotal: Long, // inputted minutes
+  @ApiModelProperty(value = "Inputted minutes")
+  clientTotal: Long,
   clientTotalCost: HourlyCost,
   projects: List[SimpleProject]
 )
@@ -36,7 +40,8 @@ case class SimpleTimeInput(
 case class SimpleProject(
   id: UUID,
   name: String,
-  projectTotal: Long, // inputted minutes
+  @ApiModelProperty(value = "Inputted minutes")
+  projectTotal: Long,
   projectTotalCost: HourlyCost,
   billable: Boolean,
   timeInputs: List[SimpleTimeInput]

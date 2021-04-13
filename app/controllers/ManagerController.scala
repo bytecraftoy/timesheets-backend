@@ -1,11 +1,11 @@
 package controllers
 
-import io.swagger.annotations.Api
+import io.swagger.annotations.{Api, ApiOperation, ApiResponse, ApiResponses}
 import play.api.libs.json.Json
 
 import javax.inject._
 import play.api.mvc._
-import models.UserRepository
+import models.{User, UserRepository}
 import play.api.Logging
 
 @Api
@@ -15,6 +15,17 @@ class ManagerController @Inject() (
 ) extends AbstractController(cc)
     with Logging {
 
+  @ApiOperation(value = "Get all users that are managers")
+  @ApiResponses(
+    Array(
+      new ApiResponse(
+        code = 200,
+        message = "OK",
+        response = classOf[User],
+        responseContainer = "List"
+      )
+    )
+  )
   def listManagers: Action[AnyContent] =
     Action {
       try {

@@ -6,6 +6,7 @@ import io.swagger.annotations.{
   ApiImplicitParam,
   ApiImplicitParams,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiResponses
 }
@@ -48,7 +49,20 @@ class ProjectController @Inject() (
       Ok(projectsAsJson)
     }
 
-  def listProjectsByClientId(clientId: String): Action[AnyContent] =
+  @ApiOperation(value = "Get all projects of a client")
+  @ApiResponses(
+    Array(
+      new ApiResponse(
+        code = 200,
+        message = "OK",
+        response = classOf[Project],
+        responseContainer = "List"
+      )
+    )
+  )
+  def listProjectsByClientId(
+    @ApiParam(value = "UUID of the client") clientId: String
+  ): Action[AnyContent] =
     Action {
       try {
         val clientUuid = UUID.fromString(clientId)
@@ -83,7 +97,7 @@ class ProjectController @Inject() (
       )
     )
   )
-  def listProjectsByEmployeeId(employeeId: String) =
+  def listProjectsByEmployeeId(employeeId: String): Action[AnyContent] =
     Action {
       val employeeUuid = UUID.fromString(employeeId)
       val projectsWithEmployee = projectRepo.all.filter(
@@ -96,7 +110,20 @@ class ProjectController @Inject() (
       Ok(projectsAsJson)
     }
 
-  def getUsersByProject(projectIds: List[String]): Action[AnyContent] =
+  @ApiOperation(value = "Get all employees working on specified projects")
+  @ApiResponses(
+    Array(
+      new ApiResponse(
+        code = 200,
+        message = "OK",
+        response = classOf[User],
+        responseContainer = "List"
+      )
+    )
+  )
+  def getUsersByProject(
+    @ApiParam(value = "List of project UUIDs") projectIds: List[String]
+  ): Action[AnyContent] =
     Action {
       try {
         val projectUuids: List[UUID] =

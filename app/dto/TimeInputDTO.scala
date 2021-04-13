@@ -1,9 +1,8 @@
 package dto
 
-import models.TimeInput
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
-import play.api.libs.json.{JsError, JsPath, Reads}
 import play.api.libs.json.Reads.min
+import play.api.libs.json.{JsError, JsPath, Reads}
 
 import java.time.LocalDate
 import java.util.UUID

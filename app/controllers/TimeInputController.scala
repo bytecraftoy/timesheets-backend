@@ -1,12 +1,10 @@
 package controllers
 
 import dto.{AddTimeInputDTO, UpdateTimeInputDTO}
-import io.swagger.annotations.Api
+import io.swagger.annotations._
 import models._
 import play.api.Logging
-import play.api.libs.functional.syntax._
-import play.api.libs.json.Reads._
-import play.api.libs.json.{JsError, JsSuccess, JsValue, Json, OFormat, Reads, _}
+import play.api.libs.json._
 import play.api.mvc._
 
 import java.time.LocalDate
@@ -71,6 +69,21 @@ class TimeInputController @Inject() (
       }
     }
 
+  @ApiOperation(value = "Insert new timeinput")
+  @ApiResponses(
+    Array(
+      new ApiResponse(code = 200, message = "OK", response = classOf[TimeInput])
+    )
+  )
+  @ApiImplicitParams(
+    Array(
+      new ApiImplicitParam(
+        name = "Timeinput to add",
+        paramType = "body",
+        dataType = "dto.AddTimeInputDTO"
+      )
+    )
+  )
   def add(): Action[JsValue] = {
     Action(parse.json) { implicit request =>
       request.body.validate[AddTimeInputDTO] match {
@@ -96,6 +109,21 @@ class TimeInputController @Inject() (
     }
   }
 
+  @ApiOperation(value = "Update existing timeinput")
+  @ApiResponses(
+    Array(
+      new ApiResponse(code = 200, message = "OK", response = classOf[TimeInput])
+    )
+  )
+  @ApiImplicitParams(
+    Array(
+      new ApiImplicitParam(
+        name = "New timeinput properties",
+        paramType = "body",
+        dataType = "dto.UpdateTimeInputDTO"
+      )
+    )
+  )
   def update(): Action[JsValue] =
     Action(parse.json) { implicit request =>
       request.body.validate[UpdateTimeInputDTO] match {
@@ -130,10 +158,28 @@ class TimeInputController @Inject() (
       }
     }
 
+  @ApiOperation(
+    value =
+      "Get timeinputs per user and per project from a specified time interval"
+  )
+  @ApiResponses(
+    Array(
+      new ApiResponse(
+        code = 200,
+        message = "OK",
+        response = classOf[TimeInput],
+        responseContainer = "List"
+      ) // TODO: this is not accurate; refactor underlying helper functions
+    )
+  )
   def byProject(
+    @ApiParam(value = "UUID of the project", required = true)
     id: String,
+    @ApiParam(value = "UUID of the employee", required = true)
     employee: String,
+    @ApiParam(value = "Starting date in ISO-8601 format")
     start: String,
+    @ApiParam(value = "Ending date in ISO-8601 format")
     end: String
   ): Action[AnyContent] =
     Action {
@@ -161,9 +207,23 @@ class TimeInputController @Inject() (
       }
     }
 
+  @ApiOperation(value = "Get user's timeinputs grouped by project")
+  @ApiResponses(
+    Array(
+      new ApiResponse(
+        code = 200,
+        message = "OK",
+        response = classOf[TimeInput],
+        responseContainer = "List"
+      ) // TODO: this is not accurate; refactor underlying helper functions
+    )
+  )
   def groupByProject(
+    @ApiParam(value = "UUID of the employee", required = true)
     employeeId: String,
+    @ApiParam(value = "Starting date in ISO-8601 format")
     start: String,
+    @ApiParam(value = "Ending date in ISO-8601 format")
     end: String
   ): Action[AnyContent] =
     Action {
