@@ -2,6 +2,7 @@ package models
 
 import com.google.inject.ImplementedBy
 import dao.TimeInputDAO
+import dto.{AddTimeInputDTO, UpdateTimeInputDTO}
 import play.api.Logging
 import play.api.libs.json.{JsObject, JsValue, Json, OFormat}
 
@@ -35,11 +36,15 @@ trait TimeInputRepository extends Repository[TimeInput] with Logging {
     startDate: LocalDate,
     endDate: LocalDate
   ): Seq[TimeInput]
+
+  def dtoAsTimeInput(dto: AddTimeInputDTO): TimeInput
+  def dtoAsTimeInput(dto: UpdateTimeInputDTO): TimeInput
 }
 
 class DevelopmentTimeInputRepository @Inject() (
   timeInputDAO: TimeInputDAO,
-  projectRepository: ProjectRepository
+  projectRepository: ProjectRepository,
+  userRepository: UserRepository
 )(implicit executionContext: ExecutionContext)
     extends TimeInputRepository
     with Logging {
@@ -126,5 +131,27 @@ class DevelopmentTimeInputRepository @Inject() (
     } else {
       Json.obj("projects" -> "")
     }
+  }
+
+  def dtoAsTimeInput(dto: AddTimeInputDTO): TimeInput = {
+    TimeInput(
+      input = dto.input,
+      project = projectRepository.byId(dto.project),
+      employee = userRepository.byId(dto.employee),
+      date = dto.date,
+      description = dto.description
+    )
+  }
+
+  def dtoAsTimeInput(dto: UpdateTimeInputDTO): TimeInput = {
+    val beforeUpdateModel: TimeInput = this.byId(dto.id)
+    TimeInput(
+      id = dto.id,
+      input = dto.input,
+      project = beforeUpdateModel.project,
+      employee = beforeUpdateModel.employee,
+      date = beforeUpdateModel.date,
+      description = dto.description
+    )
   }
 }

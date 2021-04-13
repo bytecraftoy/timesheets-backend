@@ -142,7 +142,7 @@ class ProjectController @Inject() (
     Action(parse.json) { implicit request =>
       request.body.validate[AddProjectDTO] match {
         case JsSuccess(createProjectDTO, _) => {
-          projectRepo.addProjectDTOasProject(createProjectDTO) match {
+          projectRepo.dtoAsProject(createProjectDTO) match {
             case project: Project => {
               if (project.employees.exists(_.id == project.owner.id)) {
                 val msg = "Owner cannot be an employee"
@@ -182,7 +182,7 @@ class ProjectController @Inject() (
     Action(parse.json) { implicit request =>
       request.body.validate[UpdateProjectDTO] match {
         case JsSuccess(updateProjectDTO, _) => {
-          projectRepo.updateProjectDTOasProject(updateProjectDTO) match {
+          projectRepo.dtoAsProject(updateProjectDTO) match {
             case project: Project => {
               if (project.employees.exists(_.id == project.owner.id)) {
                 val msg = "Owner cannot be an employee"

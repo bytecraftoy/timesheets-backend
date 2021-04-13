@@ -14,8 +14,8 @@ trait ProjectRepository extends Repository[Project] {
   def all: Seq[Project]
   def add(project: Project): Unit
   def update(project: Project): Unit
-  def addProjectDTOasProject(dto: AddProjectDTO): Project
-  def updateProjectDTOasProject(dto: UpdateProjectDTO): Project
+  def dtoAsProject(dto: AddProjectDTO): Project
+  def dtoAsProject(dto: UpdateProjectDTO): Project
 }
 
 class DevelopmentProjectRepository @Inject() (
@@ -26,7 +26,7 @@ class DevelopmentProjectRepository @Inject() (
 
   def byId(id: UUID): Project = projectDao.getById(id)
 
-  def addProjectDTOasProject(dto: AddProjectDTO): Project =
+  def dtoAsProject(dto: AddProjectDTO): Project =
     Project(
       name = dto.name,
       description = dto.description,
@@ -40,7 +40,7 @@ class DevelopmentProjectRepository @Inject() (
       hourlyCost = dto.hourlyCost
     )
 
-  def updateProjectDTOasProject(dto: UpdateProjectDTO): Project =
+  def dtoAsProject(dto: UpdateProjectDTO): Project =
     Project(
       id = dto.id,
       name = dto.name,

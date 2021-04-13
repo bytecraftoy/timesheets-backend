@@ -1,5 +1,6 @@
 package controllers
 
+import dto.{AddTimeInputDTO, UpdateTimeInputDTO}
 import io.swagger.annotations.Api
 import models._
 import play.api.Logging
@@ -26,70 +27,8 @@ class TimeInputController @Inject() (
   implicit def projectFormat: OFormat[Project] =
     Json.using[Json.WithDefaultValues].format[Project]
 
-  case class AddTimeInputDTO(
-    input: Long,
-    project: UUID,
-    employee: UUID,
-    date: LocalDate,
-    description: String = ""
-  ) {
-
-    def asTimeInput: TimeInput = {
-      TimeInput(
-        input = this.input,
-        project = projectRepository.byId(this.project),
-        employee = userRepository.byId(this.employee),
-        date = this.date,
-        description = this.description
-      )
-    }
-  }
-  object AddTimeInputDTO {
-    implicit val addTimeInputDTOReads: Reads[AddTimeInputDTO] = (
-      (JsPath \ "input")
-        .read[Long](min[Long](0))
-        .orElse(
-          Reads(_ => JsError("""Time input has to be a positive integer."""))
-        ) and
-        (JsPath \ "project").read[UUID] and
-        (JsPath \ "employee").read[UUID] and
-        (JsPath \ "date").read[LocalDate] and
-        (JsPath \ "description").read[String]
-    )(AddTimeInputDTO.apply _)
-  }
   implicit def timeInputFormat: OFormat[TimeInput] =
     Json.using[Json.WithDefaultValues].format[TimeInput]
-
-  case class UpdateTimeInputDTO(
-    id: UUID,
-    input: Long,
-    description: String = ""
-  ) {
-
-    def asTimeInput: TimeInput = {
-      val beforeUpdateModel: TimeInput = timeInputRepository.byId(this.id)
-
-      TimeInput(
-        id = this.id,
-        input = this.input,
-        project = beforeUpdateModel.project,
-        employee = beforeUpdateModel.employee,
-        date = beforeUpdateModel.date,
-        description = this.description
-      )
-    }
-  }
-  object UpdateTimeInputDTO {
-    implicit val updateTimeInputDTOReads: Reads[UpdateTimeInputDTO] = (
-      (JsPath \ "id").read[UUID] and
-        (JsPath \ "input")
-          .read[Long](min[Long](0))
-          .orElse(
-            Reads(_ => JsError("""Time input has to be a positive integer."""))
-          ) and
-        (JsPath \ "description").read[String]
-    )(UpdateTimeInputDTO.apply _)
-  }
 
   def getData(start: String, end: String): Action[AnyContent] = {
     if (start == "getAll") {
@@ -137,7 +76,7 @@ class TimeInputController @Inject() (
       request.body.validate[AddTimeInputDTO] match {
         case JsSuccess(addTimeInputDTO, _) => {
           try {
-            val timeInput = addTimeInputDTO.asTimeInput
+            val timeInput = timeInputRepository.dtoAsTimeInput(addTimeInputDTO)
             timeInputRepository.add(timeInput)
             Ok(Json.toJson(timeInput))
           } catch {
@@ -162,7 +101,8 @@ class TimeInputController @Inject() (
       request.body.validate[UpdateTimeInputDTO] match {
         case JsSuccess(updateTimeInputDTO, _) => {
           try {
-            val timeInput        = updateTimeInputDTO.asTimeInput
+            val timeInput =
+              timeInputRepository.dtoAsTimeInput(updateTimeInputDTO)
             val updateCount: Int = timeInputRepository.update(timeInput)
             if (updateCount > 0) {
               val msg = s"""Timeinput update successful."""
