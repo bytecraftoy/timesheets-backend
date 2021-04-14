@@ -1,7 +1,7 @@
 package models
 
 import java.time.LocalDate
-import java.util.{Date, UUID}
+import java.util.UUID
 
 case class ClientReport(
   startDate: LocalDate,
