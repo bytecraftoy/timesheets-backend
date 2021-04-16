@@ -1,7 +1,8 @@
 package dto
 
 import io.swagger.annotations.ApiModelProperty
-import play.api.libs.json.{Json, Reads}
+import models.HourlyCost
+import play.api.libs.json.{Json, OFormat, Reads}
 
 import java.util.UUID
 
@@ -11,11 +12,12 @@ case class AddProjectDTO(
   client: UUID,
   owner: UUID,
   billable: Boolean,
-  employees: List[UUID]
+  employees: List[UUID],
+  hourlyCost: HourlyCost = HourlyCost(0, "EUR")
 )
 object AddProjectDTO {
-  implicit val readProjectDTO: Reads[AddProjectDTO] =
-    Json.reads[AddProjectDTO]
+  implicit def addProjectDTOFormat: OFormat[AddProjectDTO] =
+    Json.using[Json.WithDefaultValues].format[AddProjectDTO]
 }
 case class UpdateProjectDTO(
   @ApiModelProperty(value = "UUID of an existing project")
@@ -25,9 +27,10 @@ case class UpdateProjectDTO(
   client: UUID,
   owner: UUID,
   billable: Boolean,
-  employees: List[UUID]
+  employees: List[UUID],
+  hourlyCost: HourlyCost = HourlyCost(0, "EUR")
 )
 object UpdateProjectDTO {
-  implicit val readProjectDTO: Reads[UpdateProjectDTO] =
-    Json.reads[UpdateProjectDTO]
+  implicit def updateProjectDTOFormat: OFormat[UpdateProjectDTO] =
+    Json.using[Json.WithDefaultValues].format[UpdateProjectDTO]
 }

@@ -43,9 +43,11 @@ GET          /clients/:id/projects     controllers.ProjectController.listProject
 POST         /clients                  controllers.ClientController.add(name: String, email: String)
 
 # Add a project
++ nocsrf # TODO: remove
 POST        /projects                  controllers.ProjectController.addProject
 
 # Update a project
++ nocsrf # TODO: remove
 PUT         /projects                  controllers.ProjectController.updateProject
 
 # List user's hours per project TODO: remove default userId

@@ -19,8 +19,7 @@ case class Project(
   created: Long = System.currentTimeMillis(),
   edited: Long = System.currentTimeMillis(),
   editedBy: User,
-  hourlyCost: HourlyCost =
-    HourlyCost(value = BigDecimal(24.99), currency = "EUR")
+  hourlyCost: HourlyCost = HourlyCost(value = BigDecimal(0), currency = "EUR")
 ) {
   implicit def projectFormat: OFormat[Project] =
     Json.using[Json.WithDefaultValues].format[Project]
