@@ -4,68 +4,68 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET         /                          controllers.HomeController.index
+GET         /                          web.controllers.HomeController.index
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file              controllers.Assets.versioned(path="/public", file: Asset)
 
 # List all projects as JSON
-GET         /projects                  controllers.ProjectController.listProjects
+GET         /projects                  web.controllers.ProjectController.listProjects
 
 # List timeinput per user and per project from a specified time interval
-GET         /projects/:id/hours        controllers.TimeInputController.byProject(id: String, userId: String, startDate: String ?= "getAll", endDate: String ?= "")
+GET         /projects/:id/hours        web.controllers.TimeInputController.byProject(id: String, userId: String, startDate: String ?= "getAll", endDate: String ?= "")
 
 # List users of project(s)
-GET         /projects/employees        controllers.ProjectController.getUsersByProject(projects: List[String])
+GET         /projects/employees        web.controllers.ProjectController.getUsersByProject(projects: List[String])
 
 # List all managers [for now, they are just the employees]
-GET         /managers                  controllers.ManagerController.listManagers
+GET         /managers                  web.controllers.ManagerController.listManagers
 
 # List all employees [managers are also employees]
-GET         /employees                 controllers.EmployeeController.listEmployees
+GET         /employees                 web.controllers.EmployeeController.listEmployees
 
-GET         /employees/:id/clients     controllers.EmployeeController.listClientsOfEmployee(id: String)
+GET         /employees/:id/clients     web.controllers.EmployeeController.listClientsOfEmployee(id: String)
 
 # Get the projects of an employee
-GET         /employees/:id/projects    controllers.ProjectController.listProjectsByEmployeeId(id: String)
+GET         /employees/:id/projects    web.controllers.ProjectController.listProjectsByEmployeeId(id: String)
 
 # List all clients
-GET         /clients                   controllers.ClientController.listClients
+GET         /clients                   web.controllers.ClientController.listClients
 
 # Get a client by client id1
-GET         /clientsbyid               controllers.ClientController.byId(id: String)
+GET         /clientsbyid               web.controllers.ClientController.byId(id: String)
 
 # Get the projects of a client
-GET          /clients/:id/projects     controllers.ProjectController.listProjectsByClientId(id: String)
+GET          /clients/:id/projects     web.controllers.ProjectController.listProjectsByClientId(id: String)
 
 # Add a client
 + nocsrf # TODO: remove
-POST         /clients                  controllers.ClientController.add(name: String, email: String)
+POST         /clients                  web.controllers.ClientController.add(name: String, email: String)
 
 # Add a project
 + nocsrf # TODO: remove
-POST        /projects                  controllers.ProjectController.addProject
+POST        /projects                  web.controllers.ProjectController.addProject
 
 # Update a project
 + nocsrf # TODO: remove
-PUT         /projects                  controllers.ProjectController.updateProject
+PUT         /projects                  web.controllers.ProjectController.updateProject
 
 # List user's hours per project
-GET         /hours                     controllers.TimeInputController.groupByProject(userId: String, startDate: String ?= "getAll", endDate: String ?= "")
+GET         /hours                     web.controllers.TimeInputController.groupByProject(userId: String, startDate: String ?= "getAll", endDate: String ?= "")
 
 # Add a timeinput
 + nocsrf # TODO: remove
-POST        /hours                     controllers.TimeInputController.add
+POST        /hours                     web.controllers.TimeInputController.add
 
 # Update a timeinput
 + nocsrf # TODO: remove
-PUT        /hours                      controllers.TimeInputController.update
+PUT        /hours                      web.controllers.TimeInputController.update
 
 # GET a client report
-GET        /report/client/:id          controllers.ReportController.getClientReport(id: String, projects: List[String], startDate: String, endDate: String, employees: List[String], billable: Boolean ?= true, nonBillable: Boolean ?= true)
+GET        /report/client/:id          web.controllers.ReportController.getClientReport(id: String, projects: List[String], startDate: String, endDate: String, employees: List[String], billable: Boolean ?= true, nonBillable: Boolean ?= true)
 
 # GET a salary report for an employee
-GET        /report/employee/:id        controllers.ReportController.getSalaryReport(id: String, clients: List[String], startDate: String, endDate: String, billable: Boolean ?= true, nonBillable: Boolean ?= true)
+GET        /report/employee/:id        web.controllers.ReportController.getSalaryReport(id: String, clients: List[String], startDate: String, endDate: String, billable: Boolean ?= true, nonBillable: Boolean ?= true)
 
 # Swagger resource listing
 GET        /swagger.json               controllers.ApiHelpController.getResources

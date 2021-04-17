@@ -1,7 +1,6 @@
 package controllers
 
-import akka.http.scaladsl.model.HttpHeader.ParsingResult.Ok
-import models.{ClientReportService, SalaryReportService}
+import domain.services.{ClientReportService, SalaryReportService}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
@@ -11,7 +10,6 @@ import play.api.inject.Injector
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent}
-import play.api.test.{FakeRequest, Injecting}
 import play.api.test.Helpers.{
   GET,
   contentAsString,
@@ -21,6 +19,8 @@ import play.api.test.Helpers.{
   status,
   writeableOf_AnyContentAsEmpty
 }
+import play.api.test.{FakeRequest, Injecting}
+import web.controllers.ReportController
 
 import scala.concurrent.ExecutionContext
 import scala.reflect.ClassTag
