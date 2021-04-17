@@ -196,7 +196,7 @@ class DevelopmentClientReportService @Inject() (
     ClientReport(
       startDate = startDate,
       endDate = endDate,
-      creationMillis = System.currentTimeMillis(),
+      created = System.currentTimeMillis(),
       client = client,
       projects = simpleProjects,
       grandTotal = grandTotal,

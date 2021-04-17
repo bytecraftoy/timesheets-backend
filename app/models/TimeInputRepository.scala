@@ -89,14 +89,14 @@ class DevelopmentTimeInputRepository @Inject() (
       timeInputDAO
         .byProjectAndEmployeeInterval(projectId, employeeId, start, end)
         .map(
-          ti =>
+          timeinput =>
             Json.obj(
-              "id"                -> ti.id,
-              "input"             -> ti.input,
-              "date"              -> ti.date,
-              "creationTimestamp" -> ti.creationTimestamp,
-              "lastEdited"        -> ti.lastEdited,
-              "description"       -> ti.description
+              "id"          -> timeinput.id,
+              "input"       -> timeinput.input,
+              "date"        -> timeinput.date,
+              "created"     -> timeinput.created,
+              "edited"      -> timeinput.edited,
+              "description" -> timeinput.description
             )
         )
     )

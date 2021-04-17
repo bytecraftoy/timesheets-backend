@@ -16,9 +16,9 @@ case class Client(
   @ApiModelProperty(example = "example@company.com")
   email: String = "",
   @ApiModelProperty(value = "Creation time in UTC milliseconds")
-  timestamp_created: Long = Calendar.getInstance().getTimeInMillis,
+  created: Long = Calendar.getInstance().getTimeInMillis,
   @ApiModelProperty(value = "Time of last edit in UTC milliseconds")
-  timestamp_edited: Long = Calendar.getInstance().getTimeInMillis
+  edited: Long = Calendar.getInstance().getTimeInMillis
 )
 
 object Client {

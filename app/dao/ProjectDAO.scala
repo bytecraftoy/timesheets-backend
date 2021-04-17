@@ -62,14 +62,14 @@ class ProjectDAOAnorm @Inject() (
         name = projectName,
         description = projectDescription,
         owner = projectOwner,
-        creator = projectCreator,
+        createdBy = projectCreator,
         managers = projectManagers.toList,
         client = projectClient,
         employees = projectEmployees.toList,
         billable = projectBillable,
-        creationTimestamp = projectTsCreated.getTime,
-        lastEdited = projectTsEdited.getTime,
-        lastEditor = projectEditor
+        created = projectTsCreated.getTime,
+        edited = projectTsEdited.getTime,
+        editedBy = projectEditor
       )
     }
   }
@@ -152,8 +152,8 @@ class ProjectDAOAnorm @Inject() (
           "description"    -> project.description,
           "billable"       -> project.billable,
           "owned_by"       -> project.owner.id,
-          "created_by"     -> project.creator.id,
-          "last_edited_by" -> project.lastEditor.id,
+          "created_by"     -> project.createdBy.id,
+          "last_edited_by" -> project.editedBy.id,
           "client_id"      -> project.client.id
         )
         .executeInsert(anorm.SqlParser.scalar[java.util.UUID].singleOpt)
@@ -189,7 +189,7 @@ class ProjectDAOAnorm @Inject() (
           "description"    -> project.description,
           "billable"       -> project.billable,
           "owned_by"       -> project.owner.id,
-          "last_edited_by" -> project.lastEditor.id,
+          "last_edited_by" -> project.editedBy.id,
           "client_id"      -> project.client.id
         )
         .executeUpdate()

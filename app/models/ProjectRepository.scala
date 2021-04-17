@@ -32,9 +32,9 @@ class DevelopmentProjectRepository @Inject() (
       description = dto.description,
       client = clientRepo.byId(dto.client),
       owner = userRepo.byId(dto.owner),
-      creator = userRepo.byId(dto.owner),
+      createdBy = userRepo.byId(dto.owner),
       managers = List(userRepo.byId(dto.owner)),
-      lastEditor = userRepo.byId(dto.owner),
+      editedBy = userRepo.byId(dto.owner),
       billable = dto.billable,
       employees = dto.employees.map(userRepo.byId(_))
     )
@@ -46,9 +46,9 @@ class DevelopmentProjectRepository @Inject() (
       description = dto.description,
       client = clientRepo.byId(dto.client),
       owner = userRepo.byId(dto.owner),
-      creator = userRepo.byId(dto.owner),
+      createdBy = userRepo.byId(dto.owner),
       managers = List(userRepo.byId(dto.owner)),
-      lastEditor = userRepo.byId(dto.owner),
+      editedBy = userRepo.byId(dto.owner),
       billable = dto.billable,
       employees = dto.employees.map(userRepo.byId(_))
     )

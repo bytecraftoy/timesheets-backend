@@ -6,7 +6,7 @@ import java.util.UUID
 case class ClientReport(
   startDate: LocalDate,
   endDate: LocalDate,
-  creationMillis: Long = System.currentTimeMillis(),
+  created: Long = System.currentTimeMillis(),
   client: Client,
   projects: List[ProjectSimple],
   grandTotal: Long,

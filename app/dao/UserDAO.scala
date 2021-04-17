@@ -151,8 +151,8 @@ class UserDAOAnorm @Inject() (db: Database) extends UserDAO with Logging {
             phoneNumber = phone_number getOrElse "",
             salary = salary getOrElse BigDecimal(0),
             isManager = is_manager,
-            creationTimestamp = timestamp_created.getTime(),
-            lastEdited = timestamp_edited.getTime()
+            created = timestamp_created.getTime(),
+            edited = timestamp_edited.getTime()
           )
       }
       val allUsersParser: ResultSetParser[List[User]] = userParser.*

@@ -34,8 +34,8 @@ class ClientDAOAnorm @Inject() (db: Database) extends ClientDAO with Logging {
         id = client_id,
         name = name,
         email = email,
-        timestamp_created = timestamp_created.getTime(),
-        timestamp_edited = timestamp_edited.getTime()
+        created = timestamp_created.getTime(),
+        edited = timestamp_edited.getTime()
       )
   }
   val allClientsParser: ResultSetParser[List[Client]] = clientParser.*
