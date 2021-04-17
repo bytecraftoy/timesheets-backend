@@ -52,9 +52,9 @@ class EmployeeController @Inject() (
         val allProjects: Seq[Project] = projectRepository.all
         val clientsOfEmployee: Seq[Client] = allClients.filter { client =>
           val projectsContainingBoth = allProjects.filter(project => {
-            project.client.id == client.id && project.employees.contains(
-              employee
-            )
+            project.client.id == client.id &&
+              (project.employees.contains(employee) ||
+                project.owner.contains(employee))
           })
           projectsContainingBoth.nonEmpty
         }
