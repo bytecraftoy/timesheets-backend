@@ -139,11 +139,15 @@ class DevelopmentSalaryReportService @Inject() (
           val clientTotal: Long = simpleProjects.foldLeft(0L) {
             (accumulator, project) => accumulator + project.projectTotal
           }
+          val clientTotalCurrency: String = {
+            if (simpleProjects.nonEmpty)
+              simpleProjects.head.projectTotalCost.currency
+            else "EUR"
+          }
           val clientTotalCost: HourlyCost =
-            simpleProjects.foldLeft(
-              HourlyCost(0, simpleProjects.head.projectTotalCost.currency)
-            ) { (accumulator, project) =>
-              accumulator + project.projectTotalCost
+            simpleProjects.foldLeft(HourlyCost(0, clientTotalCurrency)) {
+              (accumulator, project) =>
+                accumulator + project.projectTotalCost
             } // TODO: don't sum different project costs with potentially different currencies
           SimpleClient(
             id = client.id,
@@ -188,11 +192,15 @@ class DevelopmentSalaryReportService @Inject() (
     val grandTotal: Long = simpleClients.foldLeft(0L) { (accumulator, client) =>
       accumulator + client.clientTotal
     }
-    val grandTotalCost: HourlyCost = simpleClients.foldLeft(
-      HourlyCost(0, simpleClients.head.clientTotalCost.currency)
-    ) { (accumulator, client) =>
-      accumulator + client.clientTotalCost
+    val grandTotalCurrency: String = {
+      if (simpleClients.nonEmpty) simpleClients.head.clientTotalCost.currency
+      else "EUR"
     }
+    val grandTotalCost: HourlyCost =
+      simpleClients.foldLeft(HourlyCost(0, grandTotalCurrency)) {
+        (accumulator, client) =>
+          accumulator + client.clientTotalCost
+      }
 
     SalaryReport(
       startDate = startDate,

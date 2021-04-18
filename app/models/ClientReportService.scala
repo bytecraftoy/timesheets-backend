@@ -213,8 +213,11 @@ class DevelopmentClientReportService @Inject() (
         project.projectTotalCost.value + i
       },
       currency =
-        simpleProjects.head.projectTotalCost.currency // TODO: don't sum different project costs with potentially different currencies
-    )
+        if (simpleProjects.nonEmpty)
+          simpleProjects.head.projectTotalCost.currency
+        else
+          "EUR"
+    ) // TODO: don't sum different project costs with potentially different currencies
 
     ClientReport(
       startDate = startDate,
