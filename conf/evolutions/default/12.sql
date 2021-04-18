@@ -1,7 +1,7 @@
 # --- !Ups
 
-ALTER TABLE project ADD hourly_cost numeric(27,9) DEFAULT NULL;
-ALTER TABLE project ADD currency text DEFAULT NULL;
+ALTER TABLE project ADD hourly_cost numeric(27,9) DEFAULT 0;
+ALTER TABLE project ADD currency text DEFAULT 'EUR';
 
 UPDATE project SET hourly_cost = 1.009, currency = 'EUR' WHERE project_id = '40726707-57d1-47e0-a82b-6d85320b160b';
 UPDATE project SET hourly_cost = 24.99, currency = 'EUR' WHERE project_id = 'd7e738a2-60cf-4336-b7d9-5216ef960e3a';
@@ -11,5 +11,7 @@ UPDATE project SET hourly_cost = 20.99, currency = 'EUR' WHERE project_id = 'd9b
 
 # --- !Downs
 
+UPDATE project SET hourly_cost = NULL;
+UPDATE project SET currency = NULL;
 ALTER TABLE project DROP COLUMN IF EXISTS currency;
 ALTER TABLE project DROP COLUMN IF EXISTS hourly_cost;
