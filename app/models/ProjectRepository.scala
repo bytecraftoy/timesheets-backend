@@ -36,7 +36,8 @@ class DevelopmentProjectRepository @Inject() (
       managers = List(userRepo.byId(dto.owner)),
       editedBy = userRepo.byId(dto.owner),
       billable = dto.billable,
-      employees = dto.employees.map(userRepo.byId(_))
+      employees = dto.employees.map(userRepo.byId(_)),
+      hourlyCost = dto.hourlyCost
     )
 
   def updateProjectDTOasProject(dto: UpdateProjectDTO): Project =
@@ -50,7 +51,8 @@ class DevelopmentProjectRepository @Inject() (
       managers = List(userRepo.byId(dto.owner)),
       editedBy = userRepo.byId(dto.owner),
       billable = dto.billable,
-      employees = dto.employees.map(userRepo.byId(_))
+      employees = dto.employees.map(userRepo.byId(_)),
+      hourlyCost = dto.hourlyCost
     )
 
   implicit def projectFormat: OFormat[Project] =

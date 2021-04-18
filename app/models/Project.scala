@@ -18,7 +18,8 @@ case class Project(
   tags: List[String] = List(),
   created: Long = System.currentTimeMillis(),
   edited: Long = System.currentTimeMillis(),
-  editedBy: User
+  editedBy: User,
+  hourlyCost: HourlyCost = HourlyCost(value = BigDecimal(0), currency = "EUR")
 ) {
   implicit def projectFormat: OFormat[Project] =
     Json.using[Json.WithDefaultValues].format[Project]

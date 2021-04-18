@@ -1,14 +1,13 @@
 package dao
 
-import anorm.ResultSetParser
-import models.{ProjectRepository, TimeInput, UserRepository}
-import anorm._
+import anorm.{ResultSetParser, _}
 import com.google.inject.ImplementedBy
+import models.{ProjectRepository, TimeInput, UserRepository}
 import play.api.Logging
 import play.api.db.Database
 
-import java.time.{Clock, Instant, LocalDate, ZoneId}
-import java.util.{Calendar, Date, UUID}
+import java.time.{Instant, LocalDate, ZoneId}
+import java.util.UUID
 import javax.inject.Inject
 
 @ImplementedBy(classOf[TimeInputDAOAnorm])

@@ -1,15 +1,11 @@
 package dao
 
-import anorm.{ResultSetParser, RowParser, SQL, SqlParser}
-import models.{Client, ClientRepository, Project, User, UserRepository}
-import play.api.db.Database
-import play.api.db.evolutions.Evolutions
-import dao.DAO
-import anorm._
+import anorm.{ResultSetParser, RowParser, SQL, SqlParser, _}
 import com.google.inject.ImplementedBy
+import models.{ClientRepository, HourlyCost, Project, UserRepository}
 import play.api.Logging
+import play.api.db.Database
 
-import java.util.Calendar
 import java.util.UUID
 import javax.inject.Inject
 
@@ -39,7 +35,9 @@ class ProjectDAOAnorm @Inject() (
       SqlParser.get[UUID]("project.owned_by") ~
       SqlParser.get[UUID]("project.created_by") ~
       SqlParser.get[UUID]("project.last_edited_by") ~
-      SqlParser.get[UUID]("project.client_id")
+      SqlParser.get[UUID]("project.client_id") ~
+      SqlParser.get[Option[BigDecimal]]("project.hourly_cost") ~
+      SqlParser.get[Option[String]]("project.currency")
   ) map {
     case projectId ~
         projectName ~
@@ -50,7 +48,9 @@ class ProjectDAOAnorm @Inject() (
         ownedById ~
         createdById ~
         lastEditedById ~
-        clientId => {
+        clientId ~
+        hourlyCost ~
+        currency => {
       val projectClient    = clientRepo.byId(clientId)
       val projectOwner     = userRepo.byId(ownedById)
       val projectManagers  = userRepo.getManagersByProjectId(projectId)
@@ -69,7 +69,9 @@ class ProjectDAOAnorm @Inject() (
         billable = projectBillable,
         created = projectTsCreated.getTime,
         edited = projectTsEdited.getTime,
-        editedBy = projectEditor
+        editedBy = projectEditor,
+        hourlyCost =
+          HourlyCost(hourlyCost getOrElse BigDecimal(0), currency getOrElse "")
       )
     }
   }
@@ -85,6 +87,7 @@ class ProjectDAOAnorm @Inject() (
           "project.billable," +
           "project.owned_by, project.created_by, " +
           "project.last_edited_by, project.client_id," +
+          "project.hourly_cost, project.currency," +
           "client.name, client.email, client.timestamp_created, " +
           "client.timestamp_edited " +
           "FROM project " +
@@ -106,7 +109,9 @@ class ProjectDAOAnorm @Inject() (
           "owned_by, " +
           "created_by, " +
           "last_edited_by, " +
-          "client_id" +
+          "client_id," +
+          "hourly_cost," +
+          "currency" +
           " FROM project " +
           "WHERE project_id = {projectId}::uuid;"
       logger.debug(s"ProjectDAOAnorm.getById(), SQL = $sql")
@@ -131,9 +136,11 @@ class ProjectDAOAnorm @Inject() (
           "timestamp_edited, " +
           "billable, " +
           "owned_by, " +
-          "created_by," +
+          "created_by, " +
           "last_edited_by, " +
-          "client_id) " +
+          "client_id, " +
+          "hourly_cost, " +
+          "currency) " +
           "values({project_id}::uuid, " +
           "{name}, " +
           "{description}, " +
@@ -143,7 +150,9 @@ class ProjectDAOAnorm @Inject() (
           "{owned_by}::uuid, " +
           "{created_by}::uuid, " +
           "{last_edited_by}::uuid, " +
-          "{client_id}::uuid);"
+          "{client_id}::uuid, " +
+          "{hourly_cost}, " +
+          "{currency});"
       logger.debug(s"ProjectDAOAnorm.add, SQL = $sql")
       SQL(sql)
         .on(
@@ -154,7 +163,9 @@ class ProjectDAOAnorm @Inject() (
           "owned_by"       -> project.owner.id,
           "created_by"     -> project.createdBy.id,
           "last_edited_by" -> project.editedBy.id,
-          "client_id"      -> project.client.id
+          "client_id"      -> project.client.id,
+          "hourly_cost"    -> project.hourlyCost.value,
+          "currency"       -> project.hourlyCost.currency
         )
         .executeInsert(anorm.SqlParser.scalar[java.util.UUID].singleOpt)
     }
@@ -172,14 +183,18 @@ class ProjectDAOAnorm @Inject() (
           "owned_by, " +
           "client_id, " +
           "last_edited_by, " +
-          "timestamp_edited)" +
+          "timestamp_edited, " +
+          "hourly_cost, " +
+          "currency)" +
           " = ({name}, " +
           "{description}, " +
           "{billable}, " +
           "{owned_by}::uuid, " +
           "{client_id}::uuid, " +
           "{last_edited_by}::uuid, " +
-          "CURRENT_TIMESTAMP)" +
+          "CURRENT_TIMESTAMP, " +
+          "{hourly_cost}, " +
+          "{currency})" +
           " WHERE project_id = {id}::uuid;"
       logger.debug(s"ProjectDAOAnorm.update, SQL = $sql")
       val result: Int = SQL(sql)
@@ -190,7 +205,9 @@ class ProjectDAOAnorm @Inject() (
           "billable"       -> project.billable,
           "owned_by"       -> project.owner.id,
           "last_edited_by" -> project.editedBy.id,
-          "client_id"      -> project.client.id
+          "client_id"      -> project.client.id,
+          "hourly_cost"    -> project.hourlyCost.value,
+          "currency"       -> project.hourlyCost.currency
         )
         .executeUpdate()
 

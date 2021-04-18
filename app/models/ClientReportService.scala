@@ -54,6 +54,10 @@ class DevelopmentClientReportService @Inject() (
             id = complexTimeInput.id,
             date = complexTimeInput.date,
             input = complexTimeInput.input,
+            cost = HourlyCost(
+              complexTimeInput.project.hourlyCost.value * complexTimeInput.input / 60,
+              complexTimeInput.project.hourlyCost.currency
+            ),
             description = complexTimeInput.description
           )
       )
@@ -94,12 +98,18 @@ class DevelopmentClientReportService @Inject() (
           val employeeTotal: Long = simpleTimeInputs.foldRight(0L) {
             (timeInput, i) => timeInput.input + i
           }
+          val employeeTotalCost: HourlyCost = HourlyCost(
+            value =
+              project.hourlyCost.value * employeeTotal / 60,
+            currency = project.hourlyCost.currency
+          )
 
           EmployeeSimple(
             id = employee.id,
             firstName = employee.firstName,
             lastName = employee.lastName,
             employeeTotal = employeeTotal,
+            employeeTotalCost = employeeTotalCost,
             timeInputs = simpleTimeInputs
           )
         }
@@ -148,11 +158,17 @@ class DevelopmentClientReportService @Inject() (
           val projectTotal: Long = simpleEmployees.foldRight(0L) {
             (employee, i) => employee.employeeTotal + i
           }
+          val projectTotalCost: HourlyCost = HourlyCost(
+            value =
+              project.hourlyCost.value * projectTotal / 60,
+            currency = project.hourlyCost.currency
+          )
 
           ProjectSimple(
             id = project.id,
             name = project.name,
             projectTotal = projectTotal,
+            projectTotalCost = projectTotalCost,
             billable = project.billable,
             employees = simpleEmployees
           )
@@ -192,6 +208,16 @@ class DevelopmentClientReportService @Inject() (
     val grandTotal = simpleProjects.foldRight(0L) { (project, i) =>
       project.projectTotal + i
     }
+    val grandTotalCost: HourlyCost = HourlyCost(
+      value = simpleProjects.foldRight(BigDecimal(0)) { (project, i) =>
+        project.projectTotalCost.value + i
+      },
+      currency =
+        if (simpleProjects.nonEmpty)
+          simpleProjects.head.projectTotalCost.currency
+        else
+          "EUR"
+    ) // TODO: don't sum different project costs with potentially different currencies
 
     ClientReport(
       startDate = startDate,
@@ -200,6 +226,7 @@ class DevelopmentClientReportService @Inject() (
       client = client,
       projects = simpleProjects,
       grandTotal = grandTotal,
+      grandTotalCost = grandTotalCost,
       billable = billable,
       nonBillable = nonBillable
     )
