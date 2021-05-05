@@ -11,7 +11,7 @@
         - [Build and deployment](#build-and-deployment)
         - [Dependency Injections](#dependency-injections)
         - [Scalatest](#scalatest)
-    - [Code Structure](#code-structure)
+    - [Architectural structure](#architectural-structure)
         - [Root scope](#root-scope)
         - [Packages](#packages)
 - [Domain language](#domain-language)
@@ -62,7 +62,7 @@ The database can be configured to use the in-memory database [H2]/https://www.pl
 ### Scalatest
 Testing uses [ScalaTest integrated with Play](https://www.playframework.com/documentation/2.8.x/ScalaTestingWithScalaTest). Test classes are defined by extending the `PlaySpec` trait.
 
-## Archistectural structure
+## Architectural structure
 The high level architectural view of the application including the frontend is presented in the figure below.
 
 ![figures/architecture.png](figures/architecture.png)
@@ -221,7 +221,7 @@ The data is made to persist in a relational SQL database. We assume the database
 ## Schema
 The current database schema is the following:
 
-![db_schema](figures/db_schema.png)
+![db_schema](figures/db_schema.jpg)
 
 ## Known problems
 

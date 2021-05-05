@@ -18,7 +18,7 @@ This is the backend for a timesheets app used to input, track, and report workin
 
 The backend is a Scala Play app. Further information about its architecture is found in [ARCHITECTURE.md](ARCHITECTURE.md). 
 
-Instructions for contributing to the development of the application are in [CONTRIBUTING.md](CONTRIBUTING.md).
+The known defects and the backlog of user stories and individual tasks are in [BACKLOG.md](BACKLOG.md). Instructions for contributing to the development of the application are in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Available scripts
 After installing sbt (see instructions: [ARCHITECTURE.md](ARCHITECTURE.md)), you can run, compile, lint, and test the application with the following command line commands.
