@@ -1,6 +1,6 @@
 package controllers
 
-import models.TimeInputRepository
+import domain.services.TimeInputRepository
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
@@ -8,13 +8,12 @@ import play.api.Logging
 import play.api.Play.materializer
 import play.api.inject.Injector
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test._
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
-import play.api.libs.json.Json
-import play.api.libs.json.JsValue
+import play.api.test._
 
 import java.time.Clock
-import scala.concurrent.{Await, ExecutionContext}
+import scala.concurrent.ExecutionContext
 import scala.reflect.ClassTag
 
 object TimeInputInject {

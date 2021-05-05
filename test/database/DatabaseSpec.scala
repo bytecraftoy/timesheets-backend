@@ -1,28 +1,15 @@
 package database
 
-import akka.actor.TypedActor.dispatcher
-import org.scalatestplus.play._
-import org.scalatestplus.play.guice._
-import play.api.test._
-import play.api.test.Helpers._
-import anorm._
 import anorm.SqlParser._
-import play.api.db.Databases
-import play.api.db.Database
+import anorm._
+import org.scalatestplus.play._
+import play.api.db.{Database, Databases}
 import play.api.db.evolutions._
-import play.api.mvc.Results.Ok
-
-import javax.inject.Inject
-import scala.concurrent.Future
 import play.api.inject.Injector
-import play.api.mvc.Results.Ok
-
-import javax.inject.Inject
-import scala.concurrent.Future
-import scala.reflect.ClassTag
 import play.api.inject.guice.GuiceApplicationBuilder
 
 import java.util.UUID
+import scala.reflect.ClassTag
 
 // https://www.playframework.com/documentation/2.8.x/ScalaTestingWithDatabases
 

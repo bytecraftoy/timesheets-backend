@@ -1,6 +1,6 @@
 package controllers
 
-import models.ProjectRepository
+import domain.services.ProjectRepository
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
 import play.api.Logging
