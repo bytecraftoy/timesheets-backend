@@ -1,25 +1,81 @@
-# Timesheets architectural overview
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
 
+- [Timesheets architectural overview](#timesheets-architectural-overview)
+    - [Technologies](#technologies)
+        - [Scala](#scala)
+        - [sbt](#sbt)
+        - [Scalafmt](#scalafmt)
+        - [Play](#play)
+        - [Database: Anorm, Evolutions, H2, and PostgreSQL](#database-anorm-evolutions-h2-and-postgresql)
+        - [Build and deployment](#build-and-deployment)
+        - [Dependency Injections](#dependency-injections)
+        - [Scalatest](#scalatest)
+    - [Architectural structure](#architectural-structure)
+        - [Root scope](#root-scope)
+        - [Packages](#packages)
+- [Domain language](#domain-language)
+    - [English](#english)
+    - [Finnish](#finnish)
+- [Tool installation](#tool-installation)
+    - [openjdk](#openjdk)
+    - [sbt](#sbt-1)
+        - [PostgreSQL](#postgresql)
+- [Database](#database)
+    - [Schema](#schema)
+    - [Known problems](#known-problems)
+- [Swagger](#swagger)
+    - [Known security vulnerability: `+ nocsrf`](#known-security-vulnerability--nocsrf)
+- [Planned authorizations](#planned-authorizations)
+
+<!-- markdown-toc end -->
+
+
+# Timesheets architectural overview
+The Timesheets app consists of a Scala Play backend (this repository) and a React Typescript frontend which communicate with each other via a REST API [documented in Swagger](https://codeflow-timesheets-staging.herokuapp.com/docs/swagger-ui/index.html?url=/swagger.json).
+## Technologies
 ### Scala
+The backend is written in [Scala](https://scala-lang.org/), a Java Virtual Machine (JVM) language.
 
 ### sbt
+Scala build tool, [sbt](https://www.scala-sbt.org/), is used to build, run, and test the application. It uses the file [build.sbt](build.sbt) for defining the Scala version(s) and external libraries to be used.
 
 ### Scalafmt
+[Scalafmt](https://scalameta.org/scalafmt/) formats code style so that it is consistent between developers. It can be run, for example, from the command line with `sbt scalafmt`. Scalafmt configurations are in [.scalafmt.conf](.scalafmt.conf).
 
 ### Play
+The backend uses [Play Framework](https://www.playframework.com/) which is built on asynchronous [Akka](https://akka.io/). The Play configuration is found in file [conf/application.conf](conf/application.conf). It includes, for example, database and [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) configurations. Routes are defined in file [conf/routes](conf/routes).
+
+### Database: Anorm, Evolutions, H2, and PostgreSQL
+The app uses [Anorm](https://playframework.github.io/anorm/) to access the database and parse query results. The framework is minimalist and uses plain SQL for database interaction.
+
+The app uses [Play Evolutions](https://www.playframework.com/documentation/2.8.x/Evolutions) to handle and track changes to the database schema. The changes to the schema for each database are found in the directory with the same name (e.g. default, test, timesheet) under [conf/evolutions/](conf/evolutions/). The changes are arranged by files with integer names in an increasing order (1.sql, 2.sql, ...). Each file should have a section under `# --- !Ups` where new changes to the database schema are made, and another section under `# --- !Downs` where all the new changes are reverted back to the previous schema. 
+
+The database can be configured to use the in-memory database [H2]/https://www.playframework.com/documentation/2.8.x/Developing-with-the-H2-Database) in development with PostgreSQL dialect, and actual [PostgreSQL](https://www.postgresql.org/) database in deployment and production. See files [conf/application.conf](conf/application.conf) and [conf/deploy.conf](conf/deploy.conf).
+
+### Build and deployment
+[Procfile](Procfile) and [conf/deploy.conf](conf/deploy.conf) include configurations with variables for building and deploying the application to Heroku, for example.
+
+### Dependency Injections
+[Dependency injections](https://www.playframework.com/documentation/2.8.x/ScalaDependencyInjection) are used especially to propagate the various configured database configurations throughout the application. The dependency injection uses, for example, `com.google.injected.ImpementedBy` to define which class implements the trait that is injected by annotation `@Inject` to other classes for use. Case classes and companion objects do not mix well with dependency injections.
+
+### Scalatest
+Testing uses [ScalaTest integrated with Play](https://www.playframework.com/documentation/2.8.x/ScalaTestingWithScalaTest). Test classes are defined by extending the `PlaySpec` trait.
+
+## Architectural structure
+The high level architectural view of the application including the frontend is presented in the figure below.
+
+![figures/architecture.png](figures/architecture.png)
 
 ### Root scope
-
-com.codeflow.timesheets
-
+The root scope of the application code is `com.bytecraft.timesheets`.
 ### Packages
+The structure for the layers and packages is as follows:
 
 1.  Web
 
-    1.  Routes
-
+    1.  Views
     2.  Controllers
-
     3.  Data Transfer Objects (DTOs)
 
         Case Classes without methods
@@ -28,27 +84,28 @@ com.codeflow.timesheets
 
     1.  Models
 
-        Use case classes. Describe attributes and associations, but do
-        not include methods.
+        Use case classes. Describe attributes and associations, but do not include methods.
 
-        1.  Project
-
-        2.  User
+        1. Project
+        2. User
+        3. Client
+		4. ...
 
     2.  Services
 
-        - Changes Data Transfer Objects to models and calls Data
-          Access Objects.
-        - The data access operations should be in the persistence
-          layer (e.g. dao.add()).
-        - Changes data from Data Access Objects to Data Transfer
-          Objects
+        - Changes Data Transfer Objects to models and calls Data  Access Objects.
+        - The data access operations should be in the persistence layer (e.g. dao.add()).
+        - Changes data from Data Access Objects to Data Transfer Objects
 
 3.  Persistence
 
     1.  Data Access Objects (DAOs)
+		The DAOs access database.
 
 # Domain language
+The application is designed to process timesheets. The meanings of the terms are defined below. The associations between the concepts in the domain model are illustrated in the figure.
+
+![figures/domain_model.png](figures/domain_model.png)
 
 ## English
 
@@ -93,21 +150,39 @@ com.codeflow.timesheets
 | Käyttäjä             | Henkilö joka käyttää sovellusta                                                                                                                 | Loppukäyttäjä            |
 
 # Tool installation
+Here are some instructions for installing the tools needed to develop this application.
+## openjdk
 
-### sbt, openjdk
-
-1.  MacOS
+- MacOS 
+Install Homebrew: https://brew.sh
+Then write on command line in Terminal.app:
 
     ```shell
     brew install openjdk
-
-    brew install sbt
     ```
 
+- Windows, Linux: https://openjdk.java.net/install/
+
+## sbt
+- MacOS 
+Install Homebrew: https://brew.sh
+Then write on command line in Terminal.app:
+    ```shell
+    brew install sbt
+	```
+
+- Windows: https://www.scala-sbt.org/download.html
+
+- Linux: https://www.scala-sbt.org/1.x/docs/Installing-sbt-on-Linux.html
+
+
 ### PostgreSQL
+If you want to install and use a local version of the PostgreSQL database instead of the H2 in-memory database, follow the instructions below:
+1. Install and configure PostgreSQL
 
-1.  MacOS
-
+- MacOS
+Install Homebrew: https://brew.sh
+Then write on command line in Terminal.app:
     ```shell
     brew install postgresql
     pg_ctl -D /usr/local/var/postgres start
@@ -115,16 +190,21 @@ com.codeflow.timesheets
     ```
 
     ```sql
-    CREATE ROLE "timesheet" SUPERUSER LOGIN ENCRYPTED PASSWORD 'tähän salasana';
+    CREATE ROLE "timesheet" SUPERUSER LOGIN ENCRYPTED PASSWORD 'insert your password here';
     ```
+- Windows: https://www.postgresql.org/download/windows/
+- Linux: https://www.postgresql.org/download/linux/
+  ```shell
+  sudo -u postgres -i
+  psql
+  ```
+  ```sql
+  CREATE ROLE "timesheet" SUPERUSER LOGIN ENCRYPTED PASSWORD 'insert your password here';
+   ```
 
-2.  application.conf:
+2.  [application.conf](application.conf):
 
-    Laita Ideassa sbt:n parametreilla ympäristömuuttujiksi ao. kuvan
-    arvot, niin ei tarvitse muokata application.confia.
-
-    HUOM! Koskee vain Idean sbt shelliä. Muihin terminaaleihin pitää
-    määrittää esim. sbt:n käynnistysparametrina.
+    Configure the environmental variables to be the following:
 
         db.timesheet.driver=org.postgresql.Driver
 
@@ -132,33 +212,32 @@ com.codeflow.timesheets
 
         db.timesheet.username=timesheet
 
-        db.timesheet.password=tähän salasana
+        db.timesheet.password=insert your password hee
 
 # Database
 
-## PostgreSQL
-
-## H2
-
-## Play Evolutions
-
-- There is a conflict when adding new information from frontend to the
-  database and then rolling evolutions back
+The data is made to persist in a relational SQL database. We assume the database is either a PostgreSQL database or H2 database with PostgreSQL syntax.
 
 ## Schema
+The current database schema is the following:
+
+![db_schema](figures/db_schema.jpg)
+
+## Known problems
+
+There is a conflict when adding new information from frontend to the database and then rolling evolutions back
+
 
 # Swagger
 
-<https://codeflow-timesheets-staging.herokuapp.com/docs/swagger-ui/index.html?url=/swagger.json>
+The application uses Swagger with annotations to document the API from the code. The documentation can be accessed via HTLM interface: <https://codeflow-timesheets-staging.herokuapp.com/docs/swagger-ui/index.html?url=/swagger.json>
 
-### Known security vulnerability: `+ nocsrf`
+## Known security vulnerability: `+ nocsrf`
 
-In order to get `POST` API calls working in Swagger UI, we had to
-disable Play's CSRF by adding `+ nocsrf` annotation above the affected
-routes in the [file:./conf/routes](./conf/routes) file. This creates a
-security vulnerability.
+In order to get `POST` API calls working in Swagger UI, we had to disable Play's CSRF by adding `+ nocsrf` annotation above the affected routes in the [file:./conf/routes](./conf/routes) file. This creates a security vulnerability.
 
-# Authorizations
+# Planned authorizations
+Certain API requests should be accessible only to users with certain roles or identities.
 
 | Routes                              | Affected methods                         | Use case                                           | Manager | Employee | Specific user |
 | ----------------------------------- | ---------------------------------------- | -------------------------------------------------- | ------- | -------- | ------------- |

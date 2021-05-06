@@ -1,6 +1,27 @@
-# Scala Play App
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
+
+- [Timesheets](#timesheets)
+    - [Available scripts](#available-scripts)
+        - [`sbt run`](#sbt-run)
+        - [`sbt compile`](#sbt-compile)
+        - [`sbt test`](#sbt-test)
+        - [`sbt clean`](#sbt-clean)
+        - [`sbt scalafmt`](#sbt-scalafmt)
+        - [`sbt scalastyle`](#sbt-scalastyle)
+
+<!-- markdown-toc end -->
+
+
+# Timesheets
+This is the backend for a timesheets app used to input, track, and report working hours related to projects. 
+
+The backend is a Scala Play app. Further information about its architecture is found in [ARCHITECTURE.md](ARCHITECTURE.md). 
+
+The known defects and the backlog of user stories and individual tasks are in [BACKLOG.md](BACKLOG.md). Instructions for contributing to the development of the application are in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Available scripts
+After installing sbt (see instructions: [ARCHITECTURE.md](ARCHITECTURE.md)), you can run, compile, lint, and test the application with the following command line commands.
 
 ### `sbt run`
 Runs the application in development mode. By default, the server runs on port 9000.
