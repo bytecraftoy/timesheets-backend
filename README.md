@@ -14,11 +14,15 @@
 
 
 # Timesheets
-This is the backend for a timesheets app used to input, track, and report working hours related to projects. 
+**Bytecraft** collaborated with a group of talented students (**team Codeflow**)
+from Aalto University in [Software Project Course](https://mycourses.aalto.fi/course/view.php?id=28162).
+
+The output is an open-source application, *timesheets* app.
 
 The backend is a Scala Play app. Further information about its architecture is found in [ARCHITECTURE.md](ARCHITECTURE.md). 
 
-The known defects and the backlog of user stories and individual tasks are in [BACKLOG.md](BACKLOG.md). Instructions for contributing to the development of the application are in [CONTRIBUTING.md](CONTRIBUTING.md).
+The known defects and the backlog of user stories and individual tasks are in [BACKLOG.md](BACKLOG.md).
+Instructions for contributing to the development of the application are in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Available scripts
 After installing sbt (see instructions: [ARCHITECTURE.md](ARCHITECTURE.md)), you can run, compile, lint, and test the application with the following command line commands.
