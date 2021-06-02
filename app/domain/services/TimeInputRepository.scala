@@ -1,7 +1,7 @@
 package domain.services
 
 import com.google.inject.ImplementedBy
-import domain.models.{Repository, TimeInput}
+import domain.models.TimeInput
 import persistence.dao.TimeInputDAO
 import play.api.Logging
 import web.dto.{AddTimeInputDTO, CompactTimeInputDTO, UpdateTimeInputDTO}

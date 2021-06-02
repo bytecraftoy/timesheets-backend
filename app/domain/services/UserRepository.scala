@@ -1,7 +1,7 @@
 package domain.services
 
 import com.google.inject.ImplementedBy
-import domain.models.{Repository, User}
+import domain.models.User
 import persistence.dao.UserDAO
 import play.api.Logging
 

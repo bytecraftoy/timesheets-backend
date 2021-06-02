@@ -1,7 +1,7 @@
 package domain.services
 
 import com.google.inject.ImplementedBy
-import domain.models.{Project, Repository}
+import domain.models.Project
 import persistence.dao.ProjectDAO
 import web.dto.{AddProjectDTO, UpdateProjectDTO}
 
