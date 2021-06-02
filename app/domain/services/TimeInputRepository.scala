@@ -1,11 +1,10 @@
 package domain.services
 
 import com.google.inject.ImplementedBy
-import domain.models.{Project, Repository, TimeInput}
+import domain.models.{Repository, TimeInput}
 import persistence.dao.TimeInputDAO
 import play.api.Logging
-import play.api.libs.json.{JsObject, JsValue, Json, OFormat}
-import web.dto.{AddTimeInputDTO, UpdateTimeInputDTO}
+import web.dto.{AddTimeInputDTO, CompactTimeInputDTO, UpdateTimeInputDTO}
 
 import java.time.LocalDate
 import java.util.UUID
@@ -18,18 +17,18 @@ trait TimeInputRepository extends Repository[TimeInput] with Logging {
 
   def byTimeInterval(start: LocalDate, end: LocalDate): Seq[TimeInput]
 
-  def jsonByProject(
+  def compactTimeInputsByProjectEmployeeInterval(
     projectId: UUID,
     employeeId: UUID,
     start: LocalDate = LocalDate.MIN,
     end: LocalDate = LocalDate.MAX
-  ): JsValue
+  ): Seq[CompactTimeInputDTO]
 
-  def jsonGroupedByProject(
+  def byEmployeeInterval(
     employeeId: UUID,
-    start: LocalDate = LocalDate.MIN,
-    end: LocalDate = LocalDate.MAX
-  ): JsObject
+    start: LocalDate,
+    end: LocalDate
+  ): Seq[TimeInput]
 
   def timeInputsByProjectEmployeeInterval(
     projectId: UUID,
@@ -40,6 +39,7 @@ trait TimeInputRepository extends Repository[TimeInput] with Logging {
 
   def dtoAsTimeInput(dto: AddTimeInputDTO): TimeInput
   def dtoAsTimeInput(dto: UpdateTimeInputDTO): TimeInput
+  def timeInputAsCompactDTO(timeInput: TimeInput): CompactTimeInputDTO
 }
 
 class DevelopmentTimeInputRepository @Inject() (
@@ -49,13 +49,6 @@ class DevelopmentTimeInputRepository @Inject() (
 )(implicit executionContext: ExecutionContext)
     extends TimeInputRepository
     with Logging {
-
-  implicit def projectFormat: OFormat[Project] =
-    Json.using[Json.WithDefaultValues].format[Project]
-
-  implicit def timeInputFormat: OFormat[TimeInput] = {
-    Json.using[Json.WithDefaultValues].format[TimeInput]
-  }
 
   def all: Seq[TimeInput] = timeInputDAO.getAll()
 
@@ -84,55 +77,27 @@ class DevelopmentTimeInputRepository @Inject() (
     )
   }
 
-  def jsonByProject(
+  def compactTimeInputsByProjectEmployeeInterval(
     projectId: UUID,
     employeeId: UUID,
     start: LocalDate = LocalDate.MIN,
     end: LocalDate = LocalDate.MAX
-  ): JsValue = {
-
-    Json.toJson(
-      timeInputDAO
-        .byProjectAndEmployeeInterval(projectId, employeeId, start, end)
-        .map(
-          timeinput =>
-            Json.obj(
-              "id"          -> timeinput.id,
-              "input"       -> timeinput.input,
-              "date"        -> timeinput.date,
-              "created"     -> timeinput.created,
-              "edited"      -> timeinput.edited,
-              "description" -> timeinput.description
-            )
-        )
-    )
+  ): Seq[CompactTimeInputDTO] = {
+    timeInputDAO
+      .byProjectAndEmployeeInterval(projectId, employeeId, start, end)
+      .map(timeInputAsCompactDTO)
   }
 
-  def jsonGroupedByProject(
+  def byEmployeeInterval(
     employeeId: UUID,
-    start: LocalDate = LocalDate.MIN,
-    end: LocalDate = LocalDate.MAX
-  ): JsObject = {
-    val timeInputs: Seq[TimeInput] =
-      timeInputDAO.byEmployeeInterval(employeeId, start, end)
-
-    if (timeInputs.size > 0) {
-      Json.obj(
-        "projects" -> timeInputs
-          .map(
-            timeInput =>
-              Json.obj(
-                "id"          -> timeInput.id,
-                "name"        -> projectRepository.byId(timeInput.project.id).name,
-                "hours"       -> timeInput.input,
-                "description" -> timeInput.description
-              )
-          )
-      )
-    } else {
-      Json.obj("projects" -> "")
-    }
-  }
+    start: LocalDate,
+    end: LocalDate
+  ): Seq[TimeInput] =
+    timeInputDAO.byEmployeeInterval(
+      employeeId = employeeId,
+      start = start,
+      end = end
+    )
 
   def dtoAsTimeInput(dto: AddTimeInputDTO): TimeInput = {
     TimeInput(
@@ -153,6 +118,17 @@ class DevelopmentTimeInputRepository @Inject() (
       employee = beforeUpdateModel.employee,
       date = beforeUpdateModel.date,
       description = dto.description
+    )
+  }
+
+  def timeInputAsCompactDTO(timeInput: TimeInput): CompactTimeInputDTO = {
+    CompactTimeInputDTO(
+      id = timeInput.id,
+      input = timeInput.input,
+      date = timeInput.date,
+      created = timeInput.created,
+      edited = timeInput.edited,
+      description = timeInput.description
     )
   }
 }

@@ -3,7 +3,6 @@ package domain.services
 import com.google.inject.ImplementedBy
 import domain.models.{Project, Repository}
 import persistence.dao.ProjectDAO
-import play.api.libs.json.{Json, OFormat}
 import web.dto.{AddProjectDTO, UpdateProjectDTO}
 
 import java.util.UUID
@@ -55,9 +54,6 @@ class DevelopmentProjectRepository @Inject() (
       employees = dto.employees.map(userRepo.byId(_)),
       hourlyCost = dto.hourlyCost
     )
-
-  implicit def projectFormat: OFormat[Project] =
-    Json.using[Json.WithDefaultValues].format[Project]
 
   def all: Seq[Project]              = projectDao.getAll()
   def add(project: Project): Unit    = projectDao.add(project)

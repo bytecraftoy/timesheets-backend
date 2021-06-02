@@ -1,6 +1,6 @@
 package domain.models
 
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 import java.util.UUID
@@ -14,14 +14,9 @@ case class TimeInput(
   description: String = null,
   created: Long = System.currentTimeMillis(),
   edited: Long = System.currentTimeMillis()
-) {
-  def compactJson: JsValue =
-    Json.obj(
-      "id"          -> id,
-      "input"       -> input,
-      "date"        -> date,
-      "created"     -> created,
-      "edited"      -> edited,
-      "description" -> description
-    )
+)
+
+object TimeInput {
+  implicit def timeInputFormat: OFormat[TimeInput] =
+    Json.using[Json.WithDefaultValues].format[TimeInput]
 }

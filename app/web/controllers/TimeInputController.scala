@@ -6,7 +6,7 @@ import io.swagger.annotations._
 import play.api.Logging
 import play.api.libs.json._
 import play.api.mvc._
-import web.dto.{AddTimeInputDTO, UpdateTimeInputDTO}
+import web.dto.{AddTimeInputDTO, CompactTimeInputDTO, UpdateTimeInputDTO}
 
 import java.time.LocalDate
 import java.util.UUID
@@ -168,9 +168,9 @@ class TimeInputController @Inject() (
       new ApiResponse(
         code = 200,
         message = "OK",
-        response = classOf[TimeInput],
+        response = classOf[CompactTimeInputDTO],
         responseContainer = "List"
-      ) // TODO: this is not accurate; refactor underlying helper functions
+      )
     )
   )
   def byProject(
@@ -189,12 +189,15 @@ class TimeInputController @Inject() (
           if (start == "getAll") LocalDate.MIN else LocalDate.parse(start)
         val endDate =
           if (start == "getAll") LocalDate.MAX else LocalDate.parse(end)
-        val json = timeInputRepository.jsonByProject(
-          projectId = UUID.fromString(id),
-          employeeId = UUID.fromString(employee),
-          start = startDate,
-          end = endDate
-        )
+        val json =
+          Json.toJson(
+            timeInputRepository.compactTimeInputsByProjectEmployeeInterval(
+              projectId = UUID.fromString(id),
+              employeeId = UUID.fromString(employee),
+              start = startDate,
+              end = endDate
+            )
+          )
         Ok(json)
       } catch {
         case error: Exception =>
@@ -208,7 +211,10 @@ class TimeInputController @Inject() (
       }
     }
 
-  @ApiOperation(value = "Get user's timeinputs grouped by project")
+  @ApiOperation(
+    value =
+      "***DEPRECATED*** Get user's timeinputs grouped by project (In reality: ungrouped, in an array called 'projects')"
+  )
   @ApiResponses(
     Array(
       new ApiResponse(
@@ -216,7 +222,7 @@ class TimeInputController @Inject() (
         message = "OK",
         response = classOf[TimeInput],
         responseContainer = "List"
-      ) // TODO: this is not accurate; refactor underlying helper functions
+      ) // TODO: this is not accurate; remove this method or refactor underlying helper functions
     )
   )
   def groupByProject(
@@ -229,15 +235,33 @@ class TimeInputController @Inject() (
   ): Action[AnyContent] =
     Action {
       try {
+        val employeeUuid = UUID.fromString(employeeId)
         val startDate =
           if (start == "getAll") LocalDate.MIN else LocalDate.parse(start)
         val endDate =
           if (start == "getAll") LocalDate.MAX else LocalDate.parse(end)
-        val json = timeInputRepository.jsonGroupedByProject(
-          employeeId = UUID.fromString(employeeId),
-          start = startDate,
-          end = endDate
-        )
+        val timeInputs: Seq[TimeInput] =
+          timeInputRepository.byEmployeeInterval(
+            employeeUuid,
+            startDate,
+            endDate
+          )
+        val json = if (timeInputs.nonEmpty) {
+          Json.obj(
+            "projects" -> timeInputs
+              .map(
+                timeInput =>
+                  Json.obj(
+                    "id"          -> timeInput.id,
+                    "name"        -> projectRepository.byId(timeInput.project.id).name,
+                    "hours"       -> timeInput.input,
+                    "description" -> timeInput.description
+                  )
+              )
+          )
+        } else {
+          Json.obj("projects" -> "")
+        }
         Ok(json)
       } catch {
         case error: Exception =>

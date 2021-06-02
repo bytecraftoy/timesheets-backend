@@ -4,7 +4,6 @@ import com.google.inject.ImplementedBy
 import domain.models.{Client, Repository}
 import persistence.dao.ClientDAO
 import play.api.Logging
-import play.api.libs.json.{Json, OWrites, Reads}
 
 import java.util.UUID
 import javax.inject.Inject
@@ -18,10 +17,6 @@ trait ClientRepository extends Repository[Client] with Logging {
 
 class DevelopmentClientRepository @Inject() (clientDao: ClientDAO)
     extends ClientRepository {
-
-  implicit val readClient: Reads[Client] = Json.reads[Client]
-
-  implicit val writeClient: OWrites[Client] = Json.writes[Client]
 
   def byId(clientId: UUID): Client = clientDao.getById(clientId)
 

@@ -4,7 +4,6 @@ import com.google.inject.ImplementedBy
 import domain.models.{Repository, User}
 import persistence.dao.UserDAO
 import play.api.Logging
-import play.api.libs.json.{Json, OWrites, Reads}
 
 import java.util.UUID
 import javax.inject.Inject
@@ -23,9 +22,6 @@ trait UserRepository extends Repository[User] with Logging {
 
 class DevelopmentUserRepository @Inject() (userDao: UserDAO)
     extends UserRepository {
-
-  implicit val readUser: Reads[User]    = Json.reads[User]
-  implicit val writeUser: OWrites[User] = Json.writes[User]
 
   def getAllManagers(): Seq[User] = userDao.getAllManagers()
   def getManagersByProjectId(projectId: UUID): Seq[User] =
