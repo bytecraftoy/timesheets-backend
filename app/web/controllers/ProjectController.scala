@@ -60,8 +60,8 @@ class ProjectController @Inject() (
       try {
         val clientUuid = UUID.fromString(clientId)
         val client     = clientRepo.byId(clientUuid)
-        if (client != null) {
-          val clientProjects = projectRepo.all.filter(_.client == client)
+        if (client.nonEmpty) {
+          val clientProjects = projectRepo.all.filter(_.client == client.get) // TODO: avoid calling get
           val projectsAsJson = Json.toJson(clientProjects)
           Ok(projectsAsJson)
         } else {
