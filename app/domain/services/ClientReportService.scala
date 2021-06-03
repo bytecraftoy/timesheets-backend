@@ -132,7 +132,7 @@ class DevelopmentClientReportService @Inject() (
     )
 
     val complexProjects: List[Project] =
-      projectUuidList.map(uuid => projectRepo.byId(uuid).get) // TODO: avoid calling get
+      projectUuidList.flatMap(uuid => projectRepo.byId(uuid))
 
     val simpleProjects: List[ProjectSimple] = complexProjects
       .filter(

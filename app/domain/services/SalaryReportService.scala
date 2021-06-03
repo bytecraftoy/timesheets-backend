@@ -123,7 +123,7 @@ class DevelopmentSalaryReportService @Inject() (
   ): List[SimpleClient] = {
 
     val complexClients: List[Client] =
-      clientUuidList.map(uuid => clientRepo.byId(uuid).get) // TODO: avoid calling get
+      clientUuidList.flatMap(uuid => clientRepo.byId(uuid))
 
     val simpleClients: List[SimpleClient] = complexClients
       .sortBy(client => client.name)
