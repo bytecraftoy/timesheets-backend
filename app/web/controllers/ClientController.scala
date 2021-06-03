@@ -64,7 +64,7 @@ class ClientController @Inject() (
         val uuid   = UUID.fromString(id)
         val client = clientRepo.byId(uuid)
 
-        if (client != null) {
+        if (client.nonEmpty) {
           val json = Json.toJson(client)
           Ok(json)
         } else {
