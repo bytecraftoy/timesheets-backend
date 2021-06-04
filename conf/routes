@@ -50,9 +50,6 @@ POST        /projects                  web.controllers.ProjectController.addProj
 + nocsrf # TODO: remove
 PUT         /projects                  web.controllers.ProjectController.updateProject
 
-# List user's hours per project
-GET         /hours                     web.controllers.TimeInputController.groupByProject(userId: String, startDate: String ?= "getAll", endDate: String ?= "")
-
 # Add a timeinput
 + nocsrf # TODO: remove
 POST        /hours                     web.controllers.TimeInputController.add

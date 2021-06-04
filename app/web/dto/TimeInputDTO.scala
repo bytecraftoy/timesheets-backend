@@ -2,12 +2,10 @@ package web.dto
 
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json.Reads.min
-import play.api.libs.json.{JsError, JsPath, Reads}
+import play.api.libs.json.{JsError, JsPath, Json, OFormat, Reads}
 
 import java.time.LocalDate
 import java.util.UUID
-
-case class TimeInputDTO()
 
 case class AddTimeInputDTO(
   input: Long,
@@ -15,7 +13,7 @@ case class AddTimeInputDTO(
   employee: UUID,
   date: LocalDate,
   description: String = ""
-) {}
+)
 object AddTimeInputDTO {
   implicit val addTimeInputDTOReads: Reads[AddTimeInputDTO] = (
     (JsPath \ "input")
@@ -29,11 +27,12 @@ object AddTimeInputDTO {
       (JsPath \ "description").read[String]
   )(AddTimeInputDTO.apply _)
 }
+
 case class UpdateTimeInputDTO(
   id: UUID,
   input: Long,
   description: String = ""
-) {}
+)
 object UpdateTimeInputDTO {
   implicit val updateTimeInputDTOReads: Reads[UpdateTimeInputDTO] = (
     (JsPath \ "id").read[UUID] and
@@ -44,4 +43,17 @@ object UpdateTimeInputDTO {
         ) and
       (JsPath \ "description").read[String]
   )(UpdateTimeInputDTO.apply _)
+}
+
+case class CompactTimeInputDTO(
+  id:UUID,
+  input:Long,
+  date:LocalDate,
+  created:Long,
+  edited:Long,
+  description:String
+)
+object CompactTimeInputDTO {
+  implicit def compactTimeInputDTOFormat: OFormat[CompactTimeInputDTO] =
+    Json.using[Json.WithDefaultValues].format[CompactTimeInputDTO]
 }
