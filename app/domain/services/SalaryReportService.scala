@@ -123,7 +123,7 @@ class DevelopmentSalaryReportService @Inject() (
   ): List[SimpleClient] = {
 
     val complexClients: List[Client] =
-      clientUuidList.map(uuid => clientRepo.byId(uuid))
+      clientUuidList.flatMap(uuid => clientRepo.byId(uuid))
 
     val simpleClients: List[SimpleClient] = complexClients
       .sortBy(client => client.name)
@@ -180,7 +180,7 @@ class DevelopmentSalaryReportService @Inject() (
          |billable = $billable,
          |nonBillable = $nonBillable""".stripMargin)
 
-    val employee: User = userRepo.byId(employeeUuid)
+    val employee: User = userRepo.byId(employeeUuid).get // TODO: avoid calling get
     val simpleClients: List[SimpleClient] = getSimpleClients(
       clientUuidList = clientUuidList,
       employee = employee,

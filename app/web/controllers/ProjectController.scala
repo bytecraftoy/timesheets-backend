@@ -59,17 +59,10 @@ class ProjectController @Inject() (
     Action {
       try {
         val clientUuid = UUID.fromString(clientId)
-        val client     = clientRepo.byId(clientUuid)
-        if (client != null) {
-          val clientProjects = projectRepo.all.filter(_.client == client)
-          val projectsAsJson = Json.toJson(clientProjects)
-          Ok(projectsAsJson)
-        } else {
-          BadRequest(
-            s"""{"message": "Error retrieving projects with client id = $clientId"}"""
-          ).as(JSON)
-        }
-
+        val clientProjects =
+          projectRepo.all.filter(_.client.id == clientUuid)
+        val projectsAsJson = Json.toJson(clientProjects)
+        Ok(projectsAsJson)
       } catch {
         case error: Exception =>
           logger.error(error.getMessage)

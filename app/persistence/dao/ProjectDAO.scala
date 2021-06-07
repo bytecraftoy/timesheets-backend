@@ -12,8 +12,8 @@ import javax.inject.Inject
 
 @ImplementedBy(classOf[ProjectDAOAnorm])
 trait ProjectDAO extends DAO[Project] {
-  def getAll(): Seq[Project]
-  def getById(projectId: UUID): Project
+  def getAll: Seq[Project]
+  def getById(projectId: UUID): Option[Project]
   def add(project: Project): Unit
   def update(project: Project): Unit
 }
@@ -52,12 +52,12 @@ class ProjectDAOAnorm @Inject() (
         clientId ~
         hourlyCost ~
         currency => {
-      val projectClient    = clientRepo.byId(clientId)
-      val projectOwner     = userRepo.byId(ownedById)
+      val projectClient    = clientRepo.byId(clientId).get // TODO: avoid calling get
+      val projectOwner     = userRepo.byId(ownedById).get // TODO: avoid calling get
       val projectManagers  = userRepo.getManagersByProjectId(projectId)
       val projectEmployees = userRepo.getEmployeesByProjectId(projectId)
-      val projectCreator   = userRepo.byId(createdById)
-      val projectEditor    = userRepo.byId(lastEditedById)
+      val projectCreator   = userRepo.byId(createdById).get // TODO: avoid calling get
+      val projectEditor    = userRepo.byId(lastEditedById).get // TODO: avoid calling get
       Project(
         id = projectId,
         name = projectName,
@@ -78,7 +78,7 @@ class ProjectDAOAnorm @Inject() (
   }
   val allProjectsParser: ResultSetParser[List[Project]] = projectParser.*
 
-  def getAll(): Seq[Project] =
+  def getAll: Seq[Project] =
     db.withConnection { implicit c =>
       val allProjectsParser: ResultSetParser[List[Project]] = projectParser.*
       val projectResult: List[Project] = SQL(
@@ -98,7 +98,7 @@ class ProjectDAOAnorm @Inject() (
       projectResult
     }
 
-  def getById(projectId: UUID): Project =
+  def getById(projectId: UUID): Option[Project] =
     db.withConnection { implicit c =>
       val sql =
         "SELECT project_id, " +
@@ -120,11 +120,7 @@ class ProjectDAOAnorm @Inject() (
       val results = SQL(sql)
         .on("projectId" -> projectId)
         .as(allProjectsParser)
-      if (results.isEmpty) {
-        null
-      } else {
-        results.head
-      }
+      results.headOption
     }
 
   def add(project: Project): Unit = {

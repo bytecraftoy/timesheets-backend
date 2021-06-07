@@ -11,8 +11,8 @@ import javax.inject.Inject
 
 @ImplementedBy(classOf[ClientDAOAnorm])
 trait ClientDAO extends DAO[Client] {
-  def getAll(): Seq[Client]
-  def getById(clientId: UUID): Client
+  def getAll: Seq[Client]
+  def getById(clientId: UUID): Option[Client]
   def add(client: Client): Unit
 }
 
@@ -31,13 +31,13 @@ class ClientDAOAnorm @Inject() (db: Database) extends ClientDAO with Logging {
         id = client_id,
         name = name,
         email = email,
-        created = timestamp_created.getTime(),
-        edited = timestamp_edited.getTime()
+        created = timestamp_created.getTime,
+        edited = timestamp_edited.getTime
       )
   }
   val allClientsParser: ResultSetParser[List[Client]] = clientParser.*
 
-  def getAll(): Seq[Client] =
+  def getAll: Seq[Client] =
     db.withConnection { implicit c =>
       val sql = "SELECT * FROM client;"
       logger.debug(s"ClientDAOAnorm.getAll(), SQL = $sql")
@@ -45,17 +45,13 @@ class ClientDAOAnorm @Inject() (db: Database) extends ClientDAO with Logging {
       clientResult
     }
 
-  def getById(clientId: UUID): Client =
+  def getById(clientId: UUID): Option[Client] =
     db.withConnection { implicit c =>
       val sql = "SELECT * FROM client WHERE client_id = {clientId}::uuid;"
       logger.debug(s"ClientDAOAnorm.getById(), SQL = $sql")
       val clientResults =
         SQL(sql).on("clientId" -> clientId).as(allClientsParser)
-      if (clientResults.isEmpty) {
-        null
-      } else {
-        clientResults.head
-      }
+      clientResults.headOption
     }
 
   def add(client: Client): Unit = {

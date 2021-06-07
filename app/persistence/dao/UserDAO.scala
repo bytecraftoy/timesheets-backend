@@ -11,25 +11,25 @@ import javax.inject.Inject
 
 @ImplementedBy(classOf[UserDAOAnorm])
 trait UserDAO extends DAO[User] {
-  def getAll(): Seq[User]
-  def getById(userId: UUID): User
+  def getAll: Seq[User]
+  def getById(userId: UUID): Option[User]
   def add(user: User): Unit
   def addUserToProject(userId: UUID, projectId: UUID): Unit
   def removeUserFromProject(userId: UUID, projectId: UUID): Unit
-  def getAllManagers(): Seq[User]
+  def getAllManagers: Seq[User]
   def getManagersByProjectId(projectId: UUID): Seq[User]
   def getEmployeesByProjectId(projectId: UUID): Seq[User]
 }
 
 // https://gist.github.com/davegurnell/4b432066b39949850b04
 class UserDAOAnorm @Inject() (db: Database) extends UserDAO with Logging {
-  def getAll(): Seq[User] = {
+  def getAll: Seq[User] = {
     val sql = SQL("SELECT * FROM app_user;")
     logger.debug(s"""UserDAOAnorm.getAll(), SQL = $sql""")
     getUsers(sql)
   }
 
-  def getAllManagers(): Seq[User] = {
+  def getAllManagers: Seq[User] = {
     val sql = SQL("SELECT * FROM app_user where is_manager = true;")
     logger.debug(s"""UserDAOAnorm.getAllManagers(), SQL = $sql""")
     getUsers(sql)
@@ -58,17 +58,13 @@ class UserDAOAnorm @Inject() (db: Database) extends UserDAO with Logging {
     getUsers(sql)
   }
 
-  def getById(userId: UUID): User = {
+  def getById(userId: UUID): Option[User] = {
     val sql =
       SQL("SELECT * FROM app_user WHERE app_user_id = {app_user_id}::uuid;")
         .on("app_user_id" -> userId)
     logger.debug(s"""UserDAOAnorm.getById($userId), SQL = $sql""")
     val results = getUsers(sql)
-    if (results.isEmpty) {
-      null
-    } else {
-      results.head
-    }
+    results.headOption
   }
 
   def add(user: User): Unit = {
@@ -150,8 +146,8 @@ class UserDAOAnorm @Inject() (db: Database) extends UserDAO with Logging {
             phoneNumber = phone_number getOrElse "",
             salary = salary getOrElse BigDecimal(0),
             isManager = is_manager,
-            created = timestamp_created.getTime(),
-            edited = timestamp_edited.getTime()
+            created = timestamp_created.getTime,
+            edited = timestamp_edited.getTime
           )
       }
       val allUsersParser: ResultSetParser[List[User]] = userParser.*

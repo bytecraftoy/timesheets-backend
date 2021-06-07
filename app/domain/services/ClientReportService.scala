@@ -132,7 +132,7 @@ class DevelopmentClientReportService @Inject() (
     )
 
     val complexProjects: List[Project] =
-      projectUuidList.map(uuid => projectRepo.byId(uuid))
+      projectUuidList.flatMap(uuid => projectRepo.byId(uuid))
 
     val simpleProjects: List[ProjectSimple] = complexProjects
       .filter(
@@ -197,7 +197,7 @@ class DevelopmentClientReportService @Inject() (
          |billable = $billable,
          |nonBillable = $nonBillable""".stripMargin)
 
-    val client: Client = clientRepo.byId(clientUuid)
+    val client: Client = clientRepo.byId(clientUuid).get // TODO: avoid calling get
     val simpleProjects: List[ProjectSimple] = getSimpleProjects(
       projectUuidList = projectUuidList,
       employeeUuidList = employeeUuidList,

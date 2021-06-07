@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 @ImplementedBy(classOf[DevelopmentProjectRepository])
 trait ProjectRepository extends Repository[Project] {
-  def byId(i: UUID): Project
+  def byId(i: UUID): Option[Project]
   def all: Seq[Project]
   def add(project: Project): Unit
   def update(project: Project): Unit
@@ -24,19 +24,19 @@ class DevelopmentProjectRepository @Inject() (
   userRepo: UserRepository
 ) extends ProjectRepository {
 
-  def byId(id: UUID): Project = projectDao.getById(id)
+  def byId(id: UUID): Option[Project] = projectDao.getById(id)
 
   def dtoAsProject(dto: AddProjectDTO): Project =
     Project(
       name = dto.name,
       description = dto.description,
-      client = clientRepo.byId(dto.client),
-      owner = userRepo.byId(dto.owner),
-      createdBy = userRepo.byId(dto.owner),
-      managers = List(userRepo.byId(dto.owner)),
-      editedBy = userRepo.byId(dto.owner),
+      client = clientRepo.byId(dto.client).get, // TODO: avoid calling get
+      owner = userRepo.byId(dto.owner).get, // TODO: avoid calling get
+      createdBy = userRepo.byId(dto.owner).get, // TODO: avoid calling get
+      managers = List(userRepo.byId(dto.owner).get), // TODO: avoid calling get
+      editedBy = userRepo.byId(dto.owner).get, // TODO: avoid calling get
       billable = dto.billable,
-      employees = dto.employees.map(userRepo.byId(_)),
+      employees = dto.employees.map(userRepo.byId(_).get), // TODO: avoid calling get
       hourlyCost = dto.hourlyCost
     )
 
@@ -45,17 +45,17 @@ class DevelopmentProjectRepository @Inject() (
       id = dto.id,
       name = dto.name,
       description = dto.description,
-      client = clientRepo.byId(dto.client),
-      owner = userRepo.byId(dto.owner),
-      createdBy = userRepo.byId(dto.owner),
-      managers = List(userRepo.byId(dto.owner)),
-      editedBy = userRepo.byId(dto.owner),
+      client = clientRepo.byId(dto.client).get, // TODO: avoid calling get
+      owner = userRepo.byId(dto.owner).get, // TODO: avoid calling get
+      createdBy = userRepo.byId(dto.owner).get, // TODO: avoid calling get
+      managers = List(userRepo.byId(dto.owner).get), // TODO: avoid calling get
+      editedBy = userRepo.byId(dto.owner).get, // TODO: avoid calling get
       billable = dto.billable,
-      employees = dto.employees.map(userRepo.byId(_)),
+      employees = dto.employees.map(userRepo.byId(_).get), // TODO: avoid calling get
       hourlyCost = dto.hourlyCost
     )
 
-  def all: Seq[Project]              = projectDao.getAll()
+  def all: Seq[Project]              = projectDao.getAll
   def add(project: Project): Unit    = projectDao.add(project)
   def update(project: Project): Unit = projectDao.update(project)
 }

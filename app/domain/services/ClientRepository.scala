@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 @ImplementedBy(classOf[DevelopmentClientRepository])
 trait ClientRepository extends Repository[Client] with Logging {
-  def byId(clientId: UUID): Client
+  def byId(clientId: UUID): Option[Client]
   def all: Seq[Client]
   def add(client: Client): Unit
 }
@@ -18,9 +18,9 @@ trait ClientRepository extends Repository[Client] with Logging {
 class DevelopmentClientRepository @Inject() (clientDao: ClientDAO)
     extends ClientRepository {
 
-  def byId(clientId: UUID): Client = clientDao.getById(clientId)
+  def byId(clientId: UUID): Option[Client] = clientDao.getById(clientId)
 
-  def all: Seq[Client] = clientDao.getAll()
+  def all: Seq[Client] = clientDao.getAll
 
   def add(client: Client): Unit = {
     if (client.name.isEmpty) {

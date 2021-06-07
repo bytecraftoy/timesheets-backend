@@ -52,7 +52,7 @@ class DevelopmentTimeInputRepository @Inject() (
 
   def all: Seq[TimeInput] = timeInputDAO.getAll()
 
-  def byId(id: UUID): TimeInput = timeInputDAO.getById(id)
+  def byId(id: UUID): Option[TimeInput] = timeInputDAO.getById(id)
 
   def byProject(i: UUID): Seq[TimeInput] = timeInputDAO.byProject(i)
 
@@ -102,15 +102,15 @@ class DevelopmentTimeInputRepository @Inject() (
   def dtoAsTimeInput(dto: AddTimeInputDTO): TimeInput = {
     TimeInput(
       input = dto.input,
-      project = projectRepository.byId(dto.project),
-      employee = userRepository.byId(dto.employee),
+      project = projectRepository.byId(dto.project).get, // TODO: avoid calling get
+      employee = userRepository.byId(dto.employee).get, // TODO: avoid calling get
       date = dto.date,
       description = dto.description
     )
   }
 
   def dtoAsTimeInput(dto: UpdateTimeInputDTO): TimeInput = {
-    val beforeUpdateModel: TimeInput = this.byId(dto.id)
+    val beforeUpdateModel: TimeInput = this.byId(dto.id).get // TODO: avoid calling get
     TimeInput(
       id = dto.id,
       input = dto.input,

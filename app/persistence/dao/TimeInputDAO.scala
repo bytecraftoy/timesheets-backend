@@ -14,7 +14,7 @@ import javax.inject.Inject
 @ImplementedBy(classOf[TimeInputDAOAnorm])
 trait TimeInputDAO extends DAO[TimeInput] {
   def getAll(): Seq[TimeInput]
-  def getById(timeInputId: UUID): TimeInput
+  def getById(timeInputId: UUID): Option[TimeInput]
   def add(timeInput: TimeInput): Unit
   def update(timeInput: TimeInput): Int
   def byProject(projectId: UUID): Seq[TimeInput]
@@ -142,18 +142,14 @@ class TimeInputDAOAnorm @Inject() (
     getTimeInputs(sql)
   }
 
-  def getById(timeInputId: UUID): TimeInput = {
+  def getById(timeInputId: UUID): Option[TimeInput] = {
     val sql = SQL(
       "SELECT * FROM timeinput " +
         "WHERE timeInput_id = {timeInputId}::uuid ;"
     ).on("timeInputId" -> timeInputId)
 
     val results = getTimeInputs(sql)
-    if (results.isEmpty) {
-      null
-    } else {
-      results.head
-    }
+    results.headOption
   }
 
   def add(timeInput: TimeInput): Unit = {
@@ -225,8 +221,8 @@ class TimeInputDAOAnorm @Inject() (
         case timeinput_id ~ app_user_id ~ project_id ~ input_date ~ minutes ~ description ~ timestamp_created ~ timestamp_edited =>
           TimeInput(
             id = timeinput_id,
-            employee = userRepository.byId(app_user_id),
-            project = projectRepository.byId(project_id),
+            employee = userRepository.byId(app_user_id).get, // TODO: avoid calling get
+            project = projectRepository.byId(project_id).get, // TODO: avoid calling get
             date = Instant
               .ofEpochMilli(input_date.getTime())
               .atZone(ZoneId.systemDefault())

@@ -266,8 +266,8 @@ class ProjectControllerSpec
       status(resultPut) mustBe OK
       contentType(resultPut) mustBe Some("application/json")
 
-      projectRepository.byId(projectUuid).name mustEqual "Test Project, updated"
-      projectRepository.byId(projectUuid).employees.size mustEqual 2
+      projectRepository.byId(projectUuid).get.name mustEqual "Test Project, updated" // TODO: avoid calling get
+      projectRepository.byId(projectUuid).get.employees.size mustEqual 2 // TODO: avoid calling get
     }
   }
 

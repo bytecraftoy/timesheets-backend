@@ -7,11 +7,11 @@ import java.util.UUID
 
 case class TimeInput(
   id: UUID = UUID.randomUUID(),
-  employee: User = null,
-  project: Project = null,
-  date: LocalDate = null,
+  employee: User,
+  project: Project,
+  date: LocalDate,
   input: Long = 0,
-  description: String = null,
+  description: String,
   created: Long = System.currentTimeMillis(),
   edited: Long = System.currentTimeMillis()
 )
