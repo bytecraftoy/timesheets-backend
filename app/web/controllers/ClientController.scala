@@ -3,14 +3,14 @@ package web.controllers
 import domain.models.Client
 import domain.services.ClientRepository
 import io.swagger.annotations._
+import org.h2.jdbc.JdbcSQLException
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc._
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import java.util.UUID
-import java.util.UUID.randomUUID
+import java.util.{NoSuchElementException, UUID}
 import javax.inject._
 
 @Api
@@ -33,15 +33,11 @@ class ClientController @Inject() (
   )
   def listClients: Action[AnyContent] =
     Action {
-      try {
-        val clients = clientRepo.all
-        val json    = Json.toJson(clients)
-        Ok(json)
-      } catch {
-        case error: Exception =>
-          logger.error(error.getMessage)
-          BadRequest(s"""{"message": "Error retrieving clients: $error"}""")
-            .as(JSON)
+      try { Ok(Json.toJson(clientRepo.all)) }
+      catch {
+        case unhandled: Exception =>
+          logger.error(unhandled.getMessage)
+          InternalServerError
       }
     }
 
@@ -53,7 +49,8 @@ class ClientController @Inject() (
         message = "Returned a client",
         response = classOf[Client]
       ),
-      new ApiResponse(code = 400, message = "Error retrieving client")
+      new ApiResponse(code = 400, message = "Error retrieving client"),
+      new ApiResponse(code = 404, message = "Client not found")
     )
   )
   def byId(
@@ -61,41 +58,43 @@ class ClientController @Inject() (
   ): Action[AnyContent] =
     Action {
       try {
-        val uuid   = UUID.fromString(id)
-        val client = clientRepo.byId(uuid)
-
-        if (client.nonEmpty) {
-          val json = Json.toJson(client)
-          Ok(json)
-        } else {
-          BadRequest(
-            s"""{"message": "Error retrieving a client with client id = $id"}"""
-          ).as(JSON)
-        }
-
+        Ok(Json.toJson(clientRepo.byId(UUID.fromString(id)).get))
       } catch {
-        case error: Exception =>
-          logger.error(error.getMessage)
-          BadRequest(s"""{"message": "Error retrieving a client: $error"}""")
-            .as(JSON)
+        case _: IllegalArgumentException => BadRequest
+        case _: NoSuchElementException   => NotFound
+        case unhandled: Exception =>
+          logger.error(unhandled.getMessage)
+          InternalServerError
       }
     }
 
   @ApiOperation(value = "Insert new client")
+  @ApiResponses(
+    Array(
+      new ApiResponse(
+        code = 201,
+        message = "Inserted new client",
+        response = classOf[Client]
+      ),
+      new ApiResponse(code = 200, message = "OK", response = classOf[Client]),
+      new ApiResponse(code = 400, message = "Bad request"),
+      new ApiResponse(code = 409, message = "Email already in use")
+    )
+  )
   def add(name: String, email: String): Action[AnyContent] =
     Action {
       try {
-        val ZERO: Long = 0;
-        val nameDec    = URLDecoder.decode(name, StandardCharsets.UTF_8.toString)
-        val emailDec   = URLDecoder.decode(email, StandardCharsets.UTF_8.toString)
-        clientRepo.add(Client(randomUUID(), nameDec, emailDec, ZERO, ZERO))
-        Ok(s"""{"message": "Successfully inserted a client: $nameDec"}""")
-          .as(JSON)
+        val decodedName  = URLDecoder.decode(name, StandardCharsets.UTF_8.toString)
+        val decodedEmail = URLDecoder.decode(email, StandardCharsets.UTF_8.toString)
+        val client   = Client(name = decodedName, email = decodedEmail)
+        clientRepo.add(client)
+        Created(Json.toJson(client))
       } catch {
-        case error: Exception =>
-          logger.error(error.getMessage)
-          BadRequest(s"""{"message": "Error inserting a client: $error"}""")
-            .as(JSON)
+        case _: IllegalArgumentException => BadRequest
+        case _: JdbcSQLException         => Conflict
+        case unhandled: Exception =>
+          logger.error(unhandled.getMessage)
+          InternalServerError
       }
     }
 }

@@ -34,7 +34,7 @@ class ClientControllerSpec
         s"/clients?name=$clientName&email=some.email@server.invalid"
       ).withHeaders("Content-type" -> "application/json")
       val response = route(app, request).get
-      status(response) mustBe OK
+      status(response) mustBe CREATED
       contentType(response) mustBe Some("application/json")
 
       val request2 = FakeRequest(GET, "/clients")
@@ -59,7 +59,7 @@ class ClientControllerSpec
         s"/clients?name=$clientName&email=duplicate.email@server.invalid"
       ).withHeaders("Content-type" -> "application/json")
       val response = route(app, request).get
-      status(response) mustBe OK
+      status(response) mustBe CREATED
       contentType(response) mustBe Some("application/json")
 
       val time2       = Clock.systemUTC().instant()
@@ -69,7 +69,7 @@ class ClientControllerSpec
         s"/clients?name=$clientName2&email=duplicate.email@server.invalid"
       ).withHeaders("Content-type" -> "application/json")
       val response2 = route(app, request2).get
-      status(response2) must not be OK
+      status(response2) must not be CREATED
     }
   }
 
