@@ -72,14 +72,13 @@ class EmployeeController @Inject() (
     Action {
       try {
         val employeeUuid: UUID        = UUID.fromString(employeeId)
-        val employee                  = userRepository.byId(employeeUuid)
         val allClients: Seq[Client]   = clientRepository.all
         val allProjects: Seq[Project] = projectRepository.all
         val clientsOfEmployee: Seq[Client] = allClients.filter { client =>
           val projectsContainingBoth = allProjects.filter(project => {
             project.client.id == client.id &&
-              (project.employees.contains(employee) ||
-                project.owner.contains(employee))
+              (project.employees.map(_.id).contains(employeeUuid) ||
+                project.owner.id.equals(employeeUuid))
           })
           projectsContainingBoth.nonEmpty
         }
