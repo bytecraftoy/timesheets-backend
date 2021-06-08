@@ -26,13 +26,13 @@ class DevelopmentClientRepository @Inject() (clientDao: ClientDAO)
     if (client.name.isEmpty) {
       val msg = "Client name empty"
       logger.error(msg)
-      throw new Exception(msg)
+      throw new IllegalArgumentException(msg)
     }
 
     if (client.email.isEmpty) {
       val msg = "Client e-mail empty"
       logger.error(msg)
-      throw new Exception(msg)
+      throw new IllegalArgumentException(msg)
     }
 
     clientDao.add(client)

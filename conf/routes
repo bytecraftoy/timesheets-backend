@@ -40,7 +40,7 @@ GET          /clients/:id/projects     web.controllers.ProjectController.listPro
 
 # Add a client
 + nocsrf # TODO: remove
-POST         /clients                  web.controllers.ClientController.add(name: String, email: String)
+POST         /clients                  web.controllers.ClientController.add()
 
 # Add a project
 + nocsrf # TODO: remove

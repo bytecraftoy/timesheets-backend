@@ -2,6 +2,7 @@ package controllers
 
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import play.api.test._
 
@@ -29,10 +30,14 @@ class ClientControllerSpec
 
       val time       = Clock.systemUTC().instant()
       val clientName = s"Automated Test client $time"
-      val request = FakeRequest(
-        POST,
-        s"/clients?name=$clientName&email=some.email@server.invalid"
-      ).withHeaders("Content-type" -> "application/json")
+      val jsonString =
+        s"""{"name": "$clientName",
+          |"email": "test@client.com"
+          }""".stripMargin
+      val json = Json.parse(jsonString)
+      val request = FakeRequest(POST, "/clients")
+        .withHeaders("Content-type" -> "application/json")
+        .withBody[JsValue](json)
       val response = route(app, request).get
       status(response) mustBe CREATED
       contentType(response) mustBe Some("application/json")
@@ -54,22 +59,25 @@ class ClientControllerSpec
 
       val time       = Clock.systemUTC().instant()
       val clientName = s"Automated Test client $time"
-      val request = FakeRequest(
-        POST,
-        s"/clients?name=$clientName&email=duplicate.email@server.invalid"
-      ).withHeaders("Content-type" -> "application/json")
+      val jsonString =
+        s"""{"name": "$clientName",
+           |"email": "duplicate@email.com"
+          }""".stripMargin
+      val json = Json.parse(jsonString)
+      val request = FakeRequest(POST, "/clients")
+        .withHeaders("Content-type" -> "application/json")
+        .withBody[JsValue](json)
       val response = route(app, request).get
       status(response) mustBe CREATED
       contentType(response) mustBe Some("application/json")
 
       val time2       = Clock.systemUTC().instant()
       val clientName2 = s"Automated Test client $time2"
-      val request2 = FakeRequest(
-        POST,
-        s"/clients?name=$clientName2&email=duplicate.email@server.invalid"
-      ).withHeaders("Content-type" -> "application/json")
+      val request2 = FakeRequest(POST, "/clients")
+        .withHeaders("Content-type" -> "application/json")
+        .withBody[JsValue](json)
       val response2 = route(app, request2).get
-      status(response2) must not be CREATED
+      status(response2) mustBe CONFLICT
     }
   }
 

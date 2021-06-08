@@ -7,6 +7,7 @@ import org.h2.jdbc.JdbcSQLException
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc._
+import web.dto.{AddClientDTO, ClientMapper}
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -16,7 +17,8 @@ import javax.inject._
 @Api
 class ClientController @Inject() (
   cc: ControllerComponents,
-  clientRepo: ClientRepository
+  clientRepo: ClientRepository,
+  clientMapper: ClientMapper
 ) extends AbstractController(cc)
     with Logging {
 
@@ -81,20 +83,25 @@ class ClientController @Inject() (
       new ApiResponse(code = 409, message = "Email already in use")
     )
   )
-  def add(name: String, email: String): Action[AnyContent] =
-    Action {
+  @ApiImplicitParams(
+    Array(
+      new ApiImplicitParam(
+        name = "Client to add",
+        paramType = "body",
+        dataType = "web.dto.AddClientDTO"
+      )
+    )
+  )
+  def add(): Action[AddClientDTO] =
+    Action(parse.json[AddClientDTO]) { request =>
       try {
-        val decodedName  = URLDecoder.decode(name, StandardCharsets.UTF_8.toString)
-        val decodedEmail = URLDecoder.decode(email, StandardCharsets.UTF_8.toString)
-        val client   = Client(name = decodedName, email = decodedEmail)
+        val clientDTO = request.body
+        val client    = clientMapper.dtoAsClient(clientDTO)
         clientRepo.add(client)
         Created(Json.toJson(client))
       } catch {
-        case _: IllegalArgumentException => BadRequest
-        case _: JdbcSQLException         => Conflict
-        case unhandled: Exception =>
-          logger.error(unhandled.getMessage)
-          InternalServerError
+        case error: IllegalArgumentException => BadRequest(error.getMessage)
+        case _: JdbcSQLException         => Conflict("Email already in use")
       }
     }
 }
