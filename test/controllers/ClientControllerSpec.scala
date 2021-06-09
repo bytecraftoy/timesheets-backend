@@ -26,15 +26,16 @@ class ClientControllerSpec
 
   "ClientController POST " should {
 
+    def jsonStringForPostBody(
+      clientName: String = "Some Client",
+      clientEmail: String = "some@client.com"
+    ): String = s"""{"name": "$clientName","email": "$clientEmail"}"""
+
     "add the client and return the added client in subsequent get results" in {
 
       val time       = Clock.systemUTC().instant()
       val clientName = s"Automated Test client $time"
-      val jsonString =
-        s"""{"name": "$clientName",
-          |"email": "test@client.com"
-          }""".stripMargin
-      val json = Json.parse(jsonString)
+      val json       = Json.parse(jsonStringForPostBody(clientName))
       val request = FakeRequest(POST, "/clients")
         .withHeaders("Content-type" -> "application/json")
         .withBody[JsValue](json)
@@ -51,19 +52,18 @@ class ClientControllerSpec
         contentAsString(response2).contains(clientName)
       bodyTextContainsAddedClient mustEqual true
     }
-  }
-
-  "ClientController POST " should {
 
     "fail if a client with the same e-mail is added more than one time" in {
 
-      val time       = Clock.systemUTC().instant()
-      val clientName = s"Automated Test client $time"
-      val jsonString =
-        s"""{"name": "$clientName",
-           |"email": "duplicate@email.com"
-          }""".stripMargin
-      val json = Json.parse(jsonString)
+      val duplicateEmail = "duplicate@client.com"
+      val time           = Clock.systemUTC().instant()
+      val clientName1    = s"Automated Test client $time"
+      val json = Json.parse(
+        jsonStringForPostBody(
+          clientName = clientName1,
+          clientEmail = duplicateEmail
+        )
+      )
       val request = FakeRequest(POST, "/clients")
         .withHeaders("Content-type" -> "application/json")
         .withBody[JsValue](json)
@@ -73,11 +73,26 @@ class ClientControllerSpec
 
       val time2       = Clock.systemUTC().instant()
       val clientName2 = s"Automated Test client $time2"
+      val json2 = Json.parse(
+        jsonStringForPostBody(
+          clientName = clientName2,
+          clientEmail = duplicateEmail
+        )
+      )
       val request2 = FakeRequest(POST, "/clients")
         .withHeaders("Content-type" -> "application/json")
-        .withBody[JsValue](json)
+        .withBody[JsValue](json2)
       val response2 = route(app, request2).get
       status(response2) mustBe CONFLICT
+    }
+
+    "fail if name or email is empty" in {
+      val json = Json.parse(jsonStringForPostBody("", ""))
+      val request = FakeRequest(POST, "/clients")
+        .withHeaders("Content-type" -> "application/json")
+        .withBody[JsValue](json)
+      val response = route(app, request).get
+      status(response) mustBe BAD_REQUEST
     }
   }
 
