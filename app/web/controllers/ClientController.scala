@@ -9,8 +9,6 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import web.dto.{AddClientDTO, ClientMapper}
 
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
 import java.util.{NoSuchElementException, UUID}
 import javax.inject._
 
@@ -37,8 +35,8 @@ class ClientController @Inject() (
     Action {
       try { Ok(Json.toJson(clientRepo.all)) }
       catch {
-        case unhandled: Exception =>
-          logger.error(unhandled.getMessage)
+        case t: Throwable =>
+          logger.error(t.getMessage, t)
           InternalServerError
       }
     }
@@ -64,8 +62,8 @@ class ClientController @Inject() (
       } catch {
         case _: IllegalArgumentException => BadRequest
         case _: NoSuchElementException   => NotFound
-        case unhandled: Exception =>
-          logger.error(unhandled.getMessage)
+        case t: Throwable =>
+          logger.error(t.getMessage, t)
           InternalServerError
       }
     }
@@ -101,7 +99,10 @@ class ClientController @Inject() (
         Created(Json.toJson(client))
       } catch {
         case error: IllegalArgumentException => BadRequest(error.getMessage)
-        case _: JdbcSQLException         => Conflict("Email already in use")
+        case _: JdbcSQLException             => Conflict("Email already in use")
+        case t: Throwable =>
+          logger.error(t.getMessage, t)
+          InternalServerError
       }
     }
 }
