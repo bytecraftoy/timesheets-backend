@@ -1,7 +1,7 @@
 package domain.services
 
 import com.google.inject.ImplementedBy
-import domain.models.Client
+import domain.models.{Client, InvalidDataException}
 import persistence.dao.ClientDAO
 import play.api.Logging
 
@@ -22,19 +22,21 @@ class DevelopmentClientRepository @Inject() (clientDao: ClientDAO)
 
   def all: Seq[Client] = clientDao.getAll
 
-  def add(client: Client): Unit = {
+  def validate(client: Client): Unit = {
     if (client.name.isEmpty) {
       val msg = "Client name empty"
       logger.error(msg)
       throw new IllegalArgumentException(msg)
     }
-
     if (client.email.isEmpty) {
       val msg = "Client e-mail empty"
       logger.error(msg)
       throw new IllegalArgumentException(msg)
     }
+  }
 
+  def add(client: Client): Unit = {
+    validate(client)
     clientDao.add(client)
   }
 }
