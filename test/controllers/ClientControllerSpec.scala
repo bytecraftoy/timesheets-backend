@@ -92,7 +92,7 @@ class ClientControllerSpec
         .withHeaders("Content-type" -> "application/json")
         .withBody[JsValue](json)
       val response = route(app, request).get
-      status(response) mustBe BAD_REQUEST
+      status(response) mustBe UNPROCESSABLE_ENTITY
     }
   }
 

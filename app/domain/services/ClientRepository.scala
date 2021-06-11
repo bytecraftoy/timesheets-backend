@@ -25,13 +25,11 @@ class DevelopmentClientRepository @Inject() (clientDao: ClientDAO)
   def validate(client: Client): Unit = {
     if (client.name.isEmpty) {
       val msg = "Client name empty"
-      logger.error(msg)
-      throw new IllegalArgumentException(msg)
+      throw new InvalidDataException(msg)
     }
     if (client.email.isEmpty) {
       val msg = "Client e-mail empty"
-      logger.error(msg)
-      throw new IllegalArgumentException(msg)
+      throw new InvalidDataException(msg)
     }
   }
 

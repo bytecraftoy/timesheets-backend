@@ -1,6 +1,6 @@
 package web.controllers
 
-import domain.models.{Client, ConflictException}
+import domain.models.{Client, ConflictException, InvalidDataException}
 import domain.services.ClientRepository
 import io.swagger.annotations._
 import play.api.Logging
@@ -77,7 +77,8 @@ class ClientController @Inject() (
       ),
       new ApiResponse(code = 200, message = "OK", response = classOf[Client]),
       new ApiResponse(code = 400, message = "Bad request"),
-      new ApiResponse(code = 409, message = "Email already in use")
+      new ApiResponse(code = 409, message = "Email already in use"),
+      new ApiResponse(code = 422, message = "Client name or email empty")
     )
   )
   @ApiImplicitParams(
@@ -97,8 +98,12 @@ class ClientController @Inject() (
         clientRepo.add(client)
         Created(Json.toJson(client))
       } catch {
-        case error: IllegalArgumentException => BadRequest(error.getMessage)
-        case conflict: ConflictException     => Conflict(conflict.getMessage)
+        case error: InvalidDataException =>
+          logger.error(error.getMessage,error)
+          UnprocessableEntity(error.getMessage)
+        case conflict: ConflictException =>
+          logger.error(conflict.getMessage,conflict)
+          Conflict(conflict.getMessage)
         case t: Throwable =>
           logger.error(t.getMessage, t)
           InternalServerError
