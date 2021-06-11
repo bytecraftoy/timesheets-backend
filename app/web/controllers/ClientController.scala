@@ -1,9 +1,8 @@
 package web.controllers
 
-import domain.models.Client
+import domain.models.{Client, ConflictException}
 import domain.services.ClientRepository
 import io.swagger.annotations._
-import org.h2.jdbc.JdbcSQLException
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -99,7 +98,7 @@ class ClientController @Inject() (
         Created(Json.toJson(client))
       } catch {
         case error: IllegalArgumentException => BadRequest(error.getMessage)
-        case _: JdbcSQLException             => Conflict("Email already in use")
+        case conflict: ConflictException     => Conflict(conflict.getMessage)
         case t: Throwable =>
           logger.error(t.getMessage, t)
           InternalServerError

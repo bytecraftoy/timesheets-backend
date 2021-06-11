@@ -145,7 +145,7 @@ class TimeInputDAOAnorm @Inject() (
   def getById(timeInputId: UUID): Option[TimeInput] = {
     val sql = SQL(
       "SELECT * FROM timeinput " +
-        "WHERE timeInput_id = {timeInputId}::uuid ;"
+        "WHERE timeinput_id = {timeInputId}::uuid ;"
     ).on("timeInputId" -> timeInputId)
 
     val results = getTimeInputs(sql)
@@ -155,7 +155,7 @@ class TimeInputDAOAnorm @Inject() (
   def add(timeInput: TimeInput): Unit = {
     db.withConnection { implicit connection =>
       val sql =
-        "INSERT INTO timeInput (timeInput_id, " +
+        "INSERT INTO timeinput (timeinput_id, " +
           "app_user_id, " +
           "project_id, " +
           "input_date, " +
@@ -188,7 +188,7 @@ class TimeInputDAOAnorm @Inject() (
   def update(timeInput: TimeInput): Int = {
     db.withConnection { implicit connection =>
       val sql =
-        "UPDATE timeInput SET (minutes, description, timestamp_edited)" +
+        "UPDATE timeinput SET (minutes, description, timestamp_edited)" +
           " = ({input}, {description}, CURRENT_TIMESTAMP)" +
           " WHERE timeinput_id = {id}::uuid ;"
       logger.debug(s"""TimeInputDAOAnorm.update, SQL = $sql""")

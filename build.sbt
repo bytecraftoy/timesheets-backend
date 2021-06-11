@@ -17,7 +17,7 @@ libraryDependencies += "org.scalatestplus" %% "junit-4-13" % "3.2.2.0" % "test"
 libraryDependencies ++= Seq(
   evolutions,
   jdbc,
-  "com.h2database"           % "h2"         % "1.4.195",
+  "com.h2database"           % "h2"         % "1.4.200",
   "org.playframework.anorm" %% "anorm"      % "2.6.8",
   "org.postgresql"           % "postgresql" % "42.2.18"
 )
