@@ -5,6 +5,7 @@ import org.scalatestplus.play.guice._
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import play.api.test._
+import web.dto.AddClientDTO
 
 import java.time.Clock
 
@@ -26,16 +27,13 @@ class ClientControllerSpec
 
   "ClientController POST " should {
 
-    def jsonStringForPostBody(
-      clientName: String = "Some Client",
-      clientEmail: String = "some@client.com"
-    ): String = s"""{"name": "$clientName","email": "$clientEmail"}"""
-
     "add the client and return the added client in subsequent get results" in {
 
-      val time       = Clock.systemUTC().instant()
-      val clientName = s"Automated Test client $time"
-      val json       = Json.parse(jsonStringForPostBody(clientName))
+      val time         = Clock.systemUTC().instant()
+      val clientName   = s"Automated Test client $time"
+      val clientEmail  = "some@client.com"
+      val addClientDTO = AddClientDTO(name = clientName, email = clientEmail)
+      val json         = Json.toJson(addClientDTO)
       val request = FakeRequest(POST, "/clients")
         .withHeaders("Content-type" -> "application/json")
         .withBody[JsValue](json)
@@ -58,12 +56,8 @@ class ClientControllerSpec
       val duplicateEmail = "duplicate@client.com"
       val time           = Clock.systemUTC().instant()
       val clientName1    = s"Automated Test client $time"
-      val json = Json.parse(
-        jsonStringForPostBody(
-          clientName = clientName1,
-          clientEmail = duplicateEmail
-        )
-      )
+      val json =
+        Json.toJson(AddClientDTO(name = clientName1, email = duplicateEmail))
       val request = FakeRequest(POST, "/clients")
         .withHeaders("Content-type" -> "application/json")
         .withBody[JsValue](json)
@@ -73,12 +67,8 @@ class ClientControllerSpec
 
       val time2       = Clock.systemUTC().instant()
       val clientName2 = s"Automated Test client $time2"
-      val json2 = Json.parse(
-        jsonStringForPostBody(
-          clientName = clientName2,
-          clientEmail = duplicateEmail
-        )
-      )
+      val json2 =
+        Json.toJson(AddClientDTO(name = clientName2, email = duplicateEmail))
       val request2 = FakeRequest(POST, "/clients")
         .withHeaders("Content-type" -> "application/json")
         .withBody[JsValue](json2)
@@ -87,7 +77,7 @@ class ClientControllerSpec
     }
 
     "fail if name or email is empty" in {
-      val json = Json.parse(jsonStringForPostBody("", ""))
+      val json = Json.toJson(AddClientDTO(name = "", email = ""))
       val request = FakeRequest(POST, "/clients")
         .withHeaders("Content-type" -> "application/json")
         .withBody[JsValue](json)
