@@ -2,7 +2,7 @@ package persistence.dao
 
 import anorm.{ResultSetParser, _}
 import com.google.inject.ImplementedBy
-import domain.models.Client
+import domain.models.{Client, ConflictException}
 import play.api.Logging
 import play.api.db.Database
 
@@ -58,11 +58,13 @@ class ClientDAOAnorm @Inject() (db: Database) extends ClientDAO with Logging {
     db.withConnection { implicit connection =>
       val sql =
         "INSERT INTO client (client_id, name, email, timestamp_created, timestamp_edited)" +
-          " VALUES ({id}::uuid, {name}, {email}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);"
+          " VALUES ({id}::uuid, {name}, {email}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)" +
+          " ON CONFLICT DO NOTHING;"
       logger.debug(s"ClientDAOAnorm.add, SQL = $sql")
-      SQL(sql)
+      val rowsAffected: Int = SQL(sql)
         .bind(client)
-        .executeInsert(anorm.SqlParser.scalar[java.util.UUID].singleOpt)
+        .executeUpdate()
+      if (rowsAffected == 0) throw new ConflictException("Email already in use")
     }
   }
 
